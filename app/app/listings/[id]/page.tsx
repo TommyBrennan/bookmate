@@ -78,14 +78,23 @@ export default function ListingDetailPage() {
     }
   };
 
+  const isValidTelegramLink = (link: string) => {
+    return /^https:\/\/t\.me\/[\w+/]+$/.test(link.trim());
+  };
+
+  const telegramLinkError = telegramLink && !isValidTelegramLink(telegramLink)
+    ? "Link must start with https://t.me/ (e.g., https://t.me/+AbCdEfGhIjK)"
+    : "";
+
   const handleTelegramSave = async () => {
+    if (!isValidTelegramLink(telegramLink)) return;
     setTelegramSaving(true);
     setError("");
     try {
       const res = await fetch(`/api/listings/${id}/telegram`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telegramLink }),
+        body: JSON.stringify({ telegramLink: telegramLink.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -294,49 +303,107 @@ export default function ListingDetailPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary inline-block"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
               >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
                 Join Telegram Group
               </a>
+              {listing.isAuthor && (
+                <p
+                  className="text-xs mt-3"
+                  style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                >
+                  Link shared: {listing.telegram_link}
+                </p>
+              )}
             </div>
           ) : listing.isAuthor ? (
-            <div>
+            <div style={{ fontFamily: "system-ui, sans-serif" }}>
               <p
-                className="text-sm mb-3"
-                style={{
-                  color: "var(--color-text-secondary)",
-                  fontFamily: "system-ui, sans-serif",
-                }}
+                className="text-sm mb-4"
+                style={{ color: "var(--color-text-secondary)" }}
               >
                 Your reading group is full! Create a Telegram group and share
-                the invite link with your readers:
+                the invite link so your readers can connect.
               </p>
+
+              {/* Step-by-step instructions */}
+              <div
+                className="mb-4 p-4 rounded-lg"
+                style={{ backgroundColor: "rgba(224, 122, 58, 0.05)", border: "1px solid rgba(224, 122, 58, 0.15)" }}
+              >
+                <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-accent)" }}>
+                  How to create a Telegram group:
+                </p>
+                <ol className="text-sm space-y-1.5" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                  <li>Open Telegram and tap the pencil/compose icon</li>
+                  <li>Select <strong style={{ color: "var(--color-text)" }}>New Group</strong></li>
+                  <li>Name it something like <strong style={{ color: "var(--color-text)" }}>&quot;{listing.book_title} Reading Group&quot;</strong></li>
+                  <li>You can skip adding members for now — add them via the invite link</li>
+                  <li>
+                    Open the group, tap the group name at the top, then{" "}
+                    <strong style={{ color: "var(--color-text)" }}>Invite via Link</strong>
+                  </li>
+                  <li>Copy the invite link (it looks like <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "0.1rem 0.3rem", borderRadius: "0.25rem", fontSize: "0.8rem" }}>https://t.me/+AbCdEfG...</code>)</li>
+                  <li>Paste it below and hit Save</li>
+                </ol>
+              </div>
+
               <div className="flex gap-2">
-                <input
-                  type="url"
-                  className="input-field flex-1"
-                  placeholder="https://t.me/..."
-                  value={telegramLink}
-                  onChange={(e) => setTelegramLink(e.target.value)}
-                />
+                <div className="flex-1">
+                  <input
+                    type="url"
+                    className="input-field"
+                    placeholder="https://t.me/+..."
+                    value={telegramLink}
+                    onChange={(e) => setTelegramLink(e.target.value)}
+                    style={{
+                      borderColor: telegramLinkError
+                        ? "var(--color-error)"
+                        : telegramLink && !telegramLinkError
+                          ? "var(--color-success)"
+                          : undefined,
+                    }}
+                  />
+                  {telegramLinkError && (
+                    <p className="text-xs mt-1" style={{ color: "var(--color-error)" }}>
+                      {telegramLinkError}
+                    </p>
+                  )}
+                  {telegramLink && !telegramLinkError && (
+                    <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>
+                      Valid Telegram link
+                    </p>
+                  )}
+                </div>
                 <button
                   className="btn-primary"
                   onClick={handleTelegramSave}
-                  disabled={telegramSaving}
+                  disabled={telegramSaving || !telegramLink || !!telegramLinkError}
+                  style={{ alignSelf: "flex-start" }}
                 >
-                  {telegramSaving ? "Saving..." : "Save"}
+                  {telegramSaving ? "Saving..." : "Save link"}
                 </button>
               </div>
             </div>
           ) : (
-            <p
-              className="text-sm"
-              style={{
-                color: "var(--color-text-secondary)",
-                fontFamily: "system-ui, sans-serif",
-              }}
-            >
-              Waiting for the organizer to share the Telegram group link...
-            </p>
+            <div style={{ fontFamily: "system-ui, sans-serif" }}>
+              <p
+                className="text-sm mb-2"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                Waiting for the organizer to share the Telegram group link...
+              </p>
+              <p
+                className="text-xs"
+                style={{ color: "var(--color-text-secondary)", opacity: 0.7 }}
+              >
+                The organizer ({listing.author_name}) will share a Telegram invite link once
+                they set up the group. Check back soon!
+              </p>
+            </div>
           )}
         </div>
       )}
