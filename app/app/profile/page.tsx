@@ -1,7 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+interface ReadingItem {
+  id: number;
+  book_title: string;
+  book_author: string;
+  book_cover_url: string;
+  reading_pace: string;
+  start_date: string;
+  meeting_format: string;
+  is_full: number;
+  telegram_link: string;
+  member_count: number;
+  max_group_size: number;
+  author_name: string;
+  joined_at: string;
+}
+
+type TabKey = "profile" | "reading" | "genres";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -11,6 +30,22 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState<TabKey>("profile");
+
+  // Reading activity
+  const [active, setActive] = useState<ReadingItem[]>([]);
+  const [history, setHistory] = useState<ReadingItem[]>([]);
+  const [upcoming, setUpcoming] = useState<ReadingItem[]>([]);
+  const [readingLoading, setReadingLoading] = useState(false);
+
+  // Genres
+  const [userGenres, setUserGenres] = useState<string[]>([]);
+  const [availableGenres, setAvailableGenres] = useState<string[]>([]);
+  const [genresLoading, setGenresLoading] = useState(false);
+  const [genresSaving, setGenresSaving] = useState(false);
+  const [genresMessage, setGenresMessage] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -26,6 +61,36 @@ export default function ProfilePage() {
         setLoading(false);
       });
   }, [router]);
+
+  const fetchReading = useCallback(() => {
+    setReadingLoading(true);
+    fetch("/api/profile/reading")
+      .then((r) => r.json())
+      .then((data) => {
+        setActive(data.active || []);
+        setHistory(data.history || []);
+        setUpcoming(data.upcoming || []);
+        setReadingLoading(false);
+      })
+      .catch(() => setReadingLoading(false));
+  }, []);
+
+  const fetchGenres = useCallback(() => {
+    setGenresLoading(true);
+    fetch("/api/profile/genres")
+      .then((r) => r.json())
+      .then((data) => {
+        setUserGenres(data.genres || []);
+        setAvailableGenres(data.available || []);
+        setGenresLoading(false);
+      })
+      .catch(() => setGenresLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "reading") fetchReading();
+    if (activeTab === "genres") fetchGenres();
+  }, [activeTab, fetchReading, fetchGenres]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +116,33 @@ export default function ProfilePage() {
     }
   };
 
+  const toggleGenre = (genre: string) => {
+    setUserGenres((prev) =>
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
+    );
+  };
+
+  const saveGenres = async () => {
+    setGenresSaving(true);
+    setGenresMessage("");
+    try {
+      const res = await fetch("/api/profile/genres", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ genres: userGenres }),
+      });
+      if (res.ok) {
+        setGenresMessage("Genres saved!");
+      } else {
+        setGenresMessage("Failed to save genres");
+      }
+    } catch {
+      setGenresMessage("Something went wrong");
+    } finally {
+      setGenresSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center py-16" style={{ color: "var(--color-text-secondary)" }}>
@@ -59,81 +151,374 @@ export default function ProfilePage() {
     );
   }
 
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "profile", label: "Profile" },
+    { key: "reading", label: "Reading Activity" },
+    { key: "genres", label: "Favorite Genres" },
+  ];
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl mb-6">Your Profile</h1>
 
-      <form onSubmit={handleSave} className="card space-y-4">
-        <div>
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            className="input-field"
-            value={email}
-            disabled
-            style={{ opacity: 0.6 }}
-          />
-        </div>
-
-        <div>
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Display name
-          </label>
-          <input
-            type="text"
-            className="input-field"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Bio
-          </label>
-          <textarea
-            className="input-field"
-            rows={3}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell other readers about yourself..."
-          />
-        </div>
-
-        {message && (
-          <p
-            className="text-sm"
+      {/* Tabs */}
+      <div
+        className="flex gap-1 mb-6 p-1 rounded-lg"
+        style={{ backgroundColor: "var(--color-border)" }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className="flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all"
             style={{
-              color: message.includes("updated")
-                ? "var(--color-success)"
-                : "var(--color-error)",
               fontFamily: "system-ui, sans-serif",
+              backgroundColor: activeTab === tab.key ? "var(--color-surface)" : "transparent",
+              color: activeTab === tab.key ? "var(--color-text)" : "var(--color-text-secondary)",
+              boxShadow: activeTab === tab.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+              cursor: "pointer",
+              border: "none",
             }}
           >
-            {message}
-          </p>
-        )}
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        <button
-          type="submit"
-          className="btn-primary w-full"
-          disabled={saving}
+      {/* Profile Tab */}
+      {activeTab === "profile" && (
+        <form onSubmit={handleSave} className="card space-y-4">
+          <div>
+            <label
+              className="block text-sm font-semibold mb-1"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              className="input-field"
+              value={email}
+              disabled
+              style={{ opacity: 0.6 }}
+            />
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-semibold mb-1"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Display name
+            </label>
+            <input
+              type="text"
+              className="input-field"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              className="block text-sm font-semibold mb-1"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Bio
+            </label>
+            <textarea
+              className="input-field"
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell other readers about yourself..."
+            />
+          </div>
+
+          {message && (
+            <p
+              className="text-sm"
+              style={{
+                color: message.includes("updated")
+                  ? "var(--color-success)"
+                  : "var(--color-error)",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              {message}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="btn-primary w-full"
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save changes"}
+          </button>
+        </form>
+      )}
+
+      {/* Reading Activity Tab */}
+      {activeTab === "reading" && (
+        <div className="space-y-6">
+          {readingLoading ? (
+            <div className="text-center py-8" style={{ color: "var(--color-text-secondary)" }}>
+              <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading reading activity...</p>
+            </div>
+          ) : (
+            <>
+              {/* Currently Reading / Active */}
+              <ReadingSection
+                title="Currently Reading"
+                items={active}
+                emptyText="No active reading groups"
+                formatDate={formatDate}
+                variant="active"
+              />
+
+              {/* Upcoming */}
+              <ReadingSection
+                title="Upcoming"
+                items={upcoming}
+                emptyText="No upcoming reading groups"
+                formatDate={formatDate}
+                variant="upcoming"
+              />
+
+              {/* Reading History */}
+              <ReadingSection
+                title="Reading History"
+                items={history}
+                emptyText="No completed reading groups yet"
+                formatDate={formatDate}
+                variant="history"
+              />
+
+              {active.length === 0 && upcoming.length === 0 && history.length === 0 && (
+                <div className="card text-center py-8">
+                  <p
+                    className="mb-2"
+                    style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                  >
+                    You haven&apos;t joined any reading groups yet
+                  </p>
+                  <Link href="/" className="btn-primary inline-block">
+                    Browse Listings
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Favorite Genres Tab */}
+      {activeTab === "genres" && (
+        <div className="card space-y-4">
+          <p
+            className="text-sm"
+            style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+          >
+            Select your favorite genres to help others find reading companions with similar tastes.
+          </p>
+
+          {genresLoading ? (
+            <div className="text-center py-4" style={{ color: "var(--color-text-secondary)" }}>
+              <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading...</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {availableGenres.map((genre) => {
+                  const selected = userGenres.includes(genre);
+                  return (
+                    <button
+                      key={genre}
+                      onClick={() => toggleGenre(genre)}
+                      className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+                      style={{
+                        fontFamily: "system-ui, sans-serif",
+                        backgroundColor: selected ? "var(--color-accent)" : "transparent",
+                        color: selected ? "white" : "var(--color-text)",
+                        border: `1.5px solid ${selected ? "var(--color-accent)" : "var(--color-border)"}`,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {selected ? `\u2713 ${genre}` : genre}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {userGenres.length > 0 && (
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                >
+                  {userGenres.length} genre{userGenres.length !== 1 ? "s" : ""} selected
+                </p>
+              )}
+
+              {genresMessage && (
+                <p
+                  className="text-sm"
+                  style={{
+                    color: genresMessage.includes("saved")
+                      ? "var(--color-success)"
+                      : "var(--color-error)",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  {genresMessage}
+                </p>
+              )}
+
+              <button
+                onClick={saveGenres}
+                className="btn-primary w-full"
+                disabled={genresSaving}
+              >
+                {genresSaving ? "Saving..." : "Save genres"}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Reading Section Component */
+function ReadingSection({
+  title,
+  items,
+  emptyText,
+  formatDate,
+  variant,
+}: {
+  title: string;
+  items: ReadingItem[];
+  emptyText: string;
+  formatDate: (s: string) => string;
+  variant: "active" | "upcoming" | "history";
+}) {
+  if (items.length === 0 && variant !== "active") return null;
+
+  const badgeColors = {
+    active: { bg: "rgba(45, 138, 86, 0.1)", color: "var(--color-success)" },
+    upcoming: { bg: "rgba(224, 122, 58, 0.1)", color: "var(--color-accent)" },
+    history: { bg: "rgba(107, 107, 107, 0.1)", color: "var(--color-text-secondary)" },
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="text-lg">{title}</h2>
+        <span
+          className="badge"
+          style={{
+            backgroundColor: badgeColors[variant].bg,
+            color: badgeColors[variant].color,
+          }}
         >
-          {saving ? "Saving..." : "Save changes"}
-        </button>
-      </form>
+          {items.length}
+        </span>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="card">
+          <p
+            className="text-sm text-center py-4"
+            style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+          >
+            {emptyText}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <Link
+              key={item.id}
+              href={`/listings/${item.id}`}
+              className="card flex gap-4 items-start hover:shadow-md transition-shadow"
+              style={{ display: "flex", textDecoration: "none", color: "inherit" }}
+            >
+              {/* Book Cover */}
+              {item.book_cover_url ? (
+                <img
+                  src={item.book_cover_url}
+                  alt={item.book_title}
+                  style={{
+                    width: 48,
+                    height: 72,
+                    objectFit: "cover",
+                    borderRadius: 4,
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 48,
+                    height: 72,
+                    backgroundColor: "var(--color-border)",
+                    borderRadius: 4,
+                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>&#128214;</span>
+                </div>
+              )}
+
+              {/* Book Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3
+                  className="font-semibold text-sm"
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.book_title}
+                </h3>
+                <p
+                  className="text-xs"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  by {item.book_author}
+                </p>
+                <div
+                  className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  <span>{item.reading_pace}</span>
+                  <span>Starts {formatDate(item.start_date)}</span>
+                  <span>
+                    {item.member_count}/{item.max_group_size} members
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
