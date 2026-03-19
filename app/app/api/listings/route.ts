@@ -1,7 +1,38 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+
+  const q = searchParams.get("q")?.trim() || "";
+  const meetingFormat = searchParams.get("meeting_format") || "";
+  const readingPace = searchParams.get("reading_pace") || "";
+  const sort = searchParams.get("sort") || "newest";
+
+  const conditions: string[] = ["l.is_full = 0"];
+  const params: (string | number)[] = [];
+
+  if (q) {
+    conditions.push("(l.book_title LIKE ? OR l.book_author LIKE ?)");
+    params.push(`%${q}%`, `%${q}%`);
+  }
+
+  if (meetingFormat && ["voice", "text", "mixed"].includes(meetingFormat)) {
+    conditions.push("l.meeting_format = ?");
+    params.push(meetingFormat);
+  }
+
+  if (readingPace) {
+    conditions.push("l.reading_pace LIKE ?");
+    params.push(`%${readingPace}%`);
+  }
+
+  const whereClause = conditions.join(" AND ");
+
+  let orderClause = "l.created_at DESC";
+  if (sort === "oldest") orderClause = "l.created_at ASC";
+  else if (sort === "start_date") orderClause = "l.start_date ASC";
+
   const listings = db
     .prepare(
       `SELECT
@@ -10,10 +41,10 @@ export async function GET() {
         (SELECT COUNT(*) FROM listing_members WHERE listing_id = l.id) as member_count
       FROM listings l
       JOIN users u ON l.author_id = u.id
-      WHERE l.is_full = 0
-      ORDER BY l.created_at DESC`
+      WHERE ${whereClause}
+      ORDER BY ${orderClause}`
     )
-    .all();
+    .all(...params);
 
   return NextResponse.json({ listings });
 }
