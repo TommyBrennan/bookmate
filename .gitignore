@@ -7,3 +7,4 @@ app/.next/
 app/data/
 .env
 .env.local
+.claude-beat/logs/sessions/
