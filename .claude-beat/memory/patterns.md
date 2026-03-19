@@ -28,6 +28,11 @@
 - `useRef<T>()` needs explicit `undefined` arg in React 19: `useRef<T>(undefined)`
 - better-sqlite3 `.all()` returns `unknown[]` — cast explicitly for TS
 
+## Browser Testing
+- agent-browser crashes consistently in this container environment ("Page crashed")
+- Workaround: use `curl` to verify HTML output and API responses
+- For API testing: `curl -s URL | python3 -m json.tool`
+
 ## Working Directory
 - Project root: /root/Projects/bookmate
 - App directory: /root/Projects/bookmate/app
