@@ -72,6 +72,27 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (listing_id) REFERENCES listings(id)
   );
+
+  CREATE TABLE IF NOT EXISTS listing_applications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    listing_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending'
+      CHECK(status IN ('pending', 'approved', 'rejected')),
+    message TEXT DEFAULT '',
+    applied_at TEXT DEFAULT (datetime('now')),
+    decided_at TEXT,
+    UNIQUE(listing_id, user_id),
+    FOREIGN KEY (listing_id) REFERENCES listings(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
 `);
+
+// Idempotent migration: add requires_approval column
+try {
+  db.exec("ALTER TABLE listings ADD COLUMN requires_approval INTEGER DEFAULT 0");
+} catch {
+  // Column already exists — safe to ignore
+}
 
 export default db;

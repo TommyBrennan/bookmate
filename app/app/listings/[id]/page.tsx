@@ -10,6 +10,14 @@ interface Member {
   joined_at: string;
 }
 
+interface Applicant {
+  application_id: number;
+  id: number;
+  display_name: string;
+  bio: string;
+  applied_at: string;
+}
+
 interface Listing {
   id: number;
   author_id: number;
@@ -23,12 +31,16 @@ interface Listing {
   max_group_size: number;
   telegram_link: string;
   is_full: number;
+  requires_approval: number;
   created_at: string;
   author_name: string;
   members: Member[];
   memberCount: number;
   isMember: boolean;
   isAuthor: boolean;
+  hasApplied: boolean;
+  applicationStatus: string;
+  pendingApplicants: Applicant[];
 }
 
 export default function ListingDetailPage() {
@@ -37,6 +49,8 @@ export default function ListingDetailPage() {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [decidingId, setDecidingId] = useState<number | null>(null);
   const [telegramLink, setTelegramLink] = useState("");
   const [telegramSaving, setTelegramSaving] = useState(false);
   const [error, setError] = useState("");
@@ -75,6 +89,50 @@ export default function ListingDetailPage() {
       setError("Failed to join. Please try again.");
     } finally {
       setJoining(false);
+    }
+  };
+
+  const handleApply = async () => {
+    setApplying(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}/apply`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) {
+          router.push("/auth/login");
+          return;
+        }
+        setError(data.error);
+        return;
+      }
+      await fetchListing();
+    } catch {
+      setError("Failed to apply. Please try again.");
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const handleDecision = async (applicationId: number, action: "approve" | "reject") => {
+    setDecidingId(applicationId);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}/applications`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        return;
+      }
+      await fetchListing();
+    } catch {
+      setError("Failed to process application. Please try again.");
+    } finally {
+      setDecidingId(null);
     }
   };
 
@@ -187,6 +245,20 @@ export default function ListingDetailPage() {
               by {listing.book_author}
             </p>
 
+            {listing.requires_approval ? (
+              <span
+                className="badge mb-3"
+                style={{
+                  backgroundColor: "rgba(224, 122, 58, 0.1)",
+                  color: "var(--color-accent)",
+                  fontSize: "0.7rem",
+                  fontFamily: "system-ui, sans-serif",
+                }}
+              >
+                Approval required
+              </span>
+            ) : null}
+
             <div
               className="grid grid-cols-2 gap-y-2 gap-x-6 text-sm"
               style={{ fontFamily: "system-ui, sans-serif" }}
@@ -245,7 +317,7 @@ export default function ListingDetailPage() {
             )}
           </div>
 
-          {!listing.isMember && !listing.is_full && (
+          {!listing.isMember && !listing.is_full && !listing.requires_approval && (
             <button
               className="btn-primary"
               onClick={handleJoin}
@@ -253,6 +325,28 @@ export default function ListingDetailPage() {
             >
               {joining ? "Joining..." : "Join this group"}
             </button>
+          )}
+
+          {!listing.isMember && !listing.is_full && listing.requires_approval && !listing.hasApplied && (
+            <button
+              className="btn-primary"
+              onClick={handleApply}
+              disabled={applying}
+            >
+              {applying ? "Applying..." : "Apply to join"}
+            </button>
+          )}
+
+          {!listing.isMember && listing.hasApplied && (
+            <span
+              className="badge"
+              style={{
+                backgroundColor: "rgba(224, 122, 58, 0.1)",
+                color: "var(--color-accent)",
+              }}
+            >
+              Application pending
+            </span>
           )}
 
           {listing.isMember && (
@@ -267,7 +361,7 @@ export default function ListingDetailPage() {
             </span>
           )}
 
-          {listing.is_full && !listing.isMember && (
+          {listing.is_full && !listing.isMember && !listing.hasApplied && (
             <span
               className="badge"
               style={{
@@ -405,6 +499,68 @@ export default function ListingDetailPage() {
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Pending Applicants — visible to author on approval-gated listings */}
+      {listing.isAuthor && listing.requires_approval && listing.pendingApplicants.length > 0 && (
+        <div className="card mb-6">
+          <h2 className="text-lg mb-3">
+            Pending Applicants ({listing.pendingApplicants.length})
+          </h2>
+          <div className="space-y-3">
+            {listing.pendingApplicants.map((applicant) => (
+              <div
+                key={applicant.application_id}
+                className="flex items-center gap-3"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                  style={{ backgroundColor: "#6b7280", flexShrink: 0 }}
+                >
+                  {applicant.display_name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold">{applicant.display_name}</div>
+                  {applicant.bio && (
+                    <div
+                      className="text-xs truncate"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      {applicant.bio}
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2" style={{ flexShrink: 0 }}>
+                  <button
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: "var(--color-accent)",
+                      color: "white",
+                      border: "none",
+                    }}
+                    onClick={() => handleDecision(applicant.application_id, "approve")}
+                    disabled={decidingId === applicant.application_id}
+                  >
+                    {decidingId === applicant.application_id ? "..." : "Approve"}
+                  </button>
+                  <button
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: "rgba(192, 57, 43, 0.08)",
+                      color: "var(--color-error)",
+                      border: "none",
+                    }}
+                    onClick={() => handleDecision(applicant.application_id, "reject")}
+                    disabled={decidingId === applicant.application_id}
+                  >
+                    {decidingId === applicant.application_id ? "..." : "Reject"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

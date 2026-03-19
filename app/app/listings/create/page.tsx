@@ -18,6 +18,7 @@ export default function CreateListingPage() {
   const [startDate, setStartDate] = useState("");
   const [meetingFormat, setMeetingFormat] = useState("text");
   const [maxGroupSize, setMaxGroupSize] = useState("4");
+  const [requiresApproval, setRequiresApproval] = useState(false);
 
   const handleBookSelect = (book: {
     title: string;
@@ -50,6 +51,7 @@ export default function CreateListingPage() {
           startDate,
           meetingFormat,
           maxGroupSize,
+          requiresApproval,
         }),
       });
 
@@ -258,6 +260,55 @@ export default function CreateListingPage() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div
+          className="flex items-start gap-3 p-4 rounded-lg cursor-pointer"
+          style={{
+            backgroundColor: requiresApproval
+              ? "rgba(224, 122, 58, 0.06)"
+              : "transparent",
+            border: requiresApproval
+              ? "1.5px solid var(--color-accent)"
+              : "1.5px solid var(--color-border)",
+          }}
+          onClick={() => setRequiresApproval(!requiresApproval)}
+        >
+          <div
+            className="w-5 h-5 rounded flex items-center justify-center mt-0.5"
+            style={{
+              flexShrink: 0,
+              backgroundColor: requiresApproval
+                ? "var(--color-accent)"
+                : "transparent",
+              border: requiresApproval
+                ? "none"
+                : "2px solid var(--color-border)",
+            }}
+          >
+            {requiresApproval && (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="white">
+                <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <div>
+            <div
+              className="text-sm font-semibold"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              Require approval for new members
+            </div>
+            <div
+              className="text-xs mt-0.5"
+              style={{
+                color: "var(--color-text-secondary)",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              Members must be approved by you before joining the group.
+            </div>
+          </div>
         </div>
 
         <button

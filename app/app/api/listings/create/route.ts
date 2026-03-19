@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       startDate,
       meetingFormat,
       maxGroupSize,
+      requiresApproval,
     } = body;
 
     if (!bookTitle || !bookAuthor || !readingPace || !startDate || !meetingFormat || !maxGroupSize) {
@@ -46,8 +47,8 @@ export async function POST(req: NextRequest) {
 
     const result = db
       .prepare(
-        `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         session.userId,
@@ -59,7 +60,8 @@ export async function POST(req: NextRequest) {
         readingPace.trim(),
         startDate,
         meetingFormat,
-        size
+        size,
+        requiresApproval ? 1 : 0
       );
 
     // Auto-join the author as a member

@@ -41,6 +41,35 @@ export async function GET(
     ? listing.author_id === session.userId
     : false;
 
+  // Check if the current user has a pending application
+  let hasApplied = false;
+  let applicationStatus = "";
+  if (session.userId && !isMember && listing.requires_approval) {
+    const app = db
+      .prepare(
+        "SELECT status FROM listing_applications WHERE listing_id = ? AND user_id = ?"
+      )
+      .get(id, session.userId) as { status: string } | undefined;
+    if (app) {
+      hasApplied = app.status === "pending";
+      applicationStatus = app.status;
+    }
+  }
+
+  // Fetch pending applicants if the viewer is the author
+  let pendingApplicants: { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[] = [];
+  if (isAuthor && listing.requires_approval) {
+    pendingApplicants = db
+      .prepare(
+        `SELECT la.id as application_id, u.id, u.display_name, u.bio, la.applied_at
+         FROM listing_applications la
+         JOIN users u ON la.user_id = u.id
+         WHERE la.listing_id = ? AND la.status = 'pending'
+         ORDER BY la.applied_at ASC`
+      )
+      .all(id) as { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[];
+  }
+
   return NextResponse.json({
     listing: {
       ...listing,
@@ -48,6 +77,9 @@ export async function GET(
       memberCount: members.length,
       isMember,
       isAuthor,
+      hasApplied,
+      applicationStatus,
+      pendingApplicants,
     },
   });
 }
