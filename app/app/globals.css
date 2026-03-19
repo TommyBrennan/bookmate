@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #6b6b6b;
+  --color-accent: #e07a3a;
+  --color-accent-hover: #c96a2e;
+  --color-border: #e5e0da;
+  --color-success: #2d8a56;
+  --color-error: #c0392b;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Georgia', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+input, select, textarea {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  transition: background-color 0.15s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.15s, background-color 0.15s;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-text-secondary);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  background: var(--color-surface);
+  transition: border-color 0.15s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(224, 122, 58, 0.1);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+}
