@@ -1,3 +1,10 @@
 .claude-beat/.env
 .claude-beat/.user
 .claude-beat/.human
+node_modules/
+app/node_modules/
+app/.next/
+app/data/
+.env
+.env.local
+.claude-beat/logs/sessions/
