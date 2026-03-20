@@ -11,9 +11,12 @@
 - All PRD features implemented and merged (P0, P1, P2)
 - CI pipeline live: GitHub Actions runs lint + type check + build on push/PR to main
 - ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
-- Build passes clean, lint has 6 warnings (img elements — intentional for Open Library covers)
+- Build passes clean, lint has 3 warnings (img elements — intentional for Open Library covers)
 - Security hardening merged (PR #32, #36)
 - **Production deployed** via PM2 on port 3000 — http://89.167.127.85:3000
+- Health endpoint: `/api/health` (DB check, uptime, stats)
+- Custom 404 page (branded, with CTA)
+- OG + Twitter Card meta tags on listing pages (book cover, title, description)
 
 ## Production
 - **URL**: http://89.167.127.85:3000
@@ -26,10 +29,14 @@
 - PM2 process saved: `npx pm2 save` (restores on `pm2 resurrect`)
 
 ## Open PRs
-- #39: Production deployment (feat/production-deploy) — awaiting CI + merge
+- None
+
+## Closed Recently
+- #41: Health endpoint, custom 404, OG meta tags (merged + deployed)
+- #39: Production deployment (merged)
 
 ## Open Issues
-- #21: Telegram bot token (needs-human) — stale
+- #21: Telegram bot token (needs-human) — replied with deployment URL and webhook instructions
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -54,7 +61,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. Check PR #39 (production deploy) — merge if CI passes
+1. Check issue #21 for human response on Telegram token
 2. Propose domain + HTTPS setup (needs-human for domain registration)
-3. Check issue #21 for human response on Telegram token
-4. Consider proposing improvements: health check endpoint, monitoring
+3. Consider proposing: error monitoring, rate limiting, image optimization
+4. Check production health via /api/health
