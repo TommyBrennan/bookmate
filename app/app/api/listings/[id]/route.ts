@@ -43,6 +43,14 @@ export async function GET(
     ? listing.author_id === session.userId
     : false;
 
+  // PRD: full listings should be invisible to non-participants
+  if (listing.is_full && !isMember && !isAuthor) {
+    return NextResponse.json(
+      { error: "This listing is no longer available" },
+      { status: 404 }
+    );
+  }
+
   // Check if the current user has a pending application
   let hasApplied = false;
   let applicationStatus = "";

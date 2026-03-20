@@ -1,4 +1,12 @@
 import db from "./db";
+import { sendEmail } from "./email";
+
+function getUserEmail(userId: number): string | null {
+  const user = db
+    .prepare("SELECT email FROM users WHERE id = ?")
+    .get(userId) as { email: string } | undefined;
+  return user?.email || null;
+}
 
 export function createNotification(
   userId: number,
@@ -9,6 +17,34 @@ export function createNotification(
   db.prepare(
     "INSERT INTO notifications (user_id, listing_id, type, message) VALUES (?, ?, ?, ?)"
   ).run(userId, listingId, type, message);
+
+  // Also send email notification (fire-and-forget)
+  const email = getUserEmail(userId);
+  if (email) {
+    const subject = getEmailSubject(type);
+    sendEmail(email, subject, message).catch(() => {
+      // Email sending is best-effort — don't block on failure
+    });
+  }
+}
+
+function getEmailSubject(type: string): string {
+  switch (type) {
+    case "new_member":
+      return "Bookmate: Someone joined your reading group!";
+    case "group_full":
+      return "Bookmate: Your reading group is full!";
+    case "application_received":
+      return "Bookmate: New application for your reading group";
+    case "application_approved":
+      return "Bookmate: Your application was approved!";
+    case "application_rejected":
+      return "Bookmate: Application update";
+    case "rating_received":
+      return "Bookmate: You received a new rating";
+    default:
+      return "Bookmate: Notification";
+  }
 }
 
 export function notifyListingAuthor(
