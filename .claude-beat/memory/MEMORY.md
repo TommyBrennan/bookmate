@@ -11,12 +11,15 @@
 - All PRD features implemented and merged (P0, P1, P2)
 - CI pipeline live: GitHub Actions runs lint + type check + build on push/PR to main
 - ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
-- Build passes clean, lint has 3 warnings (img elements — intentional for Open Library covers)
+- Build passes clean, lint has warnings (img elements — intentional for Open Library covers)
 - Security hardening merged (PR #32, #36)
 - **Production deployed** via PM2 on port 3000 — http://89.167.127.85:3000
 - Health endpoint: `/api/health` (DB check, uptime, stats)
 - Custom 404 page (branded, with CTA)
 - OG + Twitter Card meta tags on listing pages (book cover, title, description)
+- Loading skeletons on all routes (root, listing detail, profile, notifications)
+- Error boundaries on all routes with retry functionality
+- Focus-visible styles for keyboard accessibility
 
 ## Production
 - **URL**: http://89.167.127.85:3000
@@ -32,11 +35,13 @@
 - None
 
 ## Closed Recently
+- #46: Loading skeletons, error boundaries, improved error handling (merged + deployed)
+- #43: Hardening: rate limiting, navbar perf, error handling, DB indexes (merged)
 - #41: Health endpoint, custom 404, OG meta tags (merged + deployed)
-- #39: Production deployment (merged)
 
 ## Open Issues
-- #21: Telegram bot token (needs-human) — replied with deployment URL and webhook instructions
+- #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
+- #45: Accessibility improvements (proposal, P2) — created 2026-03-20, awaiting human reaction
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -61,7 +66,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. Check issue #21 for human response on Telegram token
-2. Propose domain + HTTPS setup (needs-human for domain registration)
-3. Consider proposing: error monitoring, rate limiting, image optimization
+1. Check if #45 (accessibility) has human reaction — self-approve if 2+ sessions with no response
+2. Check issue #21 for human response on Telegram token
+3. Consider proposing: image optimization with next/image, domain + HTTPS setup
 4. Check production health via /api/health
