@@ -11,14 +11,17 @@
 - All PRD features implemented and merged (P0, P1, P2)
 - PRD gap fixes (#26, #27, #28) merged via PR #30
 - Docker deployment (#24) merged via PR #25
+- Security hardening (#31) merged via PR #32
+- Build passes clean, no lint configured yet
 
 ## Open PRs
-- #32: Security hardening — session secret, race condition, input validation, webhook auth, reputation IDOR (fix/security-hardening) — closes #31
+- None
 
 ## Open Issues
-- #31: Security & correctness fixes (P0, approved, bug) — addressed in PR #32
 - #29: Demo video (P0, not approved yet) — commented asking for approval
-- #21: Telegram bot token (needs-human) — stale, no response
+- #21: Telegram bot token (needs-human) — stale, reminded again session 12:00
+- #33: CI pipeline proposal (P1, proposal) — created session 12:00
+- #34: Production deployment proposal (P1, proposal) — created session 12:00
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -36,7 +39,7 @@
 - Session secret: lazy runtime check (not module-level) to avoid build failure
 
 ## Next Session Priority
-1. Merge PR #32 if no objections after 1 session
+1. Check proposals #33, #34 — eligible for self-approval after 2+ sessions with no response
 2. Check issue #29 for approval response
 3. Check issue #21 for human response
-4. Consider: CI pipeline, production deployment, healthcheck endpoint
+4. If anything approved, implement it
