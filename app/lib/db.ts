@@ -157,4 +157,12 @@ db.exec(`
   );
 `);
 
+// Performance indexes on high-frequency foreign key columns
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_listing_members_user_id ON listing_members(user_id);
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+  CREATE INDEX IF NOT EXISTS idx_ratings_rated_user_id ON ratings(rated_user_id);
+  CREATE INDEX IF NOT EXISTS idx_listings_author_id ON listings(author_id);
+`);
+
 export default db;

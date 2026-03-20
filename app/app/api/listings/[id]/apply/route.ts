@@ -14,6 +14,9 @@ export async function POST(
 
   const { id } = await params;
   const listingId = parseInt(id, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
+  }
 
   const listing = db
     .prepare("SELECT * FROM listings WHERE id = ?")

@@ -22,13 +22,14 @@ import { createNotification } from "@/lib/notifications";
  *    command in a group with a payload referencing a listing.
  */
 export async function POST(req: NextRequest) {
-  // Verify webhook secret if configured
+  // Verify webhook secret — fail closed if not configured
   const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (webhookSecret) {
-    const headerSecret = req.headers.get("X-Telegram-Bot-Api-Secret-Token");
-    if (headerSecret !== webhookSecret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+  const headerSecret = req.headers.get("X-Telegram-Bot-Api-Secret-Token");
+  if (headerSecret !== webhookSecret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   let update: Record<string, unknown>;

@@ -151,6 +151,17 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // Verify the current user is a member of this listing
+  const isMember = db
+    .prepare("SELECT 1 FROM listing_members WHERE listing_id = ? AND user_id = ?")
+    .get(listingId, session.userId);
+  if (!isMember) {
+    return NextResponse.json(
+      { error: "You are not a member of this group" },
+      { status: 403 }
+    );
+  }
+
   // Ratings the current user has given in this listing
   const givenRatings = db
     .prepare(
