@@ -95,4 +95,21 @@ try {
   // Column already exists — safe to ignore
 }
 
+// Rating and Reputation system
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ratings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    listing_id INTEGER NOT NULL,
+    rater_id INTEGER NOT NULL,
+    rated_user_id INTEGER NOT NULL,
+    score INTEGER NOT NULL CHECK(score >= 1 AND score <= 5),
+    comment TEXT DEFAULT '',
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(listing_id, rater_id, rated_user_id),
+    FOREIGN KEY (listing_id) REFERENCES listings(id),
+    FOREIGN KEY (rater_id) REFERENCES users(id),
+    FOREIGN KEY (rated_user_id) REFERENCES users(id)
+  );
+`);
+
 export default db;
