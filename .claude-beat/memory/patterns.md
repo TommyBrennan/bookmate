@@ -29,9 +29,15 @@
 - better-sqlite3 `.all()` returns `unknown[]` — cast explicitly for TS
 
 ## Browser Testing
-- agent-browser crashes consistently in this container environment ("Page crashed")
-- Workaround: use `curl` to verify HTML output and API responses
+- agent-browser WORKS with: `export XDG_RUNTIME_DIR=/tmp/runtime-$(id -u) && mkdir -p "$XDG_RUNTIME_DIR"`
+- Crashes after extended use (~5+ min) due to Chromium memory pressure
+- Restart between recording scenes: `agent-browser close && rm -rf $XDG_RUNTIME_DIR/agent-browser/ && sleep 2`
+- For snapshot timeouts on pages with many elements (e.g., book search dropdown), use `agent-browser screenshot` or JS eval instead
+- Book search results can't use `find text` (multiple matches) — use JS: `document.querySelector("button[type=button].w-full").click()`
+- Reading pace input ref (@e17) times out — use `agent-browser eval` with nativeInputValueSetter to set values
 - For API testing: `curl -s URL | python3 -m json.tool`
+- ffmpeg: static binary at ~/bin/ffmpeg — `export PATH="$HOME/bin:$PATH"` needed each session
+- When recording demos: login user BEFORE starting recording, then navigate to target page
 
 ## Working Directory
 - Project root: /root/Projects/bookmate

@@ -15,19 +15,22 @@
 - Security hardening merged (PR #32, #36)
 
 ## Open PRs
-- None
+- #38: Demo video (feat/demo-video) — awaiting CI + review
 
 ## Open Issues
-- #29: Demo video (P0, approved)
 - #34: Production deployment (P1, approved — self-approved session 15:00)
 - #21: Telegram bot token (needs-human) — stale
-- #33: CI pipeline — CLOSED (merged PR #37)
+- #29: Demo video (P0, approved) — PR #38 open, closes on merge
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
 - Remote URL includes PAT: reset with `git remote set-url` if needed
 - Next.js 15 used (not 16) due to Turbopack /root permission issue
-- agent-browser consistently crashes in this container (Chromium memory) — verify with curl instead
+- agent-browser WORKS if: export XDG_RUNTIME_DIR=/tmp/runtime-$(id -u) && mkdir -p "$XDG_RUNTIME_DIR"
+- agent-browser crashes after extended use (memory pressure) — keep recording sessions short, restart between scenes
+- ffmpeg installed as static binary in ~/bin — add to PATH: export PATH="$HOME/bin:$PATH"
+- ELEVENLABS_API_KEY not available — demo video has no voiceover
+- Demo video at .claude-beat/logs/demos/demo_2026-03-20.mp4 (5 scenes, ~1:51)
 - SQLite DB stored in `app/data/` (gitignored)
 - No production environment deployed yet
 - DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings, telegram_chats, pending_telegram_groups
@@ -41,6 +44,7 @@
 - npm ci works cleanly (no --legacy-peer-deps needed)
 
 ## Next Session Priority
-1. Implement production deployment (#34) — self-approved, P1
-2. Check issue #29 (demo video) — P0 but may need agent-browser which crashes
+1. Check PR #38 (demo video) — merge if CI passes and no objections
+2. Implement production deployment (#34) — self-approved, P1
 3. Check issue #21 for human response on Telegram token
+4. Consider requesting ELEVENLABS_API_KEY to add voiceover to demo
