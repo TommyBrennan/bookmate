@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { isBotConfigured } from "@/lib/telegram";
+import { isBotConfigured as isDiscordBotConfigured } from "@/lib/discord";
 
 export async function GET(
   _req: NextRequest,
@@ -83,6 +84,7 @@ export async function GET(
       pendingApplicants,
       currentUserId: session.userId || null,
       telegramBotConfigured: isBotConfigured(),
+      discordBotConfigured: isDiscordBotConfigured(),
     },
   });
 }
