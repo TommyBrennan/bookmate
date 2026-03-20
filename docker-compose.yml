@@ -1,0 +1,26 @@
+services:
+  bookmate:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - bookmate-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      - DB_DIR=/app/data
+      # Optional: Telegram integration
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET:-}
+      - TELEGRAM_SETUP_SECRET=${TELEGRAM_SETUP_SECRET:-}
+      # Optional: Discord integration
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID:-}
+      - DISCORD_SETUP_SECRET=${DISCORD_SETUP_SECRET:-}
+    restart: unless-stopped
+
+volumes:
+  bookmate-data:
