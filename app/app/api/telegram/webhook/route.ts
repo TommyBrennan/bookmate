@@ -171,34 +171,52 @@ async function handleMessage(message: TelegramMessage) {
   }
 
   // Handle /link command — allow manual linking
+  // Security: only show listings authored by a Bookmate user linked to this Telegram user
   if (text === "/link") {
-    // Find the most recent full listing without a telegram link
-    // that was authored by someone (we can't verify Telegram user = Bookmate user
-    // without account linking, so we just report available listings)
+    const telegramUserId = message.from?.id;
+    if (!telegramUserId) {
+      await sendMessage(message.chat.id, "Could not identify the sender.");
+      return;
+    }
+
+    // Look up the Bookmate user linked to this Telegram user
+    const linkedUser = db
+      .prepare("SELECT user_id FROM telegram_user_links WHERE telegram_user_id = ?")
+      .get(telegramUserId) as { user_id: number } | undefined;
+
+    if (!linkedUser) {
+      await sendMessage(
+        message.chat.id,
+        "Your Telegram account is not linked to a Bookmate account. " +
+          "Please use the Telegram setup link from your Bookmate listing page to link your account first."
+      );
+      return;
+    }
+
+    // Only show unlinked listings authored by this verified user
     const unlinkedListings = db
       .prepare(
         `SELECT id, book_title FROM listings
          WHERE is_full = 1 AND (telegram_link = '' OR telegram_link IS NULL)
          AND telegram_chat_id IS NULL
+         AND author_id = ?
          ORDER BY created_at DESC LIMIT 5`
       )
-      .all() as { id: number; book_title: string }[];
+      .all(linkedUser.user_id) as { id: number; book_title: string }[];
 
     if (unlinkedListings.length === 0) {
       await sendMessage(
         message.chat.id,
-        "No unlinked reading groups found. The group may already be set up!"
+        "No unlinked reading groups found for your account. The group may already be set up!"
       );
       return;
     }
 
     if (unlinkedListings.length === 1) {
-      // Auto-link the only available listing
       await linkTelegramToListing(unlinkedListings[0].id, message.chat.id);
       return;
     }
 
-    // Show options
     const listText = unlinkedListings
       .map((l) => `  /link_${l.id} — "${l.book_title}"`)
       .join("\n");
@@ -209,10 +227,42 @@ async function handleMessage(message: TelegramMessage) {
     return;
   }
 
-  // Handle /link_ID command
+  // Handle /link_ID command — require verified ownership
   const linkMatch = text.match(/^\/link_(\d+)$/);
   if (linkMatch) {
+    const telegramUserId = message.from?.id;
+    if (!telegramUserId) {
+      await sendMessage(message.chat.id, "Could not identify the sender.");
+      return;
+    }
+
+    const linkedUser = db
+      .prepare("SELECT user_id FROM telegram_user_links WHERE telegram_user_id = ?")
+      .get(telegramUserId) as { user_id: number } | undefined;
+
+    if (!linkedUser) {
+      await sendMessage(
+        message.chat.id,
+        "Your Telegram account is not linked to a Bookmate account."
+      );
+      return;
+    }
+
     const listingId = parseInt(linkMatch[1], 10);
+
+    // Verify this user is the listing author
+    const listing = db
+      .prepare("SELECT author_id FROM listings WHERE id = ?")
+      .get(listingId) as { author_id: number } | undefined;
+
+    if (!listing || listing.author_id !== linkedUser.user_id) {
+      await sendMessage(
+        message.chat.id,
+        "You can only link Telegram groups to your own Bookmate listings."
+      );
+      return;
+    }
+
     await linkTelegramToListing(listingId, message.chat.id);
   }
 }

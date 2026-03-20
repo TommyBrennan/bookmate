@@ -26,6 +26,13 @@ export async function POST(
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
 
+  if (listing.author_id === session.userId) {
+    return NextResponse.json(
+      { error: "You cannot apply to your own listing" },
+      { status: 400 }
+    );
+  }
+
   if (!listing.requires_approval) {
     return NextResponse.json(
       { error: "This group does not require approval. Join directly." },
