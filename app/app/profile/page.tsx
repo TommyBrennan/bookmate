@@ -77,6 +77,9 @@ export default function ProfilePage() {
         setBio(data.user.bio || "");
         setEmail(data.user.email);
         setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
       });
   }, [router]);
 

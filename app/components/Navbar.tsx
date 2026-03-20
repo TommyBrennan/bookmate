@@ -22,11 +22,11 @@ export default function Navbar() {
       .then((data) => {
         if (data.user) {
           setUser(data.user);
-          // Fetch notification count
-          fetch("/api/notifications")
-            .then((r) => r.json())
-            .then((n) => setNotifCount(n.unreadCount || 0));
+          setNotifCount(data.user.unreadNotificationCount || 0);
         }
+      })
+      .catch(() => {
+        // Auth check failed — stay logged out
       });
   }, []);
 

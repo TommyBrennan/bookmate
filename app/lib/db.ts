@@ -163,6 +163,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
   CREATE INDEX IF NOT EXISTS idx_ratings_rated_user_id ON ratings(rated_user_id);
   CREATE INDEX IF NOT EXISTS idx_listings_author_id ON listings(author_id);
+  CREATE INDEX IF NOT EXISTS idx_listing_applications_listing_status ON listing_applications(listing_id, status);
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read);
 `);
 
 export default db;
