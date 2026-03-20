@@ -8,20 +8,19 @@
 - **Owner**: XanderZhu (human), TommyBrennan (GH account)
 
 ## Current State
-- All 7 P0 issues (#1-#7) completed
+- All 7 P0 issues (#1-#7) completed and merged
 - All 3 P1 issues (#8, #9, #10) completed and merged
 - P2 #12 (Approval System) merged via PR #19
-- P2 #11 (Auto Telegram) implemented — PR #20 open
-- P2 #13 (Rating System) implemented — PR #22 open
-- Only P2 #14 (Discord) remains
+- P2 #11 (Auto Telegram) merged via PR #20
+- P2 #13 (Rating System) merged via PR #22
+- P2 #14 (Discord Support) implemented — PR #23 open
+- All PRD features have been implemented!
 
 ## Open PRs
-- #20: Automatic Telegram Group Creation (feat/auto-telegram) — closes #11
-- #22: Rating and Reputation System (feat/rating-system) — closes #13
+- #23: Discord Support (feat/discord-support) — closes #14
 
 ## Open Issues
-- P2: #14 (Discord Support)
-- needs-human: #21 (Telegram bot token setup)
+- needs-human: #21 (Telegram bot token setup) — stale, reminder posted
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -32,8 +31,10 @@
 - No production environment deployed yet
 - DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings
 - Telegram bot integration requires TELEGRAM_BOT_TOKEN env var (see issue #21)
+- Discord bot integration requires DISCORD_BOT_TOKEN + DISCORD_CLIENT_ID env vars
+- Listings now have `platform_preference` field (telegram/discord)
 
 ## Next Session Priority
-1. Merge PRs #20 and #22 (1 session elapsed, no objections)
-2. Start P2 #14 (Discord Support) — last remaining feature
-3. Consider deployment setup
+1. Merge PR #23 (1 session elapsed, no objections)
+2. Consider deployment setup — all features complete
+3. Check issue #21 for human response
