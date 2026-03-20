@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 interface Member {
@@ -41,6 +41,7 @@ interface Listing {
   hasApplied: boolean;
   applicationStatus: string;
   pendingApplicants: Applicant[];
+  currentUserId: number | null;
   telegramBotConfigured: boolean;
 }
 
@@ -59,6 +60,13 @@ export default function ListingDetailPage() {
   const [showManualFallback, setShowManualFallback] = useState(false);
   const [error, setError] = useState("");
 
+  // Rating state
+  const [givenRatings, setGivenRatings] = useState<Record<number, { score: number; comment: string }>>({});
+  const [ratingScores, setRatingScores] = useState<Record<number, number>>({});
+  const [ratingComments, setRatingComments] = useState<Record<number, string>>({});
+  const [ratingSaving, setRatingSaving] = useState<number | null>(null);
+  const [ratingMessage, setRatingMessage] = useState("");
+
   const fetchListing = async () => {
     const res = await fetch(`/api/listings/${id}`);
     const data = await res.json();
@@ -73,6 +81,68 @@ export default function ListingDetailPage() {
     fetchListing();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const fetchRatings = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`/api/ratings?listingId=${id}`);
+      const data = await res.json();
+      if (data.givenRatings) {
+        const given: Record<number, { score: number; comment: string }> = {};
+        const scores: Record<number, number> = {};
+        const comments: Record<number, string> = {};
+        for (const r of data.givenRatings) {
+          given[r.rated_user_id] = { score: r.score, comment: r.comment };
+          scores[r.rated_user_id] = r.score;
+          comments[r.rated_user_id] = r.comment;
+        }
+        setGivenRatings(given);
+        setRatingScores(scores);
+        setRatingComments(comments);
+      }
+    } catch {
+      // Silently fail — ratings are not critical
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (listing?.is_full && listing?.isMember) {
+      fetchRatings();
+    }
+  }, [listing?.is_full, listing?.isMember, fetchRatings]);
+
+  const handleRatingSubmit = async (memberId: number) => {
+    const score = ratingScores[memberId];
+    if (!score) return;
+    setRatingSaving(memberId);
+    setRatingMessage("");
+    try {
+      const res = await fetch("/api/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingId: parseInt(id as string, 10),
+          ratedUserId: memberId,
+          score,
+          comment: ratingComments[memberId] || "",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRatingMessage(data.error || "Failed to submit rating");
+      } else {
+        setRatingMessage("Rating saved!");
+        setGivenRatings((prev) => ({
+          ...prev,
+          [memberId]: { score, comment: ratingComments[memberId] || "" },
+        }));
+      }
+    } catch {
+      setRatingMessage("Failed to submit rating");
+    } finally {
+      setRatingSaving(null);
+    }
+  };
 
   const handleJoin = async () => {
     setJoining(true);
@@ -746,6 +816,164 @@ export default function ListingDetailPage() {
           ))}
         </div>
       </div>
+
+      {/* Rate Members — visible to members when group is full */}
+      {listing.is_full && listing.isMember && (
+        <div className="card mt-6">
+          <h2 className="text-lg mb-2">Rate Your Reading Partners</h2>
+          <p
+            className="text-sm mb-4"
+            style={{
+              color: "var(--color-text-secondary)",
+              fontFamily: "system-ui, sans-serif",
+            }}
+          >
+            How was your experience reading with this group? Rate each member to help build the community.
+          </p>
+
+          {ratingMessage && (
+            <p
+              className="text-sm mb-3"
+              style={{
+                color: ratingMessage.includes("saved")
+                  ? "var(--color-success)"
+                  : "var(--color-error)",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              {ratingMessage}
+            </p>
+          )}
+
+          <div className="space-y-4">
+            {listing.members
+              .filter((m) => m.id !== listing.currentUserId)
+              .map((member) => {
+                const existingRating = givenRatings[member.id];
+                const currentScore = ratingScores[member.id] || 0;
+
+                return (
+                  <div
+                    key={member.id}
+                    className="p-3 rounded-lg"
+                    style={{
+                      backgroundColor: existingRating
+                        ? "rgba(45, 138, 86, 0.04)"
+                        : "rgba(0, 0, 0, 0.02)",
+                      border: `1px solid ${
+                        existingRating
+                          ? "rgba(45, 138, 86, 0.12)"
+                          : "var(--color-border)"
+                      }`,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                        style={{ backgroundColor: "var(--color-accent)", flexShrink: 0 }}
+                      >
+                        {member.display_name.charAt(0).toUpperCase()}
+                      </div>
+                      <span
+                        className="text-sm font-semibold"
+                        style={{ fontFamily: "system-ui, sans-serif" }}
+                      >
+                        {member.display_name}
+                      </span>
+                      {existingRating && (
+                        <span
+                          className="badge ml-auto"
+                          style={{
+                            backgroundColor: "rgba(45, 138, 86, 0.1)",
+                            color: "var(--color-success)",
+                            fontSize: "0.65rem",
+                          }}
+                        >
+                          Rated
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Star rating */}
+                    <div className="flex items-center gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() =>
+                            setRatingScores((prev) => ({ ...prev, [member.id]: star }))
+                          }
+                          className="transition-transform hover:scale-110"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: "1.25rem",
+                            color:
+                              star <= currentScore
+                                ? "#f59e0b"
+                                : "var(--color-border)",
+                            padding: "0 1px",
+                          }}
+                          aria-label={`${star} star${star !== 1 ? "s" : ""}`}
+                        >
+                          {star <= currentScore ? "\u2605" : "\u2606"}
+                        </button>
+                      ))}
+                      {currentScore > 0 && (
+                        <span
+                          className="text-xs ml-1"
+                          style={{
+                            color: "var(--color-text-secondary)",
+                            fontFamily: "system-ui, sans-serif",
+                          }}
+                        >
+                          {currentScore}/5
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Comment (optional) */}
+                    <input
+                      type="text"
+                      className="input-field text-sm mb-2"
+                      placeholder="Optional comment..."
+                      value={ratingComments[member.id] || ""}
+                      onChange={(e) =>
+                        setRatingComments((prev) => ({
+                          ...prev,
+                          [member.id]: e.target.value,
+                        }))
+                      }
+                      style={{ fontSize: "0.8rem" }}
+                    />
+
+                    <button
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                      style={{
+                        backgroundColor:
+                          currentScore > 0
+                            ? "var(--color-accent)"
+                            : "var(--color-border)",
+                        color: currentScore > 0 ? "white" : "var(--color-text-secondary)",
+                        border: "none",
+                        cursor: currentScore > 0 ? "pointer" : "not-allowed",
+                        fontFamily: "system-ui, sans-serif",
+                      }}
+                      onClick={() => handleRatingSubmit(member.id)}
+                      disabled={!currentScore || ratingSaving === member.id}
+                    >
+                      {ratingSaving === member.id
+                        ? "Saving..."
+                        : existingRating
+                          ? "Update Rating"
+                          : "Submit Rating"}
+                    </button>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
 
       <p
         className="text-xs text-center mt-6 mb-4"

@@ -20,7 +20,21 @@ interface ReadingItem {
   joined_at: string;
 }
 
-type TabKey = "profile" | "reading" | "genres";
+interface Reputation {
+  averageScore: number;
+  totalRatings: number;
+  completedGroups: number;
+  groupsRated: number;
+  breakdown: Record<number, number>;
+  recentRatings: {
+    score: number;
+    comment: string;
+    created_at: string;
+    book_title: string;
+  }[];
+}
+
+type TabKey = "profile" | "reading" | "genres" | "reputation";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -46,6 +60,10 @@ export default function ProfilePage() {
   const [genresLoading, setGenresLoading] = useState(false);
   const [genresSaving, setGenresSaving] = useState(false);
   const [genresMessage, setGenresMessage] = useState("");
+
+  // Reputation
+  const [reputation, setReputation] = useState<Reputation | null>(null);
+  const [reputationLoading, setReputationLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -87,10 +105,22 @@ export default function ProfilePage() {
       .catch(() => setGenresLoading(false));
   }, []);
 
+  const fetchReputation = useCallback(() => {
+    setReputationLoading(true);
+    fetch("/api/profile/reputation")
+      .then((r) => r.json())
+      .then((data) => {
+        setReputation(data.reputation || null);
+        setReputationLoading(false);
+      })
+      .catch(() => setReputationLoading(false));
+  }, []);
+
   useEffect(() => {
     if (activeTab === "reading") fetchReading();
     if (activeTab === "genres") fetchGenres();
-  }, [activeTab, fetchReading, fetchGenres]);
+    if (activeTab === "reputation") fetchReputation();
+  }, [activeTab, fetchReading, fetchGenres, fetchReputation]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,6 +185,7 @@ export default function ProfilePage() {
     { key: "profile", label: "Profile" },
     { key: "reading", label: "Reading Activity" },
     { key: "genres", label: "Favorite Genres" },
+    { key: "reputation", label: "Reputation" },
   ];
 
   const formatDate = (dateStr: string) => {
@@ -315,6 +346,173 @@ export default function ProfilePage() {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {/* Reputation Tab */}
+      {activeTab === "reputation" && (
+        <div className="space-y-4">
+          {reputationLoading ? (
+            <div className="text-center py-8" style={{ color: "var(--color-text-secondary)" }}>
+              <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading reputation...</p>
+            </div>
+          ) : reputation ? (
+            <>
+              {/* Score Overview */}
+              <div className="card">
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div
+                      className="text-4xl font-bold"
+                      style={{ color: reputation.averageScore >= 4 ? "var(--color-success)" : reputation.averageScore >= 3 ? "#f59e0b" : "var(--color-text)" }}
+                    >
+                      {reputation.totalRatings > 0 ? reputation.averageScore : "--"}
+                    </div>
+                    <div
+                      className="text-xs mt-1"
+                      style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                    >
+                      {reputation.totalRatings > 0
+                        ? `${reputation.totalRatings} rating${reputation.totalRatings !== 1 ? "s" : ""}`
+                        : "No ratings yet"}
+                    </div>
+                  </div>
+
+                  <div className="flex-1" style={{ fontFamily: "system-ui, sans-serif" }}>
+                    {/* Star breakdown */}
+                    {[5, 4, 3, 2, 1].map((star) => {
+                      const count = reputation.breakdown[star] || 0;
+                      const pct = reputation.totalRatings > 0
+                        ? (count / reputation.totalRatings) * 100
+                        : 0;
+                      return (
+                        <div key={star} className="flex items-center gap-2 text-xs">
+                          <span style={{ width: 16, textAlign: "right", color: "var(--color-text-secondary)" }}>
+                            {star}
+                          </span>
+                          <span style={{ color: "#f59e0b", fontSize: "0.7rem" }}>{"\u2605"}</span>
+                          <div
+                            className="flex-1 rounded-full overflow-hidden"
+                            style={{ height: 6, backgroundColor: "var(--color-border)" }}
+                          >
+                            <div
+                              className="rounded-full"
+                              style={{
+                                width: `${pct}%`,
+                                height: "100%",
+                                backgroundColor: "#f59e0b",
+                                transition: "width 0.3s",
+                              }}
+                            />
+                          </div>
+                          <span style={{ width: 20, textAlign: "right", color: "var(--color-text-secondary)" }}>
+                            {count}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div
+                  className="flex gap-4 mt-4 pt-4 text-sm"
+                  style={{
+                    borderTop: "1px solid var(--color-border)",
+                    fontFamily: "system-ui, sans-serif",
+                    color: "var(--color-text-secondary)",
+                  }}
+                >
+                  <div>
+                    <span className="font-semibold" style={{ color: "var(--color-text)" }}>
+                      {reputation.completedGroups}
+                    </span>{" "}
+                    completed groups
+                  </div>
+                  <div>
+                    <span className="font-semibold" style={{ color: "var(--color-text)" }}>
+                      {reputation.groupsRated}
+                    </span>{" "}
+                    groups rated
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Ratings */}
+              {reputation.recentRatings.length > 0 && (
+                <div className="card">
+                  <h3 className="text-lg mb-3">Recent Feedback</h3>
+                  <div className="space-y-3">
+                    {reputation.recentRatings.map((rating, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-lg"
+                        style={{
+                          backgroundColor: "rgba(0, 0, 0, 0.02)",
+                          border: "1px solid var(--color-border)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <span
+                                key={s}
+                                style={{
+                                  color: s <= rating.score ? "#f59e0b" : "var(--color-border)",
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                {s <= rating.score ? "\u2605" : "\u2606"}
+                              </span>
+                            ))}
+                          </div>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                          >
+                            for &quot;{rating.book_title}&quot;
+                          </span>
+                        </div>
+                        {rating.comment && (
+                          <p
+                            className="text-sm"
+                            style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                          >
+                            &ldquo;{rating.comment}&rdquo;
+                          </p>
+                        )}
+                        <p
+                          className="text-xs mt-1"
+                          style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif", opacity: 0.6 }}
+                        >
+                          {formatDate(rating.created_at)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {reputation.totalRatings === 0 && (
+                <div className="card text-center py-8">
+                  <p
+                    className="mb-2"
+                    style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                  >
+                    No ratings yet. Complete a reading group and your partners can rate you!
+                  </p>
+                  <Link href="/" className="btn-primary inline-block">
+                    Browse Listings
+                  </Link>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="card text-center py-8">
+              <p style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}>
+                Failed to load reputation data
+              </p>
+            </div>
           )}
         </div>
       )}

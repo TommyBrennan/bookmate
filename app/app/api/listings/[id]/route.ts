@@ -81,6 +81,7 @@ export async function GET(
       hasApplied,
       applicationStatus,
       pendingApplicants,
+      currentUserId: session.userId || null,
       telegramBotConfigured: isBotConfigured(),
     },
   });
