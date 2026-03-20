@@ -33,6 +33,24 @@ cd app && npm install && npm run dev
 cd app && npm run build
 ```
 
+## Production Deployment
+```bash
+# First time or redeploy:
+./scripts/deploy.sh
+
+# PM2 commands:
+cd app && npx pm2 list              # Status
+cd app && npx pm2 logs bookmate     # Logs
+cd app && npx pm2 restart bookmate  # Restart
+cd app && npx pm2 stop bookmate     # Stop
+```
+- **Process manager:** PM2 (via npx)
+- **Config:** `app/ecosystem.config.js`
+- **Port:** 3000 (direct access, no reverse proxy)
+- **URL:** `http://89.167.127.85:3000`
+- **Env vars:** `app/.env.local` (see `app/.env.example`)
+- **Logs:** `.claude-beat/logs/pm2-{out,error}.log`
+
 ## Key Conventions
 - All API routes return JSON with `{ error: "..." }` on failure
 - Auth uses iron-session with httpOnly cookies
