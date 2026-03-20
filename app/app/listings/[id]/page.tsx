@@ -41,6 +41,7 @@ interface Listing {
   hasApplied: boolean;
   applicationStatus: string;
   pendingApplicants: Applicant[];
+  telegramBotConfigured: boolean;
 }
 
 export default function ListingDetailPage() {
@@ -53,6 +54,9 @@ export default function ListingDetailPage() {
   const [decidingId, setDecidingId] = useState<number | null>(null);
   const [telegramLink, setTelegramLink] = useState("");
   const [telegramSaving, setTelegramSaving] = useState(false);
+  const [autoTelegramLoading, setAutoTelegramLoading] = useState(false);
+  const [autoTelegramLink, setAutoTelegramLink] = useState("");
+  const [showManualFallback, setShowManualFallback] = useState(false);
   const [error, setError] = useState("");
 
   const fetchListing = async () => {
@@ -164,6 +168,24 @@ export default function ListingDetailPage() {
       setError("Failed to save link. Please try again.");
     } finally {
       setTelegramSaving(false);
+    }
+  };
+
+  const handleAutoTelegram = async () => {
+    setAutoTelegramLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}/auto-telegram`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to generate Telegram link");
+        return;
+      }
+      setAutoTelegramLink(data.deepLink);
+    } catch {
+      setError("Failed to connect. Please try again.");
+    } finally {
+      setAutoTelegramLoading(false);
     }
   };
 
@@ -423,64 +445,177 @@ export default function ListingDetailPage() {
                 the invite link so your readers can connect.
               </p>
 
-              {/* Step-by-step instructions */}
-              <div
-                className="mb-4 p-4 rounded-lg"
-                style={{ backgroundColor: "rgba(224, 122, 58, 0.05)", border: "1px solid rgba(224, 122, 58, 0.15)" }}
-              >
-                <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-accent)" }}>
-                  How to create a Telegram group:
-                </p>
-                <ol className="text-sm space-y-1.5" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
-                  <li>Open Telegram and tap the pencil/compose icon</li>
-                  <li>Select <strong style={{ color: "var(--color-text)" }}>New Group</strong></li>
-                  <li>Name it something like <strong style={{ color: "var(--color-text)" }}>&quot;{listing.book_title} Reading Group&quot;</strong></li>
-                  <li>You can skip adding members for now — add them via the invite link</li>
-                  <li>
-                    Open the group, tap the group name at the top, then{" "}
-                    <strong style={{ color: "var(--color-text)" }}>Invite via Link</strong>
-                  </li>
-                  <li>Copy the invite link (it looks like <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "0.1rem 0.3rem", borderRadius: "0.25rem", fontSize: "0.8rem" }}>https://t.me/+AbCdEfG...</code>)</li>
-                  <li>Paste it below and hit Save</li>
-                </ol>
-              </div>
-
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <input
-                    type="url"
-                    className="input-field"
-                    placeholder="https://t.me/+..."
-                    value={telegramLink}
-                    onChange={(e) => setTelegramLink(e.target.value)}
-                    style={{
-                      borderColor: telegramLinkError
-                        ? "var(--color-error)"
-                        : telegramLink && !telegramLinkError
-                          ? "var(--color-success)"
-                          : undefined,
-                    }}
-                  />
-                  {telegramLinkError && (
-                    <p className="text-xs mt-1" style={{ color: "var(--color-error)" }}>
-                      {telegramLinkError}
-                    </p>
-                  )}
-                  {telegramLink && !telegramLinkError && (
-                    <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>
-                      Valid Telegram link
-                    </p>
+              {/* Auto-create option (when bot is configured) */}
+              {listing.telegramBotConfigured && !showManualFallback && (
+                <div className="mb-4">
+                  {!autoTelegramLink ? (
+                    <div
+                      className="p-4 rounded-lg text-center"
+                      style={{
+                        backgroundColor: "rgba(45, 138, 86, 0.06)",
+                        border: "1px solid rgba(45, 138, 86, 0.15)",
+                      }}
+                    >
+                      <p className="text-sm mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                        Create a Telegram group with one click — the bot will
+                        automatically generate an invite link for your readers.
+                      </p>
+                      <button
+                        className="btn-primary"
+                        onClick={handleAutoTelegram}
+                        disabled={autoTelegramLoading}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                        {autoTelegramLoading
+                          ? "Generating..."
+                          : "Create Telegram Group Automatically"}
+                      </button>
+                      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
+                        <button
+                          className="underline cursor-pointer"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "inherit",
+                            font: "inherit",
+                            padding: 0,
+                          }}
+                          onClick={() => setShowManualFallback(true)}
+                        >
+                          Or set up manually
+                        </button>
+                      </p>
+                    </div>
+                  ) : (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{
+                        backgroundColor: "rgba(45, 138, 86, 0.06)",
+                        border: "1px solid rgba(45, 138, 86, 0.15)",
+                      }}
+                    >
+                      <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-success)" }}>
+                        Almost done! Click the link below to create the group:
+                      </p>
+                      <a
+                        href={autoTelegramLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-primary inline-block"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          backgroundColor: "var(--color-success)",
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                        Open Telegram & Create Group
+                      </a>
+                      <ol className="text-xs mt-3 space-y-1" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                        <li>Telegram will open and ask you to create a group</li>
+                        <li>Name it something like &quot;{listing.book_title} Reading Group&quot;</li>
+                        <li>The bot will automatically generate an invite link</li>
+                        <li>All members will be notified — no manual steps needed!</li>
+                      </ol>
+                      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
+                        After creating the group, refresh this page to see the invite link.
+                      </p>
+                    </div>
                   )}
                 </div>
-                <button
-                  className="btn-primary"
-                  onClick={handleTelegramSave}
-                  disabled={telegramSaving || !telegramLink || !!telegramLinkError}
-                  style={{ alignSelf: "flex-start" }}
-                >
-                  {telegramSaving ? "Saving..." : "Save link"}
-                </button>
-              </div>
+              )}
+
+              {/* Manual setup (shown as fallback or when bot is not configured) */}
+              {(!listing.telegramBotConfigured || showManualFallback) && (
+                <div>
+                  {showManualFallback && (
+                    <p className="text-xs mb-3">
+                      <button
+                        className="underline cursor-pointer"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "var(--color-accent)",
+                          font: "inherit",
+                          padding: 0,
+                        }}
+                        onClick={() => setShowManualFallback(false)}
+                      >
+                        Back to automatic setup
+                      </button>
+                    </p>
+                  )}
+
+                  {/* Step-by-step instructions */}
+                  <div
+                    className="mb-4 p-4 rounded-lg"
+                    style={{ backgroundColor: "rgba(224, 122, 58, 0.05)", border: "1px solid rgba(224, 122, 58, 0.15)" }}
+                  >
+                    <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-accent)" }}>
+                      How to create a Telegram group:
+                    </p>
+                    <ol className="text-sm space-y-1.5" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                      <li>Open Telegram and tap the pencil/compose icon</li>
+                      <li>Select <strong style={{ color: "var(--color-text)" }}>New Group</strong></li>
+                      <li>Name it something like <strong style={{ color: "var(--color-text)" }}>&quot;{listing.book_title} Reading Group&quot;</strong></li>
+                      <li>You can skip adding members for now — add them via the invite link</li>
+                      <li>
+                        Open the group, tap the group name at the top, then{" "}
+                        <strong style={{ color: "var(--color-text)" }}>Invite via Link</strong>
+                      </li>
+                      <li>Copy the invite link (it looks like <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "0.1rem 0.3rem", borderRadius: "0.25rem", fontSize: "0.8rem" }}>https://t.me/+AbCdEfG...</code>)</li>
+                      <li>Paste it below and hit Save</li>
+                    </ol>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <input
+                        type="url"
+                        className="input-field"
+                        placeholder="https://t.me/+..."
+                        value={telegramLink}
+                        onChange={(e) => setTelegramLink(e.target.value)}
+                        style={{
+                          borderColor: telegramLinkError
+                            ? "var(--color-error)"
+                            : telegramLink && !telegramLinkError
+                              ? "var(--color-success)"
+                              : undefined,
+                        }}
+                      />
+                      {telegramLinkError && (
+                        <p className="text-xs mt-1" style={{ color: "var(--color-error)" }}>
+                          {telegramLinkError}
+                        </p>
+                      )}
+                      {telegramLink && !telegramLinkError && (
+                        <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>
+                          Valid Telegram link
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      className="btn-primary"
+                      onClick={handleTelegramSave}
+                      disabled={telegramSaving || !telegramLink || !!telegramLinkError}
+                      style={{ alignSelf: "flex-start" }}
+                    >
+                      {telegramSaving ? "Saving..." : "Save link"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ fontFamily: "system-ui, sans-serif" }}>

@@ -95,4 +95,28 @@ try {
   // Column already exists — safe to ignore
 }
 
+// Idempotent migration: add telegram_chat_id column for auto-telegram feature
+try {
+  db.exec("ALTER TABLE listings ADD COLUMN telegram_chat_id INTEGER");
+} catch {
+  // Column already exists — safe to ignore
+}
+
+// Tables for Telegram bot integration
+db.exec(`
+  CREATE TABLE IF NOT EXISTS pending_telegram_groups (
+    listing_id INTEGER NOT NULL,
+    telegram_chat_id INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (listing_id),
+    FOREIGN KEY (listing_id) REFERENCES listings(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS telegram_chats (
+    chat_id INTEGER PRIMARY KEY,
+    chat_title TEXT DEFAULT '',
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+`);
+
 export default db;
