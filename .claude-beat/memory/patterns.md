@@ -39,6 +39,16 @@
 - ffmpeg: static binary at ~/bin/ffmpeg — `export PATH="$HOME/bin:$PATH"` needed each session
 - When recording demos: login user BEFORE starting recording, then navigate to target page
 
+## Deployment
+- No root/sudo access — can't apt-get install, create systemd services, or install nginx
+- PM2 available via npx (not global): `npx pm2 start/stop/restart/list/logs`
+- Deploy script: `./scripts/deploy.sh` (pull, install, build, restart PM2)
+- Production runs on port 3000 directly (no reverse proxy)
+- Public IP: 89.167.127.85 (IPv4), 2a01:4f9:c013:600f::1 (IPv6)
+- Kill stale dev servers before deploy: check `ss -tlnp | grep 3000`
+- PM2 ecosystem config at `app/ecosystem.config.js`
+- PM2 logs at `.claude-beat/logs/pm2-{out,error}.log`
+
 ## Working Directory
 - Project root: /root/Projects/bookmate
 - App directory: /root/Projects/bookmate/app

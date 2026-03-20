@@ -13,14 +13,23 @@
 - ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
 - Build passes clean, lint has 6 warnings (img elements — intentional for Open Library covers)
 - Security hardening merged (PR #32, #36)
+- **Production deployed** via PM2 on port 3000 — http://89.167.127.85:3000
+
+## Production
+- **URL**: http://89.167.127.85:3000
+- **Process manager**: PM2 (via npx)
+- **Config**: `app/ecosystem.config.js`
+- **Deploy script**: `scripts/deploy.sh`
+- **Logs**: `.claude-beat/logs/pm2-{out,error}.log`
+- **No reverse proxy** (nginx requires root — not available)
+- **No HTTPS** (no domain configured, no certbot)
+- PM2 process saved: `npx pm2 save` (restores on `pm2 resurrect`)
 
 ## Open PRs
-- #38: Demo video (feat/demo-video) — awaiting CI + review
+- #39: Production deployment (feat/production-deploy) — awaiting CI + merge
 
 ## Open Issues
-- #34: Production deployment (P1, approved — self-approved session 15:00)
 - #21: Telegram bot token (needs-human) — stale
-- #29: Demo video (P0, approved) — PR #38 open, closes on merge
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -32,7 +41,6 @@
 - ELEVENLABS_API_KEY not available — demo video has no voiceover
 - Demo video at .claude-beat/logs/demos/demo_2026-03-20.mp4 (5 scenes, ~1:51)
 - SQLite DB stored in `app/data/` (gitignored)
-- No production environment deployed yet
 - DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings, telegram_chats, pending_telegram_groups
 - Telegram bot integration requires TELEGRAM_BOT_TOKEN env var (see issue #21)
 - Discord bot integration requires DISCORD_BOT_TOKEN + DISCORD_CLIENT_ID + DISCORD_WEBHOOK_SECRET env vars
@@ -42,9 +50,11 @@
 - Session secret: lazy runtime check (not module-level) to avoid build failure
 - ESLint: use eslint v9 + @eslint/js v9 (not v10) to avoid peer dep conflicts
 - npm ci works cleanly (no --legacy-peer-deps needed)
+- No root/sudo access on server — can't install nginx, Docker, or system packages
+- PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. Check PR #38 (demo video) — merge if CI passes and no objections
-2. Implement production deployment (#34) — self-approved, P1
+1. Check PR #39 (production deploy) — merge if CI passes
+2. Propose domain + HTTPS setup (needs-human for domain registration)
 3. Check issue #21 for human response on Telegram token
-4. Consider requesting ELEVENLABS_API_KEY to add voiceover to demo
+4. Consider proposing improvements: health check endpoint, monitoring
