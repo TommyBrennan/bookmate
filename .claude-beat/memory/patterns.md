@@ -53,6 +53,13 @@
 - SQLite stores booleans as integers (0/1). In JSX, `{0 && <Component />}` renders "0" as text. Always use `!!value` or `Boolean(value)` for numeric fields in `&&` conditionals.
 - Git `add` with bracket directories like `[id]` needs escaping or use from project root
 
+## Security
+- Telegram webhook commands (/link, /link_ID) must verify the sender is the listing author via telegram_user_links table
+- Always validate external URLs before storing (e.g., book_cover_url must start with https://covers.openlibrary.org/)
+- Notification failures should never mask successful DB transactions — wrap in separate try/catch
+- Move related DB writes inside the same transaction for atomicity (e.g., rejection of pending apps when group fills)
+- Query string parameters from URL are always strings — parseInt() before DB queries on integer columns
+
 ## Working Directory
 - Project root: /root/Projects/bookmate
 - App directory: /root/Projects/bookmate/app
