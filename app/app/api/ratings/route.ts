@@ -47,6 +47,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (comment && comment.length > 1000) {
+    return NextResponse.json(
+      { error: "Comment must be at most 1000 characters" },
+      { status: 400 }
+    );
+  }
+
   // Verify listing exists and is full
   const listing = db
     .prepare("SELECT id, book_title, is_full FROM listings WHERE id = ?")

@@ -14,6 +14,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Display name is required" }, { status: 400 });
   }
 
+  if (displayName.length > 100) {
+    return NextResponse.json({ error: "Display name must be at most 100 characters" }, { status: 400 });
+  }
+
+  if (bio && bio.length > 500) {
+    return NextResponse.json({ error: "Bio must be at most 500 characters" }, { status: 400 });
+  }
+
   db.prepare("UPDATE users SET display_name = ?, bio = ? WHERE id = ?").run(
     displayName.trim(),
     (bio || "").trim(),

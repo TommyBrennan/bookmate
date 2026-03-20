@@ -21,6 +21,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // bcrypt only uses the first 72 bytes; cap to prevent DoS via slow hashing
+    if (password.length > 72) {
+      return NextResponse.json(
+        { error: "Password must be at most 72 characters" },
+        { status: 400 }
+      );
+    }
+
+    if (displayName.length > 100) {
+      return NextResponse.json(
+        { error: "Display name must be at most 100 characters" },
+        { status: 400 }
+      );
+    }
+
+    if (email.length > 254) {
+      return NextResponse.json(
+        { error: "Email address is too long" },
+        { status: 400 }
+      );
+    }
+
     // Check if email is already taken
     const existing = db
       .prepare("SELECT id FROM users WHERE email = ?")

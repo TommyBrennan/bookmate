@@ -7,22 +7,31 @@ export interface SessionData {
   displayName?: string;
 }
 
-const sessionOptions: SessionOptions = {
-  password:
-    process.env.SESSION_SECRET ||
-    "bookmate-development-secret-key-change-in-production-32chars!",
-  cookieName: "bookmate_session",
-  cookieOptions: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
-  },
-};
+const DEV_SECRET =
+  "bookmate-development-secret-key-change-in-production-32chars!";
+
+function getSessionOptions(): SessionOptions {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "SESSION_SECRET environment variable is required in production"
+    );
+  }
+  return {
+    password: secret || DEV_SECRET,
+    cookieName: "bookmate_session",
+    cookieOptions: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    },
+  };
+}
 
 export async function getSession() {
   const cookieStore = await cookies();
-  return getIronSession<SessionData>(cookieStore, sessionOptions);
+  return getIronSession<SessionData>(cookieStore, getSessionOptions());
 }
 
 export async function requireAuth() {

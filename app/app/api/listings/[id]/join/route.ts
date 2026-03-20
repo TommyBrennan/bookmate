@@ -45,29 +45,40 @@ export async function POST(
     return NextResponse.json({ error: "You are already a member" }, { status: 400 });
   }
 
-  // Count current members
-  const { count } = db
-    .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
-    .get(listingId) as { count: number };
+  // Wrap count check + insert in a transaction to prevent race conditions
+  const joinTransaction = db.transaction(() => {
+    const { count } = db
+      .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
+      .get(listingId) as { count: number };
 
-  if (count >= (listing.max_group_size as number)) {
-    return NextResponse.json({ error: "This group is already full" }, { status: 400 });
+    if (count >= (listing.max_group_size as number)) {
+      return { error: "This group is already full", count };
+    }
+
+    db.prepare(
+      "INSERT INTO listing_members (listing_id, user_id) VALUES (?, ?)"
+    ).run(listingId, session.userId);
+
+    const newCount = count + 1;
+    if (newCount >= (listing.max_group_size as number)) {
+      db.prepare("UPDATE listings SET is_full = 1 WHERE id = ?").run(listingId);
+    }
+
+    return { error: null, count: newCount };
+  });
+
+  const result = joinTransaction();
+
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
-  // Join
-  db.prepare(
-    "INSERT INTO listing_members (listing_id, user_id) VALUES (?, ?)"
-  ).run(listingId, session.userId);
-
-  // Notify the author
+  // Notify outside the transaction (fire-and-forget)
   notifyListingAuthor(listingId, session.displayName || "Someone");
 
-  // Check if group is now full
-  const newCount = count + 1;
-  if (newCount >= (listing.max_group_size as number)) {
-    db.prepare("UPDATE listings SET is_full = 1 WHERE id = ?").run(listingId);
+  if (result.count >= (listing.max_group_size as number)) {
     notifyGroupFull(listingId);
   }
 
-  return NextResponse.json({ ok: true, memberCount: newCount });
+  return NextResponse.json({ ok: true, memberCount: result.count });
 }
