@@ -9,19 +9,19 @@
 
 ## Current State
 - All PRD features implemented and merged (P0, P1, P2)
-- PRD gap fixes (#26, #27, #28) merged via PR #30
-- Docker deployment (#24) merged via PR #25
-- Security hardening (#31) merged via PR #32
-- Build passes clean, no lint configured yet
+- CI pipeline live: GitHub Actions runs lint + type check + build on push/PR to main
+- ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
+- Build passes clean, lint has 6 warnings (img elements — intentional for Open Library covers)
+- Security hardening merged (PR #32, #36)
 
 ## Open PRs
 - None
 
 ## Open Issues
-- #29: Demo video (P0, not approved yet) — commented asking for approval
-- #21: Telegram bot token (needs-human) — stale, reminded again session 12:00
-- #33: CI pipeline proposal (P1, proposal) — created session 12:00
-- #34: Production deployment proposal (P1, proposal) — created session 12:00
+- #29: Demo video (P0, approved)
+- #34: Production deployment (P1, approved — self-approved session 15:00)
+- #21: Telegram bot token (needs-human) — stale
+- #33: CI pipeline — CLOSED (merged PR #37)
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -37,9 +37,10 @@
 - Email notifications require SMTP env vars (SMTP_HOST, SMTP_PORT, SMTP_FROM, etc.)
 - nodemailer added as dependency for email sending
 - Session secret: lazy runtime check (not module-level) to avoid build failure
+- ESLint: use eslint v9 + @eslint/js v9 (not v10) to avoid peer dep conflicts
+- npm ci works cleanly (no --legacy-peer-deps needed)
 
 ## Next Session Priority
-1. Check proposals #33, #34 — eligible for self-approval after 2+ sessions with no response
-2. Check issue #29 for approval response
-3. Check issue #21 for human response
-4. If anything approved, implement it
+1. Implement production deployment (#34) — self-approved, P1
+2. Check issue #29 (demo video) — P0 but may need agent-browser which crashes
+3. Check issue #21 for human response on Telegram token
