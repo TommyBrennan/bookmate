@@ -76,13 +76,17 @@ export default function ListingDetailPage() {
   const [ratingSaving, setRatingSaving] = useState<number | null>(null);
   const [ratingMessage, setRatingMessage] = useState("");
 
+  const [notAvailable, setNotAvailable] = useState(false);
+
   const fetchListing = async () => {
     const res = await fetch(`/api/listings/${id}`);
     const data = await res.json();
-    if (data.listing) {
+    if (res.ok && data.listing) {
       setListing(data.listing);
       setTelegramLink(data.listing.telegram_link || "");
       setDiscordLink(data.listing.discord_link || "");
+    } else if (res.status === 404) {
+      setNotAvailable(true);
     }
     setLoading(false);
   };
@@ -331,6 +335,24 @@ export default function ListingDetailPage() {
     return (
       <div className="text-center py-16" style={{ color: "var(--color-text-secondary)" }}>
         <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (notAvailable) {
+    return (
+      <div className="text-center py-16">
+        <h2 className="text-2xl mb-2">This listing is no longer available</h2>
+        <p style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}>
+          This reading group has reached its maximum size and is no longer visible to non-members.
+        </p>
+        <button
+          onClick={() => router.push("/")}
+          className="mt-4 px-4 py-2 rounded"
+          style={{ background: "var(--color-accent)", color: "white", fontFamily: "system-ui, sans-serif" }}
+        >
+          Browse other listings
+        </button>
       </div>
     );
   }

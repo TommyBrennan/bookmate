@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const q = searchParams.get("q")?.trim() || "";
   const meetingFormat = searchParams.get("meeting_format") || "";
   const readingPace = searchParams.get("reading_pace") || "";
+  const startDateFrom = searchParams.get("start_date_from") || "";
   const sort = searchParams.get("sort") || "newest";
 
   const conditions: string[] = ["l.is_full = 0"];
@@ -25,6 +26,11 @@ export async function GET(request: NextRequest) {
   if (readingPace) {
     conditions.push("l.reading_pace LIKE ?");
     params.push(`%${readingPace}%`);
+  }
+
+  if (startDateFrom && /^\d{4}-\d{2}-\d{2}$/.test(startDateFrom)) {
+    conditions.push("l.start_date >= ?");
+    params.push(startDateFrom);
   }
 
   const whereClause = conditions.join(" AND ");

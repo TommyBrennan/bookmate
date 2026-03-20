@@ -27,17 +27,21 @@ export default function HomePage() {
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [meetingFormat, setMeetingFormat] = useState("");
+  const [readingPace, setReadingPace] = useState("");
+  const [startDateFrom, setStartDateFrom] = useState("");
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const fetchListings = useCallback(
-    (query: string, format: string, sortBy: string) => {
+    (query: string, format: string, sortBy: string, pace?: string, dateFrom?: string) => {
       setLoading(true);
       const params = new URLSearchParams();
       if (query) params.set("q", query);
       if (format) params.set("meeting_format", format);
+      if (pace) params.set("reading_pace", pace);
+      if (dateFrom) params.set("start_date_from", dateFrom);
       if (sortBy) params.set("sort", sortBy);
 
       const qs = params.toString();
@@ -54,7 +58,7 @@ export default function HomePage() {
 
   // Initial fetch
   useEffect(() => {
-    fetchListings("", "", "newest");
+    fetchListings("", "", "newest", "", "");
   }, [fetchListings]);
 
   // Debounced search
@@ -62,29 +66,41 @@ export default function HomePage() {
     setSearchQuery(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchListings(value, meetingFormat, sort);
+      fetchListings(value, meetingFormat, sort, readingPace, startDateFrom);
     }, 400);
   };
 
   // Immediate filter changes
   const handleFormatChange = (value: string) => {
     setMeetingFormat(value);
-    fetchListings(searchQuery, value, sort);
+    fetchListings(searchQuery, value, sort, readingPace, startDateFrom);
+  };
+
+  const handlePaceChange = (value: string) => {
+    setReadingPace(value);
+    fetchListings(searchQuery, meetingFormat, sort, value, startDateFrom);
+  };
+
+  const handleStartDateFromChange = (value: string) => {
+    setStartDateFrom(value);
+    fetchListings(searchQuery, meetingFormat, sort, readingPace, value);
   };
 
   const handleSortChange = (value: string) => {
     setSort(value);
-    fetchListings(searchQuery, meetingFormat, value);
+    fetchListings(searchQuery, meetingFormat, value, readingPace, startDateFrom);
   };
 
   const clearFilters = () => {
     setSearchQuery("");
     setMeetingFormat("");
+    setReadingPace("");
+    setStartDateFrom("");
     setSort("newest");
-    fetchListings("", "", "newest");
+    fetchListings("", "", "newest", "", "");
   };
 
-  const hasActiveFilters = searchQuery || meetingFormat || sort !== "newest";
+  const hasActiveFilters = searchQuery || meetingFormat || readingPace || startDateFrom || sort !== "newest";
 
   const formatMeetingType = (f: string) => {
     const labels: Record<string, string> = {
@@ -217,6 +233,51 @@ export default function HomePage() {
                   <option value="text">Text chat</option>
                   <option value="mixed">Mixed</option>
                 </select>
+              </div>
+
+              <div style={{ minWidth: "160px" }}>
+                <label
+                  className="text-xs font-semibold mb-1 block"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Reading pace
+                </label>
+                <select
+                  value={readingPace}
+                  onChange={(e) => handlePaceChange(e.target.value)}
+                  className="input-field"
+                  style={{ fontSize: "0.875rem", padding: "0.5rem 0.75rem" }}
+                >
+                  <option value="">All paces</option>
+                  <option value="chapter">Chapter-based</option>
+                  <option value="pages">Pages-based</option>
+                  <option value="week">Weekly</option>
+                  <option value="day">Daily</option>
+                </select>
+              </div>
+
+              <div style={{ minWidth: "160px" }}>
+                <label
+                  className="text-xs font-semibold mb-1 block"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Starting from
+                </label>
+                <input
+                  type="date"
+                  value={startDateFrom}
+                  onChange={(e) => handleStartDateFromChange(e.target.value)}
+                  className="input-field"
+                  style={{ fontSize: "0.875rem", padding: "0.5rem 0.75rem" }}
+                />
               </div>
 
               <div style={{ minWidth: "160px" }}>
