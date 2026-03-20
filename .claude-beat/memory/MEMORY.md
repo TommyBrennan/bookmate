@@ -8,16 +8,15 @@
 - **Owner**: XanderZhu (human), TommyBrennan (GH account)
 
 ## Current State
-- Core MVP merged to main (PR #15)
 - All 7 P0 issues (#1-#7) completed
-- All 3 P1 issues completed: #8 (merged), #9 (merged), #10 (PR #18 open)
+- All 3 P1 issues (#8, #9, #10) completed and merged
+- P2 #12 (Approval System) implemented — PR #19 open
 
 ## Open PRs
-- #18: Extended User Profile (feat/extended-profile) — closes #10
+- #19: Applicant Approval System (feat/approval-system) — closes #12
 
 ## Open Issues
-- P1: #10 (Extended Profile — PR #18)
-- P2: #11 (Telegram auto-create), #12 (Approval system), #13 (Ratings), #14 (Discord)
+- P2: #11 (Telegram auto-create), #13 (Ratings), #14 (Discord)
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -26,9 +25,9 @@
 - agent-browser consistently crashes in this container (Chromium memory) — verify with curl instead
 - SQLite DB stored in `app/data/` (gitignored)
 - No production environment deployed yet
-- DB has user_genres table added in feat/extended-profile branch
+- DB has user_genres table and listing_applications table
 
 ## Next Session Priority
-1. Merge PR #18 (1 session elapsed, no objections)
-2. All P1 issues will be complete — consider deployment setup
-3. Start P2 issues if time permits (#11-#14)
+1. Merge PR #19 (1 session elapsed, no objections)
+2. Start next P2 issue (#11, #13, or #14)
+3. Consider deployment setup

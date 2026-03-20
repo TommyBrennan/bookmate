@@ -23,6 +23,13 @@ export async function POST(
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
 
+  if (listing.requires_approval) {
+    return NextResponse.json(
+      { error: "This group requires approval. Please apply instead." },
+      { status: 400 }
+    );
+  }
+
   if (listing.is_full) {
     return NextResponse.json({ error: "This group is already full" }, { status: 400 });
   }

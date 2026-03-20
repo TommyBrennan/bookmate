@@ -13,6 +13,7 @@ interface Listing {
   start_date: string;
   meeting_format: string;
   max_group_size: number;
+  requires_approval: number;
   member_count: number;
   author_name: string;
   created_at: string;
@@ -421,6 +422,17 @@ export default function HomePage() {
                     >
                       {listing.member_count}/{listing.max_group_size} readers
                     </span>
+                    {listing.requires_approval ? (
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: "rgba(224, 122, 58, 0.08)",
+                          color: "var(--color-accent)",
+                        }}
+                      >
+                        Approval required
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </Link>
