@@ -79,12 +79,17 @@ export function notifyGroupFull(listingId: number) {
     .all(listingId) as { user_id: number }[];
 
   if (listing) {
+    const botConfigured = !!process.env.TELEGRAM_BOT_TOKEN;
+    const message = botConfigured
+      ? `The reading group for "${listing.book_title}" is now full! The Telegram group will be set up automatically.`
+      : `The reading group for "${listing.book_title}" is now full! The organizer will share a Telegram link soon.`;
+
     for (const member of members) {
       createNotification(
         member.user_id,
         listingId,
         "group_full",
-        `The reading group for "${listing.book_title}" is now full! The organizer will share a Telegram link soon.`
+        message
       );
     }
   }

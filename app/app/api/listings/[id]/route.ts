@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { isBotConfigured } from "@/lib/telegram";
 
 export async function GET(
   _req: NextRequest,
@@ -80,6 +81,7 @@ export async function GET(
       hasApplied,
       applicationStatus,
       pendingApplicants,
+      telegramBotConfigured: isBotConfigured(),
     },
   });
 }
