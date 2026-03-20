@@ -19,13 +19,14 @@ import { createNotification } from "@/lib/notifications";
  * simpler integration scenarios or manual triggering.
  */
 export async function POST(req: NextRequest) {
-  // Verify webhook secret if configured
+  // Verify webhook secret — fail closed if not configured
   const webhookSecret = process.env.DISCORD_WEBHOOK_SECRET;
-  if (webhookSecret) {
-    const headerSecret = req.headers.get("X-Discord-Webhook-Secret");
-    if (headerSecret !== webhookSecret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+  const headerSecret = req.headers.get("X-Discord-Webhook-Secret");
+  if (headerSecret !== webhookSecret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   try {

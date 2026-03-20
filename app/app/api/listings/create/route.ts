@@ -46,6 +46,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!startDate || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+      return NextResponse.json(
+        { error: "Invalid start date format (expected YYYY-MM-DD)" },
+        { status: 400 }
+      );
+    }
+
     const size = parseInt(maxGroupSize, 10);
     if (isNaN(size) || size < 2 || size > 20) {
       return NextResponse.json(

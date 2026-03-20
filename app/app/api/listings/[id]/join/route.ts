@@ -14,6 +14,9 @@ export async function POST(
 
   const { id } = await params;
   const listingId = parseInt(id, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
+  }
 
   const listing = db
     .prepare("SELECT * FROM listings WHERE id = ?")
@@ -21,6 +24,11 @@ export async function POST(
 
   if (!listing) {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  }
+
+  // Author is already a member — don't allow re-joining
+  if (listing.author_id === session.userId) {
+    return NextResponse.json({ error: "You are the organizer of this group" }, { status: 400 });
   }
 
   if (listing.requires_approval) {
@@ -76,7 +84,7 @@ export async function POST(
   // Notify outside the transaction (fire-and-forget)
   notifyListingAuthor(listingId, session.displayName || "Someone");
 
-  if (result.count >= (listing.max_group_size as number)) {
+  if (result.count === (listing.max_group_size as number)) {
     notifyGroupFull(listingId);
   }
 

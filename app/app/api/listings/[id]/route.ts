@@ -9,6 +9,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const listingId = parseInt(id, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
+  }
 
   const listing = db
     .prepare(
@@ -19,7 +23,7 @@ export async function GET(
       JOIN users u ON l.author_id = u.id
       WHERE l.id = ?`
     )
-    .get(id) as Record<string, unknown> | undefined;
+    .get(listingId) as Record<string, unknown> | undefined;
 
   if (!listing) {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
@@ -33,7 +37,7 @@ export async function GET(
        WHERE lm.listing_id = ?
        ORDER BY lm.joined_at ASC`
     )
-    .all(id) as { id: number; display_name: string; bio: string; joined_at: string }[];
+    .all(listingId) as { id: number; display_name: string; bio: string; joined_at: string }[];
 
   const session = await getSession();
   const isMember = session.userId
@@ -59,7 +63,7 @@ export async function GET(
       .prepare(
         "SELECT status FROM listing_applications WHERE listing_id = ? AND user_id = ?"
       )
-      .get(id, session.userId) as { status: string } | undefined;
+      .get(listingId, session.userId) as { status: string } | undefined;
     if (app) {
       hasApplied = app.status === "pending";
       applicationStatus = app.status;
@@ -77,7 +81,7 @@ export async function GET(
          WHERE la.listing_id = ? AND la.status = 'pending'
          ORDER BY la.applied_at ASC`
       )
-      .all(id) as { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[];
+      .all(listingId) as { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[];
   }
 
   return NextResponse.json({
