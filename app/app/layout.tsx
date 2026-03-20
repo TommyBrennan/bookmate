@@ -29,8 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen">
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <Navbar />
-        <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
+        <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">{children}</main>
       </body>
     </html>
   );

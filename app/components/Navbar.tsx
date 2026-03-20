@@ -71,6 +71,9 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(!menuOpen)}
                   className="flex items-center gap-2 cursor-pointer"
                   style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+                  aria-label={`User menu for ${user.displayName}${notifCount > 0 ? `, ${notifCount} unread notifications` : ""}`}
+                  aria-expanded={menuOpen}
+                  aria-haspopup="true"
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white"
@@ -92,6 +95,8 @@ export default function Navbar() {
                   <div
                     className="absolute right-0 top-12 w-48 card shadow-lg py-2 px-0"
                     style={{ padding: 0 }}
+                    role="menu"
+                    aria-label="User menu"
                   >
                     <div
                       className="px-4 py-2 text-sm font-bold truncate"
@@ -107,6 +112,7 @@ export default function Navbar() {
                       className="block px-4 py-2 text-sm hover:bg-gray-50"
                       onClick={() => setMenuOpen(false)}
                       style={{ fontFamily: "system-ui, sans-serif" }}
+                      role="menuitem"
                     >
                       Profile
                     </Link>
@@ -115,6 +121,7 @@ export default function Navbar() {
                       className="block px-4 py-2 text-sm hover:bg-gray-50"
                       onClick={() => setMenuOpen(false)}
                       style={{ fontFamily: "system-ui, sans-serif" }}
+                      role="menuitem"
                     >
                       Notifications
                       {notifCount > 0 && (
@@ -132,6 +139,7 @@ export default function Navbar() {
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer"
+                      role="menuitem"
                       style={{
                         borderTop: "1px solid var(--color-border)",
                         fontFamily: "system-ui, sans-serif",

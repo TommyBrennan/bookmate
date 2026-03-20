@@ -61,6 +61,8 @@ export default function LoginPage() {
               color: "var(--color-error)",
               fontFamily: "system-ui, sans-serif",
             }}
+            role="alert"
+            id="login-error"
           >
             {error}
           </div>
@@ -69,35 +71,43 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
+              htmlFor="login-email"
               className="block text-sm font-semibold mb-1"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Email
             </label>
             <input
+              id="login-email"
               type="email"
               className="input-field"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
+              autoComplete="email"
+              aria-describedby={error ? "login-error" : undefined}
             />
           </div>
 
           <div>
             <label
+              htmlFor="login-password"
               className="block text-sm font-semibold mb-1"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Password
             </label>
             <input
+              id="login-password"
               type="password"
               className="input-field"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Your password"
+              autoComplete="current-password"
+              aria-describedby={error ? "login-error" : undefined}
             />
           </div>
 

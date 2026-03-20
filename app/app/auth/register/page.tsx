@@ -62,6 +62,8 @@ export default function RegisterPage() {
               color: "var(--color-error)",
               fontFamily: "system-ui, sans-serif",
             }}
+            role="alert"
+            id="register-error"
           >
             {error}
           </div>
@@ -70,46 +72,56 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
+              htmlFor="register-name"
               className="block text-sm font-semibold mb-1"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Display name
             </label>
             <input
+              id="register-name"
               type="text"
               className="input-field"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
               placeholder="How others will see you"
+              autoComplete="name"
+              aria-describedby={error ? "register-error" : undefined}
             />
           </div>
 
           <div>
             <label
+              htmlFor="register-email"
               className="block text-sm font-semibold mb-1"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Email
             </label>
             <input
+              id="register-email"
               type="email"
               className="input-field"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
+              autoComplete="email"
+              aria-describedby={error ? "register-error" : undefined}
             />
           </div>
 
           <div>
             <label
+              htmlFor="register-password"
               className="block text-sm font-semibold mb-1"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               Password
             </label>
             <input
+              id="register-password"
               type="password"
               className="input-field"
               value={password}
@@ -117,6 +129,8 @@ export default function RegisterPage() {
               required
               minLength={8}
               placeholder="At least 8 characters"
+              autoComplete="new-password"
+              aria-describedby={error ? "register-error" : undefined}
             />
           </div>
 

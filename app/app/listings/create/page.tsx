@@ -98,6 +98,7 @@ export default function CreateListingPage() {
             color: "var(--color-error)",
             fontFamily: "system-ui, sans-serif",
           }}
+          role="alert"
         >
           {error}
         </div>
@@ -120,7 +121,7 @@ export default function CreateListingPage() {
               {bookCoverUrl && (
                 <img
                   src={bookCoverUrl}
-                  alt=""
+                  alt={`Cover of ${bookTitle}`}
                   className="w-10 h-14 object-cover rounded"
                 />
               )}
@@ -211,7 +212,7 @@ export default function CreateListingPage() {
           >
             Meeting format
           </label>
-          <div className="flex gap-3">
+          <div className="flex gap-3" role="radiogroup" aria-label="Meeting format">
             {[
               { value: "text", label: "Text chat" },
               { value: "voice", label: "Voice calls" },
@@ -220,6 +221,8 @@ export default function CreateListingPage() {
               <button
                 key={opt.value}
                 type="button"
+                role="radio"
+                aria-checked={meetingFormat === opt.value}
                 onClick={() => setMeetingFormat(opt.value)}
                 className="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
                 style={{
@@ -280,7 +283,7 @@ export default function CreateListingPage() {
           >
             Where your group will connect once it&apos;s full
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-3" role="radiogroup" aria-label="Chat platform">
             {[
               { value: "telegram", label: "Telegram", icon: (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -296,6 +299,8 @@ export default function CreateListingPage() {
               <button
                 key={opt.value}
                 type="button"
+                role="radio"
+                aria-checked={platformPreference === opt.value}
                 onClick={() => setPlatformPreference(opt.value)}
                 className="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
                 style={{
@@ -335,7 +340,17 @@ export default function CreateListingPage() {
               ? "1.5px solid var(--color-accent)"
               : "1.5px solid var(--color-border)",
           }}
+          role="checkbox"
+          aria-checked={requiresApproval}
+          aria-label="Require approval for new members"
+          tabIndex={0}
           onClick={() => setRequiresApproval(!requiresApproval)}
+          onKeyDown={(e) => {
+            if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              setRequiresApproval(!requiresApproval);
+            }
+          }}
         >
           <div
             className="w-5 h-5 rounded flex items-center justify-center mt-0.5"

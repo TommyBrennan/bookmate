@@ -63,7 +63,11 @@ export default function NotificationsPage() {
                   ? "var(--color-border)"
                   : "var(--color-accent)",
               }}
+              aria-label={`${!n.is_read ? "Unread: " : ""}${n.message}`}
             >
+              {!n.is_read && (
+                <span className="sr-only">Unread</span>
+              )}
               <p
                 className="text-sm"
                 style={{ fontFamily: "system-ui, sans-serif" }}

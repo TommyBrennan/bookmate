@@ -204,10 +204,16 @@ export default function ProfilePage() {
       <div
         className="flex gap-1 mb-6 p-1 rounded-lg"
         style={{ backgroundColor: "var(--color-border)" }}
+        role="tablist"
+        aria-label="Profile sections"
       >
         {tabs.map((tab) => (
           <button
             key={tab.key}
+            id={`tab-${tab.key}`}
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            aria-controls={`tabpanel-${tab.key}`}
             onClick={() => setActiveTab(tab.key)}
             className="flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all"
             style={{
@@ -226,7 +232,7 @@ export default function ProfilePage() {
 
       {/* Profile Tab */}
       {activeTab === "profile" && (
-        <form onSubmit={handleSave} className="card space-y-4">
+        <form onSubmit={handleSave} className="card space-y-4" id="tabpanel-profile" role="tabpanel" aria-labelledby="tab-profile">
           <div>
             <label
               className="block text-sm font-semibold mb-1"
@@ -301,7 +307,7 @@ export default function ProfilePage() {
 
       {/* Reading Activity Tab */}
       {activeTab === "reading" && (
-        <div className="space-y-6">
+        <div className="space-y-6" id="tabpanel-reading" role="tabpanel" aria-labelledby="tab-reading">
           {readingLoading ? (
             <div className="text-center py-8" style={{ color: "var(--color-text-secondary)" }}>
               <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading reading activity...</p>
@@ -355,7 +361,7 @@ export default function ProfilePage() {
 
       {/* Reputation Tab */}
       {activeTab === "reputation" && (
-        <div className="space-y-4">
+        <div className="space-y-4" id="tabpanel-reputation" role="tabpanel" aria-labelledby="tab-reputation">
           {reputationLoading ? (
             <div className="text-center py-8" style={{ color: "var(--color-text-secondary)" }}>
               <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading reputation...</p>
@@ -390,11 +396,11 @@ export default function ProfilePage() {
                         ? (count / reputation.totalRatings) * 100
                         : 0;
                       return (
-                        <div key={star} className="flex items-center gap-2 text-xs">
-                          <span style={{ width: 16, textAlign: "right", color: "var(--color-text-secondary)" }}>
+                        <div key={star} className="flex items-center gap-2 text-xs" aria-label={`${star} stars: ${count} rating${count !== 1 ? "s" : ""}`}>
+                          <span style={{ width: 16, textAlign: "right", color: "var(--color-text-secondary)" }} aria-hidden="true">
                             {star}
                           </span>
-                          <span style={{ color: "#f59e0b", fontSize: "0.7rem" }}>{"\u2605"}</span>
+                          <span style={{ color: "#f59e0b", fontSize: "0.7rem" }} aria-hidden="true">{"\u2605"}</span>
                           <div
                             className="flex-1 rounded-full overflow-hidden"
                             style={{ height: 6, backgroundColor: "var(--color-border)" }}
@@ -456,7 +462,7 @@ export default function ProfilePage() {
                         }}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="flex">
+                          <div className="flex" aria-label={`${rating.score} out of 5 stars`} role="img">
                             {[1, 2, 3, 4, 5].map((s) => (
                               <span
                                 key={s}
@@ -522,7 +528,7 @@ export default function ProfilePage() {
 
       {/* Favorite Genres Tab */}
       {activeTab === "genres" && (
-        <div className="card space-y-4">
+        <div className="card space-y-4" id="tabpanel-genres" role="tabpanel" aria-labelledby="tab-genres">
           <p
             className="text-sm"
             style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
@@ -543,6 +549,7 @@ export default function ProfilePage() {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
+                      aria-pressed={selected}
                       className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
                       style={{
                         fontFamily: "system-ui, sans-serif",
@@ -676,8 +683,9 @@ function ReadingSection({
                     alignItems: "center",
                     justifyContent: "center",
                   }}
+                  aria-hidden="true"
                 >
-                  <span style={{ fontSize: 20 }}>&#128214;</span>
+                  <span style={{ fontSize: 20 }} aria-hidden="true">&#128214;</span>
                 </div>
               )}
 

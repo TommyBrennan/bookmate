@@ -150,6 +150,7 @@ export default function HomePage() {
               style={{ paddingLeft: "2.5rem" }}
             />
             <svg
+              aria-hidden="true"
               style={{
                 position: "absolute",
                 left: "0.75rem",
@@ -172,6 +173,8 @@ export default function HomePage() {
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
             className="btn-secondary"
+            aria-expanded={filtersOpen}
+            aria-controls="filter-panel"
             style={{
               display: "flex",
               alignItems: "center",
@@ -181,6 +184,7 @@ export default function HomePage() {
             }}
           >
             <svg
+              aria-hidden="true"
               width="16"
               height="16"
               viewBox="0 0 24 24"
@@ -195,6 +199,7 @@ export default function HomePage() {
             Filters
             {hasActiveFilters && (
               <span
+                aria-hidden="true"
                 style={{
                   width: "0.5rem",
                   height: "0.5rem",
@@ -212,6 +217,7 @@ export default function HomePage() {
         {/* Filter panel */}
         {filtersOpen && (
           <div
+            id="filter-panel"
             className="card mt-3"
             style={{ padding: "1rem 1.25rem" }}
           >
@@ -493,6 +499,7 @@ export default function HomePage() {
                       flexShrink: 0,
                       color: "var(--color-text-secondary)",
                     }}
+                    aria-hidden="true"
                   >
                     📖
                   </div>
