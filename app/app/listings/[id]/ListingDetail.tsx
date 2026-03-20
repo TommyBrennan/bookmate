@@ -78,17 +78,26 @@ export default function ListingDetail() {
 
   const [notAvailable, setNotAvailable] = useState(false);
 
+  const [fetchError, setFetchError] = useState(false);
+
   const fetchListing = async () => {
-    const res = await fetch(`/api/listings/${id}`);
-    const data = await res.json();
-    if (res.ok && data.listing) {
-      setListing(data.listing);
-      setTelegramLink(data.listing.telegram_link || "");
-      setDiscordLink(data.listing.discord_link || "");
-    } else if (res.status === 404) {
-      setNotAvailable(true);
+    try {
+      const res = await fetch(`/api/listings/${id}`);
+      const data = await res.json();
+      if (res.ok && data.listing) {
+        setListing(data.listing);
+        setTelegramLink(data.listing.telegram_link || "");
+        setDiscordLink(data.listing.discord_link || "");
+      } else if (res.status === 404) {
+        setNotAvailable(true);
+      } else {
+        setFetchError(true);
+      }
+    } catch {
+      setFetchError(true);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -335,6 +344,24 @@ export default function ListingDetail() {
     return (
       <div className="text-center py-16" style={{ color: "var(--color-text-secondary)" }}>
         <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="text-center py-16">
+        <h2 className="text-2xl mb-2">Something went wrong</h2>
+        <p style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}>
+          Failed to load this listing. Please try again.
+        </p>
+        <button
+          onClick={() => { setFetchError(false); setLoading(true); fetchListing(); }}
+          className="mt-4 px-4 py-2 rounded cursor-pointer"
+          style={{ background: "var(--color-accent)", color: "white", fontFamily: "system-ui, sans-serif" }}
+        >
+          Retry
+        </button>
       </div>
     );
   }

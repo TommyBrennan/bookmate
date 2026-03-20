@@ -20,12 +20,18 @@ export async function GET() {
     return NextResponse.json({ user: null });
   }
 
+  // Include unread notification count to avoid a second round-trip from the Navbar
+  const unread = db
+    .prepare("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0")
+    .get(session.userId) as { count: number };
+
   return NextResponse.json({
     user: {
       id: user.id,
       email: user.email,
       displayName: user.display_name,
       bio: user.bio,
+      unreadNotificationCount: unread.count,
     },
   });
 }
