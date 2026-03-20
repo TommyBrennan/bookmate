@@ -23,6 +23,7 @@ interface Listing {
 export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,12 +47,19 @@ export default function HomePage() {
 
       const qs = params.toString();
       fetch(`/api/listings${qs ? `?${qs}` : ""}`)
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error("Failed to load listings");
+          return r.json();
+        })
         .then((data) => {
           setListings(data.listings || []);
+          setError(null);
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch((err) => {
+          setError(err.message || "Could not load listings. Please try again.");
+          setLoading(false);
+        });
     },
     []
   );
@@ -327,13 +335,80 @@ export default function HomePage() {
 
       {/* Results */}
       {loading ? (
-        <div
-          className="text-center py-16"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
-          <p style={{ fontFamily: "system-ui, sans-serif" }}>
-            Loading listings...
+        <div className="grid gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="card flex gap-4">
+              <div
+                className="skeleton"
+                style={{ width: "4rem", height: "6rem", flexShrink: 0 }}
+              />
+              <div className="flex-1">
+                <div
+                  className="skeleton skeleton-heading"
+                  style={{ width: `${60 - i * 5}%` }}
+                />
+                <div
+                  className="skeleton skeleton-text"
+                  style={{ width: `${45 - i * 5}%` }}
+                />
+                <div className="flex gap-2 mt-2">
+                  <div
+                    className="skeleton"
+                    style={{
+                      width: "5rem",
+                      height: "1.5rem",
+                      borderRadius: "9999px",
+                    }}
+                  />
+                  <div
+                    className="skeleton"
+                    style={{
+                      width: "4rem",
+                      height: "1.5rem",
+                      borderRadius: "9999px",
+                    }}
+                  />
+                  <div
+                    className="skeleton"
+                    style={{
+                      width: "5.5rem",
+                      height: "1.5rem",
+                      borderRadius: "9999px",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-16">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-error)"
+            strokeWidth={1.5}
+            style={{ margin: "0 auto 0.75rem" }}
+          >
+            <circle cx={12} cy={12} r={10} />
+            <line x1={12} y1={8} x2={12} y2={12} />
+            <line x1={12} y1={16} x2={12.01} y2={16} />
+          </svg>
+          <p
+            className="text-lg mb-2"
+            style={{ color: "var(--color-text)", fontFamily: "system-ui, sans-serif" }}
+          >
+            {error}
           </p>
+          <button
+            onClick={() => fetchListings(searchQuery, meetingFormat, sort, readingPace, startDateFrom)}
+            className="btn-primary"
+            style={{ marginTop: "0.75rem" }}
+          >
+            Try again
+          </button>
         </div>
       ) : listings.length === 0 ? (
         <div className="text-center py-16">
