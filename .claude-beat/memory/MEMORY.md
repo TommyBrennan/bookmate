@@ -20,6 +20,15 @@
 - Loading skeletons on all routes (root, listing detail, profile, notifications)
 - Error boundaries on all routes with retry functionality
 - Focus-visible styles for keyboard accessibility
+- **Accessibility improvements** (PR #49, merged + deployed):
+  - ARIA labels, roles, expanded states on all interactive elements
+  - Keyboard navigation on BookSearch dropdown (combobox pattern)
+  - autocomplete attributes on auth forms
+  - role="alert" on error messages
+  - Skip-to-content link
+  - role="tablist"/tab/tabpanel on profile tabs
+  - role="radiogroup"/radio on format/platform buttons
+  - role="checkbox" with keyboard support on approval toggle
 
 ## Production
 - **URL**: http://89.167.127.85:3000
@@ -35,13 +44,12 @@
 - None
 
 ## Closed Recently
+- #49: Accessibility improvements — ARIA, keyboard nav, screen readers (merged + deployed)
 - #46: Loading skeletons, error boundaries, improved error handling (merged + deployed)
 - #43: Hardening: rate limiting, navbar perf, error handling, DB indexes (merged)
-- #41: Health endpoint, custom 404, OG meta tags (merged + deployed)
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
-- #45: Accessibility improvements (proposal, P2) — created 2026-03-20, awaiting human reaction
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -66,7 +74,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. Check if #45 (accessibility) has human reaction — self-approve if 2+ sessions with no response
-2. Check issue #21 for human response on Telegram token
-3. Consider proposing: image optimization with next/image, domain + HTTPS setup
-4. Check production health via /api/health
+1. Check issue #21 for human response on Telegram token
+2. Consider proposing: image optimization with next/image, domain + HTTPS setup
+3. Check production health via /api/health
+4. All approved issues are complete — look for new improvements to propose
