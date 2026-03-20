@@ -17,7 +17,16 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const userId = req.nextUrl.searchParams.get("userId") || session.userId;
+  const userIdParam = req.nextUrl.searchParams.get("userId");
+  const userId = userIdParam ? parseInt(userIdParam, 10) : session.userId;
+  const isOwnProfile = userId === session.userId;
+
+  if (userIdParam && isNaN(userId as number)) {
+    return NextResponse.json(
+      { error: "Invalid userId parameter" },
+      { status: 400 }
+    );
+  }
 
   // Average score
   const stats = db
@@ -79,6 +88,15 @@ export async function GET(req: NextRequest) {
       book_title: string;
     }[];
 
+  // Strip comments from ratings when viewing other users' profiles (privacy)
+  const sanitizedRatings = isOwnProfile
+    ? recentRatings
+    : recentRatings.map(({ score, created_at, book_title }) => ({
+        score,
+        created_at,
+        book_title,
+      }));
+
   return NextResponse.json({
     reputation: {
       averageScore: stats.average_score || 0,
@@ -92,7 +110,7 @@ export async function GET(req: NextRequest) {
         2: stats.two_star || 0,
         1: stats.one_star || 0,
       },
-      recentRatings,
+      recentRatings: sanitizedRatings,
     },
   });
 }

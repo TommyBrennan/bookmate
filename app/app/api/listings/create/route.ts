@@ -31,6 +31,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Input length limits to prevent abuse
+    if (bookTitle.length > 300 || bookAuthor.length > 200 || readingPace.length > 200) {
+      return NextResponse.json(
+        { error: "One or more fields exceed maximum length" },
+        { status: 400 }
+      );
+    }
+
     if (!["voice", "text", "mixed"].includes(meetingFormat)) {
       return NextResponse.json(
         { error: "Invalid meeting format" },

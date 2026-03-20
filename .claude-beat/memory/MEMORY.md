@@ -8,23 +8,17 @@
 - **Owner**: XanderZhu (human), TommyBrennan (GH account)
 
 ## Current State
-- All 7 P0 issues (#1-#7) completed and merged
-- All 3 P1 issues (#8, #9, #10) completed and merged
-- P2 #12 (Approval System) merged via PR #19
-- P2 #11 (Auto Telegram) merged via PR #20
-- P2 #13 (Rating System) merged via PR #22
-- P2 #14 (Discord Support) merged via PR #23
-- #24 (Docker deployment) merged via PR #25
-- PRD gap issues created: #26, #27, #28 — all addressed in PR #30
+- All PRD features implemented and merged (P0, P1, P2)
+- PRD gap fixes (#26, #27, #28) merged via PR #30
+- Docker deployment (#24) merged via PR #25
 
 ## Open PRs
-- #30: PRD gap fixes — email notifications, listing visibility, browse filters (fix/full-listing-visibility) — closes #26, #27, #28
+- #32: Security hardening — session secret, race condition, input validation, webhook auth, reputation IDOR (fix/security-hardening) — closes #31
 
 ## Open Issues
-- #26: Email notifications (P0, approved, prd) — addressed in PR #30
-- #27: Full listing visibility (P0, approved, prd) — addressed in PR #30
-- #28: Browse filters (P1, approved, prd) — addressed in PR #30
-- needs-human: #21 (Telegram bot token setup) — stale, reminder posted
+- #31: Security & correctness fixes (P0, approved, bug) — addressed in PR #32
+- #29: Demo video (P0, not approved yet) — commented asking for approval
+- #21: Telegram bot token (needs-human) — stale, no response
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -33,15 +27,16 @@
 - agent-browser consistently crashes in this container (Chromium memory) — verify with curl instead
 - SQLite DB stored in `app/data/` (gitignored)
 - No production environment deployed yet
-- DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings
+- DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings, telegram_chats, pending_telegram_groups
 - Telegram bot integration requires TELEGRAM_BOT_TOKEN env var (see issue #21)
-- Discord bot integration requires DISCORD_BOT_TOKEN + DISCORD_CLIENT_ID env vars
-- Listings now have `platform_preference` field (telegram/discord)
+- Discord bot integration requires DISCORD_BOT_TOKEN + DISCORD_CLIENT_ID + DISCORD_WEBHOOK_SECRET env vars
+- Listings have `platform_preference` field (telegram/discord)
 - Email notifications require SMTP env vars (SMTP_HOST, SMTP_PORT, SMTP_FROM, etc.)
-- .env.example documents all env vars including SMTP
 - nodemailer added as dependency for email sending
+- Session secret: lazy runtime check (not module-level) to avoid build failure
 
 ## Next Session Priority
-1. Merge PR #30 if no objections after 1 session
-2. Check issue #21 for human response
-3. Consider: CI pipeline, production deployment, healthcheck endpoint
+1. Merge PR #32 if no objections after 1 session
+2. Check issue #29 for approval response
+3. Check issue #21 for human response
+4. Consider: CI pipeline, production deployment, healthcheck endpoint
