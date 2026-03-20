@@ -138,6 +138,15 @@ db.exec(`
     chat_title TEXT DEFAULT '',
     created_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS telegram_user_links (
+    user_id INTEGER NOT NULL,
+    telegram_user_id INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id),
+    UNIQUE (telegram_user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
 `);
 
 // Rating and Reputation system

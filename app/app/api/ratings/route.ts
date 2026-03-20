@@ -143,10 +143,17 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const listingId = req.nextUrl.searchParams.get("listingId");
-  if (!listingId) {
+  const listingIdParam = req.nextUrl.searchParams.get("listingId");
+  if (!listingIdParam) {
     return NextResponse.json(
       { error: "listingId parameter required" },
+      { status: 400 }
+    );
+  }
+  const listingId = parseInt(listingIdParam, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json(
+      { error: "Invalid listingId" },
       { status: 400 }
     );
   }

@@ -65,6 +65,13 @@ export async function POST(req: NextRequest) {
       ? platformPreference
       : "telegram";
 
+    // Validate book cover URL — only allow Open Library covers to prevent SSRF/tracking
+    const sanitizedCoverUrl =
+      bookCoverUrl && typeof bookCoverUrl === "string" &&
+      bookCoverUrl.startsWith("https://covers.openlibrary.org/")
+        ? bookCoverUrl
+        : "";
+
     const result = db
       .prepare(
         `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval, platform_preference)
@@ -74,7 +81,7 @@ export async function POST(req: NextRequest) {
         session.userId,
         bookTitle.trim(),
         bookAuthor.trim(),
-        bookCoverUrl || "",
+        sanitizedCoverUrl,
         bookOlid || "",
         language || "English",
         readingPace.trim(),

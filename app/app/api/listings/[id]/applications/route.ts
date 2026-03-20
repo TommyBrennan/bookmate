@@ -80,33 +80,43 @@ export async function PATCH(
 
       // Check if group is now full
       const newCount = count + 1;
+      let rejectedApps: { id: number; user_id: number }[] = [];
       if (newCount >= (listing.max_group_size as number)) {
         db.prepare("UPDATE listings SET is_full = 1 WHERE id = ?").run(listingId);
-        return { isFull: true };
-      }
-      return { isFull: false };
-    });
 
-    try {
-      const result = approveTransaction();
-
-      notifyApplicationDecision(applicantUserId, listingId, "approved");
-
-      if (result.isFull) {
-        notifyGroupFull(listingId);
-        // Reject remaining pending applications
-        const pendingApps = db
+        // Reject remaining pending applications inside the transaction
+        rejectedApps = db
           .prepare(
             "SELECT id, user_id FROM listing_applications WHERE listing_id = ? AND status = 'pending'"
           )
           .all(listingId) as { id: number; user_id: number }[];
 
-        for (const app of pendingApps) {
+        for (const app of rejectedApps) {
           db.prepare(
             "UPDATE listing_applications SET status = 'rejected', decided_at = datetime('now') WHERE id = ?"
           ).run(app.id);
-          notifyApplicationDecision(app.user_id, listingId, "rejected");
         }
+
+        return { isFull: true, rejectedApps };
+      }
+      return { isFull: false, rejectedApps };
+    });
+
+    try {
+      const result = approveTransaction();
+
+      // Send notifications outside the transaction (non-critical)
+      try {
+        notifyApplicationDecision(applicantUserId, listingId, "approved");
+
+        if (result.isFull) {
+          notifyGroupFull(listingId);
+          for (const app of result.rejectedApps) {
+            notifyApplicationDecision(app.user_id, listingId, "rejected");
+          }
+        }
+      } catch (notifErr) {
+        console.error("Notification error (approval succeeded):", notifErr);
       }
 
       return NextResponse.json({ ok: true });

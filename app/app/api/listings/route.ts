@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const conditions: string[] = ["l.is_full = 0"];
   const params: (string | number)[] = [];
 
-  if (q) {
+  if (q && q.length <= 300) {
     conditions.push("(l.book_title LIKE ? OR l.book_author LIKE ?)");
     params.push(`%${q}%`, `%${q}%`);
   }
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     params.push(meetingFormat);
   }
 
-  if (readingPace) {
+  if (readingPace && readingPace.length <= 200) {
     conditions.push("l.reading_pace LIKE ?");
     params.push(`%${readingPace}%`);
   }
