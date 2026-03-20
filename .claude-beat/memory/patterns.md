@@ -49,6 +49,10 @@
 - PM2 ecosystem config at `app/ecosystem.config.js`
 - PM2 logs at `.claude-beat/logs/pm2-{out,error}.log`
 
+## React + SQLite
+- SQLite stores booleans as integers (0/1). In JSX, `{0 && <Component />}` renders "0" as text. Always use `!!value` or `Boolean(value)` for numeric fields in `&&` conditionals.
+- Git `add` with bracket directories like `[id]` needs escaping or use from project root
+
 ## Working Directory
 - Project root: /root/Projects/bookmate
 - App directory: /root/Projects/bookmate/app
