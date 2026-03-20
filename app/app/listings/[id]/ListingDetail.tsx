@@ -527,7 +527,7 @@ export default function ListingDetail() {
             </button>
           )}
 
-          {!listing.isMember && !listing.is_full && listing.requires_approval && !listing.hasApplied && (
+          {!listing.isMember && !listing.is_full && !!listing.requires_approval && !listing.hasApplied && (
             <button
               className="btn-primary"
               onClick={handleApply}
@@ -561,7 +561,7 @@ export default function ListingDetail() {
             </span>
           )}
 
-          {listing.is_full && !listing.isMember && !listing.hasApplied && (
+          {!!listing.is_full && !listing.isMember && !listing.hasApplied && (
             <span
               className="badge"
               style={{
@@ -576,7 +576,7 @@ export default function ListingDetail() {
       </div>
 
       {/* Chat platform section — visible to members when group is full */}
-      {listing.is_full && listing.isMember && listing.platform_preference !== "discord" && (
+      {!!listing.is_full && listing.isMember && listing.platform_preference !== "discord" && (
         <div className="card mb-6">
           <h2 className="text-lg mb-2">Telegram Group</h2>
 
@@ -816,7 +816,7 @@ export default function ListingDetail() {
       )}
 
       {/* Discord channel section — visible to members when group is full */}
-      {listing.is_full && listing.isMember && listing.platform_preference === "discord" && (
+      {!!listing.is_full && listing.isMember && listing.platform_preference === "discord" && (
         <div className="card mb-6">
           <h2 className="text-lg mb-2" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#5865F2" }}>
@@ -1062,7 +1062,7 @@ export default function ListingDetail() {
       )}
 
       {/* Pending Applicants — visible to author on approval-gated listings */}
-      {listing.isAuthor && listing.requires_approval && listing.pendingApplicants.length > 0 && (
+      {listing.isAuthor && !!listing.requires_approval && listing.pendingApplicants.length > 0 && (
         <div className="card mb-6">
           <h2 className="text-lg mb-3">
             Pending Applicants ({listing.pendingApplicants.length})
@@ -1172,7 +1172,7 @@ export default function ListingDetail() {
       </div>
 
       {/* Rate Members — visible to members when group is full */}
-      {listing.is_full && listing.isMember && (
+      {!!listing.is_full && listing.isMember && (
         <div className="card mt-6">
           <h2 className="text-lg mb-2">Rate Your Reading Partners</h2>
           <p
