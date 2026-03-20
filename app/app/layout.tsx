@@ -6,6 +6,19 @@ export const metadata: Metadata = {
   title: "Bookmate — Find Your Reading Companion",
   description:
     "Find people who want to read the same book at the same pace. Match, group up, and discuss on Telegram.",
+  openGraph: {
+    title: "Bookmate — Find Your Reading Companion",
+    description:
+      "Find people who want to read the same book at the same pace. Match, group up, and discuss on Telegram.",
+    type: "website",
+    siteName: "Bookmate",
+  },
+  twitter: {
+    card: "summary",
+    title: "Bookmate — Find Your Reading Companion",
+    description:
+      "Find people who want to read the same book at the same pace. Match, group up, and discuss on Telegram.",
+  },
 };
 
 export default function RootLayout({
