@@ -43,6 +43,9 @@ interface Listing {
   pendingApplicants: Applicant[];
   currentUserId: number | null;
   telegramBotConfigured: boolean;
+  discordBotConfigured: boolean;
+  platform_preference: string;
+  discord_link: string;
 }
 
 export default function ListingDetailPage() {
@@ -58,6 +61,12 @@ export default function ListingDetailPage() {
   const [autoTelegramLoading, setAutoTelegramLoading] = useState(false);
   const [autoTelegramLink, setAutoTelegramLink] = useState("");
   const [showManualFallback, setShowManualFallback] = useState(false);
+  // Discord state
+  const [discordLink, setDiscordLink] = useState("");
+  const [discordSaving, setDiscordSaving] = useState(false);
+  const [autoDiscordLoading, setAutoDiscordLoading] = useState(false);
+  const [autoDiscordLink, setAutoDiscordLink] = useState("");
+  const [showDiscordManualFallback, setShowDiscordManualFallback] = useState(false);
   const [error, setError] = useState("");
 
   // Rating state
@@ -73,6 +82,7 @@ export default function ListingDetailPage() {
     if (data.listing) {
       setListing(data.listing);
       setTelegramLink(data.listing.telegram_link || "");
+      setDiscordLink(data.listing.discord_link || "");
     }
     setLoading(false);
   };
@@ -256,6 +266,55 @@ export default function ListingDetailPage() {
       setError("Failed to connect. Please try again.");
     } finally {
       setAutoTelegramLoading(false);
+    }
+  };
+
+  const isValidDiscordLink = (link: string) => {
+    return /^https:\/\/(discord\.gg|discord\.com\/invite)\/[\w-]+$/.test(link.trim());
+  };
+
+  const discordLinkError = discordLink && !isValidDiscordLink(discordLink)
+    ? "Link must start with https://discord.gg/ or https://discord.com/invite/"
+    : "";
+
+  const handleDiscordSave = async () => {
+    if (!isValidDiscordLink(discordLink)) return;
+    setDiscordSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}/discord`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ discordLink: discordLink.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        return;
+      }
+      await fetchListing();
+    } catch {
+      setError("Failed to save link. Please try again.");
+    } finally {
+      setDiscordSaving(false);
+    }
+  };
+
+  const handleAutoDiscord = async () => {
+    setAutoDiscordLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}/auto-discord`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to generate Discord link");
+        return;
+      }
+      setAutoDiscordLink(data.inviteUrl);
+    } catch {
+      setError("Failed to connect. Please try again.");
+    } finally {
+      setAutoDiscordLoading(false);
     }
   };
 
@@ -467,8 +526,8 @@ export default function ListingDetailPage() {
         </div>
       </div>
 
-      {/* Telegram link section — visible to members when group is full */}
-      {listing.is_full && listing.isMember && (
+      {/* Chat platform section — visible to members when group is full */}
+      {listing.is_full && listing.isMember && listing.platform_preference !== "discord" && (
         <div className="card mb-6">
           <h2 className="text-lg mb-2">Telegram Group</h2>
 
@@ -701,6 +760,252 @@ export default function ListingDetailPage() {
               >
                 The organizer ({listing.author_name}) will share a Telegram invite link once
                 they set up the group. Check back soon!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Discord channel section — visible to members when group is full */}
+      {listing.is_full && listing.isMember && listing.platform_preference === "discord" && (
+        <div className="card mb-6">
+          <h2 className="text-lg mb-2" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#5865F2" }}>
+              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+            </svg>
+            Discord Channel
+          </h2>
+
+          {listing.discord_link ? (
+            <div>
+              <p
+                className="text-sm mb-3"
+                style={{
+                  color: "var(--color-text-secondary)",
+                  fontFamily: "system-ui, sans-serif",
+                }}
+              >
+                The reading group is full! Join the Discord server to start
+                coordinating:
+              </p>
+              <a
+                href={listing.discord_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-block"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  backgroundColor: "#5865F2",
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                </svg>
+                Join Discord Server
+              </a>
+              {listing.isAuthor && (
+                <p
+                  className="text-xs mt-3"
+                  style={{ color: "var(--color-text-secondary)", fontFamily: "system-ui, sans-serif" }}
+                >
+                  Link shared: {listing.discord_link}
+                </p>
+              )}
+            </div>
+          ) : listing.isAuthor ? (
+            <div style={{ fontFamily: "system-ui, sans-serif" }}>
+              <p
+                className="text-sm mb-4"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                Your reading group is full! Create a Discord server (or use an existing one) and share
+                the invite link so your readers can connect.
+              </p>
+
+              {/* Auto-create option (when Discord bot is configured) */}
+              {listing.discordBotConfigured && !showDiscordManualFallback && (
+                <div className="mb-4">
+                  {!autoDiscordLink ? (
+                    <div
+                      className="p-4 rounded-lg text-center"
+                      style={{
+                        backgroundColor: "rgba(88, 101, 242, 0.06)",
+                        border: "1px solid rgba(88, 101, 242, 0.15)",
+                      }}
+                    >
+                      <p className="text-sm mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                        Add the Bookmate bot to your Discord server — it will
+                        automatically create a reading group channel and invite link.
+                      </p>
+                      <button
+                        className="btn-primary"
+                        onClick={handleAutoDiscord}
+                        disabled={autoDiscordLoading}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          backgroundColor: "#5865F2",
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                        </svg>
+                        {autoDiscordLoading
+                          ? "Generating..."
+                          : "Set Up Discord Automatically"}
+                      </button>
+                      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
+                        <button
+                          className="underline cursor-pointer"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "inherit",
+                            font: "inherit",
+                            padding: 0,
+                          }}
+                          onClick={() => setShowDiscordManualFallback(true)}
+                        >
+                          Or set up manually
+                        </button>
+                      </p>
+                    </div>
+                  ) : (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{
+                        backgroundColor: "rgba(88, 101, 242, 0.06)",
+                        border: "1px solid rgba(88, 101, 242, 0.15)",
+                      }}
+                    >
+                      <p className="text-sm font-semibold mb-2" style={{ color: "#5865F2" }}>
+                        Almost done! Add the bot to your Discord server:
+                      </p>
+                      <a
+                        href={autoDiscordLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-primary inline-block"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          backgroundColor: "#5865F2",
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                        </svg>
+                        Add Bot to Discord Server
+                      </a>
+                      <ol className="text-xs mt-3 space-y-1" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                        <li>Select the server where you want the reading group channel</li>
+                        <li>Authorize the bot with the requested permissions</li>
+                        <li>The bot will create a <strong style={{ color: "var(--color-text)" }}>#{listing.book_title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 30)}</strong> channel</li>
+                        <li>An invite link will be automatically generated for your members</li>
+                      </ol>
+                      <p className="text-xs mt-3" style={{ color: "var(--color-text-secondary)" }}>
+                        After adding the bot, refresh this page to see the invite link.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Manual Discord setup */}
+              {(!listing.discordBotConfigured || showDiscordManualFallback) && (
+                <div>
+                  {showDiscordManualFallback && (
+                    <p className="text-xs mb-3">
+                      <button
+                        className="underline cursor-pointer"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#5865F2",
+                          font: "inherit",
+                          padding: 0,
+                        }}
+                        onClick={() => setShowDiscordManualFallback(false)}
+                      >
+                        Back to automatic setup
+                      </button>
+                    </p>
+                  )}
+
+                  <div
+                    className="mb-4 p-4 rounded-lg"
+                    style={{ backgroundColor: "rgba(88, 101, 242, 0.05)", border: "1px solid rgba(88, 101, 242, 0.15)" }}
+                  >
+                    <p className="text-sm font-semibold mb-2" style={{ color: "#5865F2" }}>
+                      How to create a Discord invite:
+                    </p>
+                    <ol className="text-sm space-y-1.5" style={{ color: "var(--color-text-secondary)", paddingLeft: "1.25rem" }}>
+                      <li>Open Discord and create a new server (or use an existing one)</li>
+                      <li>Create a text channel (e.g., <strong style={{ color: "var(--color-text)" }}>#{listing.book_title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 30)}</strong>)</li>
+                      <li>Right-click the channel and select <strong style={{ color: "var(--color-text)" }}>Invite People</strong></li>
+                      <li>Click <strong style={{ color: "var(--color-text)" }}>Edit invite link</strong> and set it to <strong style={{ color: "var(--color-text)" }}>Never expire</strong></li>
+                      <li>Copy the invite link (it looks like <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "0.1rem 0.3rem", borderRadius: "0.25rem", fontSize: "0.8rem" }}>https://discord.gg/AbCdEfG</code>)</li>
+                      <li>Paste it below and hit Save</li>
+                    </ol>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <input
+                        type="url"
+                        className="input-field"
+                        placeholder="https://discord.gg/..."
+                        value={discordLink}
+                        onChange={(e) => setDiscordLink(e.target.value)}
+                        style={{
+                          borderColor: discordLinkError
+                            ? "var(--color-error)"
+                            : discordLink && !discordLinkError
+                              ? "var(--color-success)"
+                              : undefined,
+                        }}
+                      />
+                      {discordLinkError && (
+                        <p className="text-xs mt-1" style={{ color: "var(--color-error)" }}>
+                          {discordLinkError}
+                        </p>
+                      )}
+                      {discordLink && !discordLinkError && (
+                        <p className="text-xs mt-1" style={{ color: "var(--color-success)" }}>
+                          Valid Discord link
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      className="btn-primary"
+                      onClick={handleDiscordSave}
+                      disabled={discordSaving || !discordLink || !!discordLinkError}
+                      style={{ alignSelf: "flex-start", backgroundColor: "#5865F2" }}
+                    >
+                      {discordSaving ? "Saving..." : "Save link"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ fontFamily: "system-ui, sans-serif" }}>
+              <p
+                className="text-sm mb-2"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                Waiting for the organizer to share the Discord invite link...
+              </p>
+              <p
+                className="text-xs"
+                style={{ color: "var(--color-text-secondary)", opacity: 0.7 }}
+              >
+                The organizer ({listing.author_name}) will share a Discord invite link once
+                they set up the server. Check back soon!
               </p>
             </div>
           )}

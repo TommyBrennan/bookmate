@@ -95,6 +95,27 @@ try {
   // Column already exists — safe to ignore
 }
 
+// Idempotent migration: add platform_preference column
+try {
+  db.exec("ALTER TABLE listings ADD COLUMN platform_preference TEXT DEFAULT 'telegram'");
+} catch {
+  // Column already exists — safe to ignore
+}
+
+// Idempotent migration: add discord_link column
+try {
+  db.exec("ALTER TABLE listings ADD COLUMN discord_link TEXT DEFAULT ''");
+} catch {
+  // Column already exists — safe to ignore
+}
+
+// Idempotent migration: add discord_channel_id column
+try {
+  db.exec("ALTER TABLE listings ADD COLUMN discord_channel_id TEXT DEFAULT ''");
+} catch {
+  // Column already exists — safe to ignore
+}
+
 // Idempotent migration: add telegram_chat_id column for auto-telegram feature
 try {
   db.exec("ALTER TABLE listings ADD COLUMN telegram_chat_id INTEGER");

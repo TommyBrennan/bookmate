@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       meetingFormat,
       maxGroupSize,
       requiresApproval,
+      platformPreference,
     } = body;
 
     if (!bookTitle || !bookAuthor || !readingPace || !startDate || !meetingFormat || !maxGroupSize) {
@@ -45,10 +46,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const platform = ["telegram", "discord"].includes(platformPreference)
+      ? platformPreference
+      : "telegram";
+
     const result = db
       .prepare(
-        `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval, platform_preference)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         session.userId,
@@ -61,7 +66,8 @@ export async function POST(req: NextRequest) {
         startDate,
         meetingFormat,
         size,
-        requiresApproval ? 1 : 0
+        requiresApproval ? 1 : 0,
+        platform
       );
 
     // Auto-join the author as a member
