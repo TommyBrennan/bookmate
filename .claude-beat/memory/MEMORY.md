@@ -50,6 +50,10 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required
+- #55: Image optimization with next/image (proposal, P1)
+- #56: SEO: robots.txt + sitemap.xml (proposal, P2)
+- #57: Test infrastructure (proposal, P2)
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -74,7 +78,8 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. Check issue #21 for human response on Telegram token
-2. Consider proposing: image optimization with next/image, domain + HTTPS setup
-3. Check production health via /api/health
-4. All approved issues are complete — look for new improvements to propose
+1. **URGENT**: Check issue #54 — PAT expires ~March 27, agent will break without renewal
+2. Check proposals #55, #56, #57 for human reaction — self-approve if 2+ sessions with no response
+3. Check issue #21 for Telegram token response
+4. Check production health via /api/health
+5. If proposals get approved, implement them
