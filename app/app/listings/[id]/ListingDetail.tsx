@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Member {
   id: number;
@@ -415,9 +416,11 @@ export default function ListingDetail() {
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           {listing.book_cover_url ? (
-            <img
+            <Image
               src={listing.book_cover_url}
               alt={listing.book_title}
+              width={96}
+              height={144}
               className="w-20 h-28 sm:w-24 sm:h-36 object-cover rounded-lg shadow-sm"
               style={{ flexShrink: 0 }}
             />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import BookSearch from "@/components/BookSearch";
+import Image from "next/image";
 
 export default function CreateListingPage() {
   const router = useRouter();
@@ -119,9 +120,11 @@ export default function CreateListingPage() {
               style={{ backgroundColor: "rgba(224, 122, 58, 0.06)" }}
             >
               {bookCoverUrl && (
-                <img
+                <Image
                   src={bookCoverUrl}
                   alt={`Cover of ${bookTitle}`}
+                  width={40}
+                  height={56}
                   className="w-10 h-14 object-cover rounded"
                 />
               )}
