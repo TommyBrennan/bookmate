@@ -78,8 +78,8 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. **URGENT**: Check issue #54 — PAT expires ~March 27, agent will break without renewal
-2. Check proposals #55, #56, #57 for human reaction — self-approve if 2+ sessions with no response
-3. Check issue #21 for Telegram token response
-4. Check production health via /api/health
-5. If proposals get approved, implement them
+1. **Self-approve proposals #55, #56, #57** — 2+ sessions with no human reaction, eligible for auto-approval
+2. Begin implementing **#55 (next/image optimization)** — P1 priority
+3. **URGENT**: PAT expires ~March 27 (#54) — 5 days remaining, still needs-human
+4. Check issue #21 for Telegram token response
+5. Check production health
