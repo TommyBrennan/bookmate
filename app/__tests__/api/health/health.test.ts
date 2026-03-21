@@ -41,26 +41,54 @@ const testDb = vi.hoisted(() => {
   return db;
 });
 
+const mockSession = vi.hoisted(() => ({
+  userId: null as number | null,
+}));
+
 vi.mock("@/lib/db", () => ({ default: testDb }));
+vi.mock("@/lib/session", () => ({
+  getSession: vi.fn(() => Promise.resolve({ userId: mockSession.userId })),
+}));
 
 const { GET } = await import("@/app/api/health/route");
 
 describe("GET /api/health", () => {
-  it("returns healthy status with empty database", async () => {
+  it("returns healthy status without stats when unauthenticated", async () => {
+    mockSession.userId = null;
     const response = await GET();
-    const { status, data } = await parseResponse(response);
+    const { status, data } = await parseResponse<{
+      status: string;
+      database: string;
+      stats?: unknown;
+    }>(response);
 
     expect(status).toBe(200);
-    expect((data as { status: string }).status).toBe("healthy");
-    expect((data as { database: string }).database).toBe("connected");
-    expect((data as { stats: { users: number } }).stats.users).toBe(0);
+    expect(data.status).toBe("healthy");
+    expect(data.database).toBe("connected");
+    expect(data.stats).toBeUndefined();
+  });
+
+  it("returns stats when authenticated", async () => {
+    mockSession.userId = 1;
+    const response = await GET();
+    const { data } = await parseResponse<{
+      stats: { users: number; listings: number; openListings: number };
+    }>(response);
+
+    expect(data.stats).toBeDefined();
+    expect(data.stats.users).toBeGreaterThanOrEqual(0);
   });
 
   it("reports correct stats", async () => {
+    mockSession.userId = 1;
+    // Clean up from previous tests
+    testDb.exec("DELETE FROM listings");
+    testDb.exec("DELETE FROM users");
+
     testDb.prepare("INSERT INTO users (email, password_hash, display_name) VALUES (?, ?, ?)").run(
       "test@test.com", "hash", "Test"
     );
-    const userId = testDb.prepare("SELECT last_insert_rowid() as id").get().id;
+    const userId = (testDb.prepare("SELECT last_insert_rowid() as id").get() as { id: number }).id;
     testDb.prepare(
       "INSERT INTO listings (author_id, book_title, book_author, reading_pace, start_date, meeting_format, max_group_size, is_full) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(userId, "Book 1", "Author", "1ch/wk", "2026-04-01", "text", 5, 0);

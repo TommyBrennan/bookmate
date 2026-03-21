@@ -33,6 +33,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Validate listingId and ratedUserId are positive integers
+  if (typeof listingId !== "number" || !Number.isInteger(listingId) || listingId < 1) {
+    return NextResponse.json(
+      { error: "Invalid listingId" },
+      { status: 400 }
+    );
+  }
+
+  if (typeof ratedUserId !== "number" || !Number.isInteger(ratedUserId) || ratedUserId < 1) {
+    return NextResponse.json(
+      { error: "Invalid ratedUserId" },
+      { status: 400 }
+    );
+  }
+
   if (score < 1 || score > 5 || !Number.isInteger(score)) {
     return NextResponse.json(
       { error: "Score must be an integer between 1 and 5" },

@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { requireAuth } from "@/lib/session";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const session = await requireAuth();
   if (!session) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  // Rate limit: 10 listings per 15 minutes per user
+  const rateLimitKey = `create-listing:${session.userId}`;
+  const { allowed, retryAfter } = checkRateLimit(rateLimitKey, 10);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many listings created. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
   }
 
   try {
@@ -72,33 +83,40 @@ export async function POST(req: NextRequest) {
         ? bookCoverUrl
         : "";
 
-    const result = db
-      .prepare(
-        `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval, platform_preference)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .run(
-        session.userId,
-        bookTitle.trim(),
-        bookAuthor.trim(),
-        sanitizedCoverUrl,
-        bookOlid || "",
-        language || "English",
-        readingPace.trim(),
-        startDate,
-        meetingFormat,
-        size,
-        requiresApproval ? 1 : 0,
-        platform
-      );
+    // Wrap listing creation + auto-join in a transaction for atomicity
+    const createTransaction = db.transaction(() => {
+      const result = db
+        .prepare(
+          `INSERT INTO listings (author_id, book_title, book_author, book_cover_url, book_olid, language, reading_pace, start_date, meeting_format, max_group_size, requires_approval, platform_preference)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .run(
+          session.userId,
+          bookTitle.trim(),
+          bookAuthor.trim(),
+          sanitizedCoverUrl,
+          bookOlid || "",
+          language || "English",
+          readingPace.trim(),
+          startDate,
+          meetingFormat,
+          size,
+          requiresApproval ? 1 : 0,
+          platform
+        );
 
-    // Auto-join the author as a member
-    db.prepare(
-      "INSERT INTO listing_members (listing_id, user_id) VALUES (?, ?)"
-    ).run(result.lastInsertRowid, session.userId);
+      // Auto-join the author as a member
+      db.prepare(
+        "INSERT INTO listing_members (listing_id, user_id) VALUES (?, ?)"
+      ).run(result.lastInsertRowid, session.userId);
+
+      return result.lastInsertRowid;
+    });
+
+    const listingId = createTransaction();
 
     return NextResponse.json(
-      { id: result.lastInsertRowid },
+      { id: listingId },
       { status: 201 }
     );
   } catch (error) {

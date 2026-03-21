@@ -44,43 +44,63 @@ export async function POST(
     return NextResponse.json({ error: "This group is already full" }, { status: 400 });
   }
 
-  // Check if already a member
-  const isMember = db
-    .prepare("SELECT 1 FROM listing_members WHERE listing_id = ? AND user_id = ?")
-    .get(listingId, session.userId);
+  // Wrap membership check + application in a transaction to prevent TOCTOU races
+  const applyTransaction = db.transaction(() => {
+    // Check if already a member
+    const isMember = db
+      .prepare("SELECT 1 FROM listing_members WHERE listing_id = ? AND user_id = ?")
+      .get(listingId, session.userId);
 
-  if (isMember) {
-    return NextResponse.json({ error: "You are already a member" }, { status: 400 });
-  }
-
-  // Check if already applied (pending)
-  const existingApp = db
-    .prepare(
-      "SELECT id, status FROM listing_applications WHERE listing_id = ? AND user_id = ?"
-    )
-    .get(listingId, session.userId) as { id: number; status: string } | undefined;
-
-  if (existingApp) {
-    if (existingApp.status === "pending") {
-      return NextResponse.json({ error: "You have already applied" }, { status: 400 });
+    if (isMember) {
+      return { error: "You are already a member", status: 400 };
     }
-    if (existingApp.status === "approved") {
-      return NextResponse.json({ error: "You are already approved" }, { status: 400 });
+
+    // Re-check is_full inside transaction
+    const currentListing = db
+      .prepare("SELECT is_full FROM listings WHERE id = ?")
+      .get(listingId) as { is_full: number } | undefined;
+
+    if (currentListing?.is_full) {
+      return { error: "This group is already full", status: 400 };
     }
-    // If rejected, allow re-application by updating status back to pending
+
+    // Check if already applied (pending)
+    const existingApp = db
+      .prepare(
+        "SELECT id, status FROM listing_applications WHERE listing_id = ? AND user_id = ?"
+      )
+      .get(listingId, session.userId) as { id: number; status: string } | undefined;
+
+    if (existingApp) {
+      if (existingApp.status === "pending") {
+        return { error: "You have already applied", status: 400 };
+      }
+      if (existingApp.status === "approved") {
+        return { error: "You are already approved", status: 400 };
+      }
+      // If rejected, allow re-application by updating status back to pending
+      db.prepare(
+        "UPDATE listing_applications SET status = 'pending', decided_at = NULL, applied_at = datetime('now') WHERE id = ?"
+      ).run(existingApp.id);
+
+      return { error: null, status: 200 };
+    }
+
+    // Insert new application
     db.prepare(
-      "UPDATE listing_applications SET status = 'pending', decided_at = NULL, applied_at = datetime('now') WHERE id = ?"
-    ).run(existingApp.id);
+      "INSERT INTO listing_applications (listing_id, user_id) VALUES (?, ?)"
+    ).run(listingId, session.userId);
 
-    notifyApplicationReceived(listingId, session.displayName || "Someone");
-    return NextResponse.json({ ok: true });
+    return { error: null, status: 200 };
+  });
+
+  const result = applyTransaction();
+
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  // Insert new application
-  db.prepare(
-    "INSERT INTO listing_applications (listing_id, user_id) VALUES (?, ?)"
-  ).run(listingId, session.userId);
-
+  // Notify outside transaction (fire-and-forget)
   notifyApplicationReceived(listingId, session.displayName || "Someone");
 
   return NextResponse.json({ ok: true });
