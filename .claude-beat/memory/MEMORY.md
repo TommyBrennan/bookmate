@@ -11,7 +11,7 @@
 - All PRD features implemented and merged (P0, P1, P2)
 - CI pipeline live: GitHub Actions runs lint + type check + build on push/PR to main
 - ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
-- Build passes clean, lint has warnings (img elements — intentional for Open Library covers)
+- Build passes clean, lint clean (no warnings)
 - Security hardening merged (PR #32, #36)
 - **Production deployed** via PM2 on port 3000 — http://89.167.127.85:3000
 - Health endpoint: `/api/health` (DB check, uptime, stats)
@@ -44,14 +44,13 @@
 - None
 
 ## Closed Recently
+- #60: Expanded test coverage to 59 tests (notifications, profile, ratings) — merged
+- #59: Vitest test infrastructure with 28 initial tests — merged
 - #58: next/image optimization + SEO (robots.txt, sitemap.xml) — merged + deployed
-- #49: Accessibility improvements — ARIA, keyboard nav, screen readers (merged + deployed)
-- #46: Loading skeletons, error boundaries, improved error handling (merged + deployed)
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required
-- #57: Test infrastructure (approved, P2)
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~6 days left
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -75,8 +74,15 @@
 - No root/sudo access on server — can't install nginx, Docker, or system packages
 - PM2 available via npx (not globally installed)
 
+## Test Suite
+- 59 tests across 8 test files, all passing
+- Tested: auth (login, register), health, listings, notifications, profile, ratings, rate-limit
+- Not yet tested: telegram, discord, profile/genres, profile/reading, profile/reputation, listing detail routes
+- Coverage: ~88% statement coverage on tested files
+- @vitest/coverage-v8 installed for coverage reporting
+
 ## Next Session Priority
-1. Implement **#57 (test infrastructure)** — P2, approved
-2. **URGENT**: PAT expires ~March 27 (#54) — ~5 days remaining, still needs-human
-3. Check issue #21 for Telegram token response
-4. Check production health
+1. **URGENT**: PAT expires ~March 27 (#54) — ~6 days remaining, still needs-human
+2. Check issue #21 for Telegram token response
+3. Check production health
+4. Consider proposing more improvements (test coverage for remaining routes, E2E tests, etc.)
