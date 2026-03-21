@@ -413,17 +413,17 @@ export default function ListingDetail() {
       )}
 
       <div className="card mb-6">
-        <div className="flex gap-5">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           {listing.book_cover_url ? (
             <img
               src={listing.book_cover_url}
               alt={listing.book_title}
-              className="w-24 h-36 object-cover rounded-lg shadow-sm"
+              className="w-20 h-28 sm:w-24 sm:h-36 object-cover rounded-lg shadow-sm"
               style={{ flexShrink: 0 }}
             />
           ) : (
             <div
-              className="w-24 h-36 rounded-lg flex items-center justify-center text-4xl"
+              className="w-20 h-28 sm:w-24 sm:h-36 rounded-lg flex items-center justify-center text-3xl sm:text-4xl"
               style={{
                 backgroundColor: "var(--color-border)",
                 flexShrink: 0,
@@ -434,7 +434,7 @@ export default function ListingDetail() {
           )}
 
           <div className="flex-1">
-            <h1 className="text-2xl mb-1">{listing.book_title}</h1>
+            <h1 className="text-xl sm:text-2xl mb-1">{listing.book_title}</h1>
             <p
               className="text-sm mb-4"
               style={{
@@ -460,7 +460,7 @@ export default function ListingDetail() {
             ) : null}
 
             <div
-              className="grid grid-cols-2 gap-y-2 gap-x-6 text-sm"
+              className="grid grid-cols-2 gap-y-2 gap-x-4 sm:gap-x-6 text-sm"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
               <div>
@@ -500,7 +500,7 @@ export default function ListingDetail() {
         </div>
 
         <div
-          className="mt-5 pt-4 flex items-center justify-between"
+          className="mt-4 sm:mt-5 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
           style={{ borderTop: "1px solid var(--color-border)" }}
         >
           <div style={{ fontFamily: "system-ui, sans-serif" }}>

@@ -78,9 +78,9 @@ export default function CreateListingPage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-3xl mb-2">Start a reading group</h1>
+      <h1 className="text-2xl sm:text-3xl mb-2">Start a reading group</h1>
       <p
-        className="mb-8"
+        className="mb-6 sm:mb-8"
         style={{
           color: "var(--color-text-secondary)",
           fontFamily: "system-ui, sans-serif",

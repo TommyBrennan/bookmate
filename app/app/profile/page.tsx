@@ -198,12 +198,12 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl mb-6">Your Profile</h1>
+      <h1 className="text-2xl sm:text-3xl mb-4 sm:mb-6">Your Profile</h1>
 
       {/* Tabs */}
       <div
-        className="flex gap-1 mb-6 p-1 rounded-lg"
-        style={{ backgroundColor: "var(--color-border)" }}
+        className="flex gap-1 mb-4 sm:mb-6 p-1 rounded-lg overflow-x-auto"
+        style={{ backgroundColor: "var(--color-border)", WebkitOverflowScrolling: "touch" }}
         role="tablist"
         aria-label="Profile sections"
       >
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             aria-selected={activeTab === tab.key}
             aria-controls={`tabpanel-${tab.key}`}
             onClick={() => setActiveTab(tab.key)}
-            className="flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all"
+            className="flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-semibold transition-all whitespace-nowrap"
             style={{
               fontFamily: "system-ui, sans-serif",
               backgroundColor: activeTab === tab.key ? "var(--color-surface)" : "transparent",
@@ -370,10 +370,10 @@ export default function ProfilePage() {
             <>
               {/* Score Overview */}
               <div className="card">
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                   <div className="text-center">
                     <div
-                      className="text-4xl font-bold"
+                      className="text-3xl sm:text-4xl font-bold"
                       style={{ color: reputation.averageScore >= 4 ? "var(--color-success)" : reputation.averageScore >= 3 ? "#f59e0b" : "var(--color-text)" }}
                     >
                       {reputation.totalRatings > 0 ? reputation.averageScore : "--"}

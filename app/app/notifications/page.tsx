@@ -42,7 +42,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl mb-6">Notifications</h1>
+      <h1 className="text-2xl sm:text-3xl mb-4 sm:mb-6">Notifications</h1>
 
       {notifications.length === 0 ? (
         <div className="text-center py-12">
