@@ -49,11 +49,6 @@ export async function GET() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Currently reading: groups that are full (active) or start_date <= today
-  const currentlyReading = readings.filter(
-    (r) => r.is_full === 1 || r.start_date <= today
-  );
-
   // Reading history: completed groups (full + start_date in the past)
   // Upcoming: not yet started and not full
   const history = readings.filter(
