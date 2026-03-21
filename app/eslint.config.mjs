@@ -21,6 +21,12 @@ export default [
     },
   },
   {
+    files: ["__tests__/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     ignores: [".next/", "node_modules/", "next-env.d.ts", "ecosystem.config.js"],
   },
 ];
