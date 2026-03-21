@@ -34,10 +34,15 @@ export default function HomePage() {
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const fetchListings = useCallback(
-    (query: string, format: string, sortBy: string, pace?: string, dateFrom?: string) => {
+    (query: string, format: string, sortBy: string, pace?: string, dateFrom?: string, pageNum?: number) => {
       setLoading(true);
       const params = new URLSearchParams();
       if (query) params.set("q", query);
@@ -45,6 +50,7 @@ export default function HomePage() {
       if (pace) params.set("reading_pace", pace);
       if (dateFrom) params.set("start_date_from", dateFrom);
       if (sortBy) params.set("sort", sortBy);
+      if (pageNum && pageNum > 1) params.set("page", String(pageNum));
 
       const qs = params.toString();
       fetch(`/api/listings${qs ? `?${qs}` : ""}`)
@@ -54,6 +60,10 @@ export default function HomePage() {
         })
         .then((data) => {
           setListings(data.listings || []);
+          if (data.pagination) {
+            setTotalPages(data.pagination.totalPages || 1);
+            setTotalResults(data.pagination.total || 0);
+          }
           setError(null);
           setLoading(false);
         })
@@ -67,37 +77,48 @@ export default function HomePage() {
 
   // Initial fetch
   useEffect(() => {
-    fetchListings("", "", "newest", "", "");
+    fetchListings("", "", "newest", "", "", 1);
   }, [fetchListings]);
 
   // Debounced search
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    setPage(1);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchListings(value, meetingFormat, sort, readingPace, startDateFrom);
+      fetchListings(value, meetingFormat, sort, readingPace, startDateFrom, 1);
     }, 400);
   };
 
   // Immediate filter changes
   const handleFormatChange = (value: string) => {
     setMeetingFormat(value);
-    fetchListings(searchQuery, value, sort, readingPace, startDateFrom);
+    setPage(1);
+    fetchListings(searchQuery, value, sort, readingPace, startDateFrom, 1);
   };
 
   const handlePaceChange = (value: string) => {
     setReadingPace(value);
-    fetchListings(searchQuery, meetingFormat, sort, value, startDateFrom);
+    setPage(1);
+    fetchListings(searchQuery, meetingFormat, sort, value, startDateFrom, 1);
   };
 
   const handleStartDateFromChange = (value: string) => {
     setStartDateFrom(value);
-    fetchListings(searchQuery, meetingFormat, sort, readingPace, value);
+    setPage(1);
+    fetchListings(searchQuery, meetingFormat, sort, readingPace, value, 1);
   };
 
   const handleSortChange = (value: string) => {
     setSort(value);
-    fetchListings(searchQuery, meetingFormat, value, readingPace, startDateFrom);
+    setPage(1);
+    fetchListings(searchQuery, meetingFormat, value, readingPace, startDateFrom, 1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchListings(searchQuery, meetingFormat, sort, readingPace, startDateFrom, newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearFilters = () => {
@@ -106,7 +127,8 @@ export default function HomePage() {
     setReadingPace("");
     setStartDateFrom("");
     setSort("newest");
-    fetchListings("", "", "newest", "", "");
+    setPage(1);
+    fetchListings("", "", "newest", "", "", 1);
   };
 
   const hasActiveFilters = searchQuery || meetingFormat || readingPace || startDateFrom || sort !== "newest";
@@ -475,15 +497,17 @@ export default function HomePage() {
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            {listings.length} open group{listings.length !== 1 ? "s" : ""}
+            {totalResults} open group{totalResults !== 1 ? "s" : ""}
             {hasActiveFilters ? " found" : ""}
+            {totalPages > 1 ? ` · Page ${page} of ${totalPages}` : ""}
           </p>
-          <div className="grid gap-4">
+          <div className="grid gap-4" role="list" aria-label="Reading groups">
             {listings.map((listing) => (
               <Link
                 key={listing.id}
                 href={`/listings/${listing.id}`}
                 className="card hover:shadow-md transition-shadow flex gap-4"
+                role="listitem"
               >
                 {listing.book_cover_url ? (
                   <Image
@@ -602,6 +626,50 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <nav
+              className="flex justify-center items-center gap-2 mt-8"
+              aria-label="Pagination"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              <button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page <= 1}
+                className="btn-secondary"
+                style={{
+                  fontSize: "0.875rem",
+                  padding: "0.5rem 1rem",
+                  opacity: page <= 1 ? 0.5 : 1,
+                  cursor: page <= 1 ? "not-allowed" : "pointer",
+                }}
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <span
+                className="text-sm"
+                style={{ color: "var(--color-text-secondary)", padding: "0 0.5rem" }}
+              >
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page >= totalPages}
+                className="btn-secondary"
+                style={{
+                  fontSize: "0.875rem",
+                  padding: "0.5rem 1rem",
+                  opacity: page >= totalPages ? 0.5 : 1,
+                  cursor: page >= totalPages ? "not-allowed" : "pointer",
+                }}
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </>
       )}
     </div>

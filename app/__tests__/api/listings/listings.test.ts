@@ -101,10 +101,16 @@ describe("GET /api/listings", () => {
   it("returns empty array when no listings exist", async () => {
     const req = createTestRequest("/api/listings");
     const response = await GET(req);
-    const { status, data } = await parseResponse<{ listings: unknown[] }>(response);
+    const { status, data } = await parseResponse<{ listings: unknown[]; pagination: { page: number; pageSize: number; total: number; totalPages: number } }>(response);
 
     expect(status).toBe(200);
     expect(data.listings).toEqual([]);
+    expect(data.pagination).toEqual({
+      page: 1,
+      pageSize: 20,
+      total: 0,
+      totalPages: 0,
+    });
   });
 
   it("returns open listings only (hides full listings)", async () => {

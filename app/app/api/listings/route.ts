@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
+const PAGE_SIZE = 20;
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
@@ -9,6 +11,8 @@ export async function GET(request: NextRequest) {
   const readingPace = searchParams.get("reading_pace") || "";
   const startDateFrom = searchParams.get("start_date_from") || "";
   const sort = searchParams.get("sort") || "newest";
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
   const conditions: string[] = ["l.is_full = 0"];
   const params: (string | number)[] = [];
@@ -39,6 +43,15 @@ export async function GET(request: NextRequest) {
   if (sort === "oldest") orderClause = "l.created_at ASC";
   else if (sort === "start_date") orderClause = "l.start_date ASC";
 
+  const offset = (page - 1) * PAGE_SIZE;
+
+  // Get total count for pagination metadata
+  const countResult = db
+    .prepare(
+      `SELECT COUNT(*) as total FROM listings l WHERE ${whereClause}`
+    )
+    .get(...params) as { total: number };
+
   const listings = db
     .prepare(
       `SELECT
@@ -48,9 +61,18 @@ export async function GET(request: NextRequest) {
       FROM listings l
       JOIN users u ON l.author_id = u.id
       WHERE ${whereClause}
-      ORDER BY ${orderClause}`
+      ORDER BY ${orderClause}
+      LIMIT ? OFFSET ?`
     )
-    .all(...params);
+    .all(...params, PAGE_SIZE, offset);
 
-  return NextResponse.json({ listings });
+  return NextResponse.json({
+    listings,
+    pagination: {
+      page,
+      pageSize: PAGE_SIZE,
+      total: countResult.total,
+      totalPages: Math.ceil(countResult.total / PAGE_SIZE),
+    },
+  });
 }

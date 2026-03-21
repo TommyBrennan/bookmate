@@ -40,6 +40,10 @@ export async function PATCH(req: NextRequest) {
   const { notificationId } = await req.json();
 
   if (notificationId) {
+    // Validate notificationId is a positive integer
+    if (typeof notificationId !== "number" || !Number.isInteger(notificationId) || notificationId < 1) {
+      return NextResponse.json({ error: "Invalid notification ID" }, { status: 400 });
+    }
     db.prepare(
       "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?"
     ).run(notificationId, session.userId);
