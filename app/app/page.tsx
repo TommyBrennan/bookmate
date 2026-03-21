@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Listing {
   id: number;
@@ -485,9 +486,11 @@ export default function HomePage() {
                 className="card hover:shadow-md transition-shadow flex gap-4"
               >
                 {listing.book_cover_url ? (
-                  <img
+                  <Image
                     src={listing.book_cover_url}
                     alt={listing.book_title}
+                    width={64}
+                    height={96}
                     className="w-16 h-24 object-cover rounded"
                     style={{ flexShrink: 0 }}
                   />

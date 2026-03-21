@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 interface BookResult {
   key: string;
@@ -178,9 +179,11 @@ export default function BookSearch({ onSelect }: Props) {
               }}
             >
               {book.cover_i ? (
-                <img
+                <Image
                   src={`https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`}
                   alt={`Cover of ${book.title}`}
+                  width={32}
+                  height={48}
                   className="w-8 h-12 object-cover rounded"
                 />
               ) : (

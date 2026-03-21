@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ReadingItem {
   id: number;
@@ -660,12 +661,12 @@ function ReadingSection({
             >
               {/* Book Cover */}
               {item.book_cover_url ? (
-                <img
+                <Image
                   src={item.book_cover_url}
                   alt={item.book_title}
+                  width={48}
+                  height={72}
                   style={{
-                    width: 48,
-                    height: 72,
                     objectFit: "cover",
                     borderRadius: 4,
                     flexShrink: 0,
