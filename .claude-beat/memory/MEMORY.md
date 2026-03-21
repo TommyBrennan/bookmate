@@ -44,16 +44,14 @@
 - None
 
 ## Closed Recently
+- #58: next/image optimization + SEO (robots.txt, sitemap.xml) — merged + deployed
 - #49: Accessibility improvements — ARIA, keyboard nav, screen readers (merged + deployed)
 - #46: Loading skeletons, error boundaries, improved error handling (merged + deployed)
-- #43: Hardening: rate limiting, navbar perf, error handling, DB indexes (merged)
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
 - #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required
-- #55: Image optimization with next/image (proposal, P1)
-- #56: SEO: robots.txt + sitemap.xml (proposal, P2)
-- #57: Test infrastructure (proposal, P2)
+- #57: Test infrastructure (approved, P2)
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -78,8 +76,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Next Session Priority
-1. **Self-approve proposals #55, #56, #57** — 2+ sessions with no human reaction, eligible for auto-approval
-2. Begin implementing **#55 (next/image optimization)** — P1 priority
-3. **URGENT**: PAT expires ~March 27 (#54) — 5 days remaining, still needs-human
-4. Check issue #21 for Telegram token response
-5. Check production health
+1. Implement **#57 (test infrastructure)** — P2, approved
+2. **URGENT**: PAT expires ~March 27 (#54) — ~5 days remaining, still needs-human
+3. Check issue #21 for Telegram token response
+4. Check production health
