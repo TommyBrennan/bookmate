@@ -39,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-12">
+    <div className="max-w-md mx-auto mt-4 sm:mt-12">
       <div className="card">
         <h1 className="text-2xl mb-1">Welcome back</h1>
         <p

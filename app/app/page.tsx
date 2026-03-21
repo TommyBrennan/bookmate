@@ -121,12 +121,12 @@ export default function HomePage() {
 
   return (
     <div>
-      <div className="text-center mb-8 mt-4">
-        <h1 className="text-4xl mb-3" style={{ color: "var(--color-text)" }}>
+      <div className="text-center mb-6 sm:mb-8 mt-2 sm:mt-4">
+        <h1 className="text-2xl sm:text-4xl mb-2 sm:mb-3" style={{ color: "var(--color-text)" }}>
           Find your reading companion
         </h1>
         <p
-          className="text-lg max-w-xl mx-auto"
+          className="text-sm sm:text-lg max-w-xl mx-auto"
           style={{
             color: "var(--color-text-secondary)",
             fontFamily: "system-ui, sans-serif",
@@ -222,10 +222,10 @@ export default function HomePage() {
             style={{ padding: "1rem 1.25rem" }}
           >
             <div
-              className="flex flex-wrap gap-4 items-end"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end"
               style={{ fontFamily: "system-ui, sans-serif" }}
             >
-              <div style={{ minWidth: "160px" }}>
+              <div>
                 <label
                   className="text-xs font-semibold mb-1 block"
                   style={{
@@ -249,7 +249,7 @@ export default function HomePage() {
                 </select>
               </div>
 
-              <div style={{ minWidth: "160px" }}>
+              <div>
                 <label
                   className="text-xs font-semibold mb-1 block"
                   style={{
@@ -274,7 +274,7 @@ export default function HomePage() {
                 </select>
               </div>
 
-              <div style={{ minWidth: "160px" }}>
+              <div>
                 <label
                   className="text-xs font-semibold mb-1 block"
                   style={{
@@ -294,7 +294,7 @@ export default function HomePage() {
                 />
               </div>
 
-              <div style={{ minWidth: "160px" }}>
+              <div>
                 <label
                   className="text-xs font-semibold mb-1 block"
                   style={{
