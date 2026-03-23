@@ -112,11 +112,12 @@ export function notifyApplicationDecision(
 
 export function notifyGroupFull(listingId: number) {
   const listing = db
-    .prepare("SELECT book_title, platform_preference FROM listings WHERE id = ?")
-    .get(listingId) as { book_title: string; platform_preference: string } | undefined;
+    .prepare("SELECT book_title, platform_preference, author_id FROM listings WHERE id = ?")
+    .get(listingId) as { book_title: string; platform_preference: string; author_id: number } | undefined;
+  // Exclude the author — they already received a separate "new_member" notification
   const members = db
-    .prepare("SELECT user_id FROM listing_members WHERE listing_id = ?")
-    .all(listingId) as { user_id: number }[];
+    .prepare("SELECT user_id FROM listing_members WHERE listing_id = ? AND user_id != ?")
+    .all(listingId, listing?.author_id ?? -1) as { user_id: number }[];
 
   if (listing) {
     const platform = listing.platform_preference === "discord" ? "Discord" : "Telegram";

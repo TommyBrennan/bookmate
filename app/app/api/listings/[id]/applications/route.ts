@@ -33,7 +33,7 @@ export async function PATCH(
   const body = await req.json();
   const { applicationId, action } = body;
 
-  if (!applicationId || !["approve", "reject"].includes(action)) {
+  if (!applicationId || typeof applicationId !== "number" || !Number.isInteger(applicationId) || applicationId < 1 || !["approve", "reject"].includes(action)) {
     return NextResponse.json(
       { error: "Invalid request. Provide applicationId and action (approve/reject)." },
       { status: 400 }

@@ -83,7 +83,7 @@ export default function ListingDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const fetchListing = async () => {
+  const fetchListing = useCallback(async () => {
     try {
       const res = await fetch(`/api/listings/${id}`);
       const data = await res.json();
@@ -101,12 +101,11 @@ export default function ListingDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchListing();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [fetchListing]);
 
   const handleDelete = async () => {
     setDeleting(true);
