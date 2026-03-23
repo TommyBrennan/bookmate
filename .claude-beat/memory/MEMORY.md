@@ -44,11 +44,11 @@
 - None
 
 ## Closed Recently
+- #87: Code review round 6 — logout fix, is_full reset, email subjects, webhook validation, fetch abort — merged + deployed
 - #85: Test coverage for Telegram and Discord API routes (69 new tests) — merged
 - #83: Code review round 5 — duplicate notifications, platform link timing, validation — merged + deployed
 - #81: Code review round 4 — email normalization, application state, rate limiter leak — merged + deployed
 - #79: Test coverage for listing CRUD, join, create routes — merged
-- #75: Code review fixes — navbar menu, validation, telegram/discord guards — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -86,7 +86,7 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~4 days remaining, still needs-human
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
 4. All routes now tested — consider E2E testing, performance, or new feature proposals
