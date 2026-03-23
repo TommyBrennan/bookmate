@@ -44,13 +44,13 @@
 - None
 
 ## Closed Recently
-- #60: Expanded test coverage to 59 tests (notifications, profile, ratings) — merged
-- #59: Vitest test infrastructure with 28 initial tests — merged
-- #58: next/image optimization + SEO (robots.txt, sitemap.xml) — merged + deployed
+- #70: Auto-hide listings with past start dates — merged + deployed
+- #69: Listing edit and delete for authors — merged + deployed
+- #68: fix: generateMetadata crash, platform-aware notifications — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~6 days left
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~4 days left
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -75,14 +75,14 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 59 tests across 8 test files, all passing
+- 60 tests across 8 test files, all passing
 - Tested: auth (login, register), health, listings, notifications, profile, ratings, rate-limit
 - Not yet tested: telegram, discord, profile/genres, profile/reading, profile/reputation, listing detail routes
 - Coverage: ~88% statement coverage on tested files
 - @vitest/coverage-v8 installed for coverage reporting
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~6 days remaining, still needs-human
+1. **URGENT**: PAT expires ~March 27 (#54) — ~4 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. Consider proposing more improvements (test coverage for remaining routes, E2E tests, etc.)
+4. No remaining approved issues — consider proposing new improvements
