@@ -44,6 +44,7 @@
 - None
 
 ## Closed Recently
+- #75: Code review fixes — navbar menu, validation, telegram/discord guards — merged + deployed
 - #72: Test coverage for profile genres, reading, reputation routes — merged
 - #71: BookCover component with error fallback — merged + deployed
 - #70: Auto-hide listings with past start dates — merged + deployed
@@ -89,4 +90,4 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~4 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. No remaining approved issues — consider proposing new improvements
+4. No remaining approved issues — look for improvements to propose
