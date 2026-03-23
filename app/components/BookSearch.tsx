@@ -26,6 +26,7 @@ export default function BookSearch({ onSelect }: Props) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const abortRef = useRef<AbortController>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxRef = useRef<HTMLDivElement>(null);
 
@@ -49,26 +50,36 @@ export default function BookSearch({ onSelect }: Props) {
     }
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (abortRef.current) abortRef.current.abort();
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=8&fields=key,title,author_name,cover_i`
+          `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=8&fields=key,title,author_name,cover_i`,
+          { signal: controller.signal }
         );
         const data = await res.json();
         setResults(data.docs || []);
         setOpen(true);
         setActiveIndex(-1);
-      } catch {
-        setResults([]);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setResults([]);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }, 400);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      controller.abort();
     };
   }, [query]);
 

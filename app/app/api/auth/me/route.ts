@@ -16,7 +16,7 @@ export async function GET() {
     | undefined;
 
   if (!user) {
-    session.destroy();
+    await session.destroy();
     return NextResponse.json({ user: null });
   }
 

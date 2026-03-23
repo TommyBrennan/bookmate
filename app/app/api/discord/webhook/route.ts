@@ -67,6 +67,13 @@ async function handleLink(body: {
     );
   }
 
+  if (typeof listingId !== "number" || !Number.isInteger(listingId) || listingId < 1) {
+    return NextResponse.json(
+      { error: "Invalid listingId" },
+      { status: 400 }
+    );
+  }
+
   const listing = db
     .prepare("SELECT * FROM listings WHERE id = ?")
     .get(listingId) as Record<string, unknown> | undefined;

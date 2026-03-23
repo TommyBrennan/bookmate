@@ -224,8 +224,18 @@ export async function PATCH(
       values.push(meetingFormat);
     }
     if (maxGroupSize !== undefined) {
+      const newSize = parseInt(maxGroupSize, 10);
       updates.push("max_group_size = ?");
-      values.push(parseInt(maxGroupSize, 10));
+      values.push(newSize);
+
+      // If increasing group size on a full listing, reopen it
+      const currentMemberCount = (db
+        .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
+        .get(listingId) as { count: number }).count;
+      if (newSize > currentMemberCount && listing.is_full) {
+        updates.push("is_full = ?");
+        values.push(0);
+      }
     }
     if (requiresApproval !== undefined) {
       updates.push("requires_approval = ?");

@@ -46,6 +46,10 @@ function getEmailSubject(type: string): string {
       return "Bookmate: A reading group has been cancelled";
     case "listing_updated":
       return "Bookmate: A reading group has been updated";
+    case "telegram_ready":
+      return "Bookmate: Your Telegram reading group is ready!";
+    case "discord_ready":
+      return "Bookmate: Your Discord channel is ready!";
     default:
       return "Bookmate: Notification";
   }
