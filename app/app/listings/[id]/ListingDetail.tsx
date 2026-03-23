@@ -470,19 +470,34 @@ export default function ListingDetail() {
               by {listing.book_author}
             </p>
 
-            {listing.requires_approval ? (
-              <span
-                className="badge mb-3"
-                style={{
-                  backgroundColor: "rgba(224, 122, 58, 0.1)",
-                  color: "var(--color-accent)",
-                  fontSize: "0.7rem",
-                  fontFamily: "system-ui, sans-serif",
-                }}
-              >
-                Approval required
-              </span>
-            ) : null}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {new Date(listing.start_date) < new Date(new Date().toISOString().split("T")[0]) && (
+                <span
+                  className="badge"
+                  style={{
+                    backgroundColor: "rgba(107, 114, 128, 0.1)",
+                    color: "#6b7280",
+                    fontSize: "0.7rem",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  Past start date
+                </span>
+              )}
+              {listing.requires_approval ? (
+                <span
+                  className="badge"
+                  style={{
+                    backgroundColor: "rgba(224, 122, 58, 0.1)",
+                    color: "var(--color-accent)",
+                    fontSize: "0.7rem",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  Approval required
+                </span>
+              ) : null}
+            </div>
 
             <div
               className="grid grid-cols-2 gap-y-2 gap-x-4 sm:gap-x-6 text-sm"
