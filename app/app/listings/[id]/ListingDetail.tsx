@@ -80,6 +80,8 @@ export default function ListingDetail() {
   const [notAvailable, setNotAvailable] = useState(false);
 
   const [fetchError, setFetchError] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchListing = async () => {
     try {
@@ -105,6 +107,26 @@ export default function ListingDetail() {
     fetchListing();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/listings/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        router.push("/");
+      } else {
+        setError(data.error || "Failed to delete listing");
+        setShowDeleteConfirm(false);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const fetchRatings = useCallback(async () => {
     if (!id) return;
@@ -576,6 +598,97 @@ export default function ListingDetail() {
             </span>
           )}
         </div>
+
+        {/* Author actions: Edit & Delete */}
+        {listing.isAuthor && !listing.telegram_link && !listing.discord_link && (
+          <div
+            className="mt-4 pt-4 flex gap-3"
+            style={{ borderTop: "1px solid var(--color-border)" }}
+          >
+            <button
+              className="flex-1 py-2 px-4 rounded-lg text-sm font-semibold cursor-pointer"
+              style={{
+                fontFamily: "system-ui, sans-serif",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                border: "1.5px solid var(--color-accent)",
+                color: "var(--color-accent)",
+                backgroundColor: "transparent",
+              }}
+              onClick={() => router.push(`/listings/${id}/edit`)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Edit
+            </button>
+            {!showDeleteConfirm ? (
+              <button
+                className="py-2 px-4 rounded-lg text-sm font-semibold cursor-pointer"
+                style={{
+                  fontFamily: "system-ui, sans-serif",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                  border: "1.5px solid var(--color-error)",
+                  color: "var(--color-error)",
+                  backgroundColor: "transparent",
+                }}
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Delete
+              </button>
+            ) : (
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg"
+                style={{
+                  backgroundColor: "rgba(192, 57, 43, 0.06)",
+                  border: "1px solid rgba(192, 57, 43, 0.15)",
+                }}
+              >
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-error)", fontFamily: "system-ui, sans-serif" }}
+                >
+                  Delete this group?
+                </span>
+                <button
+                  className="py-1 px-3 rounded text-xs font-semibold cursor-pointer"
+                  style={{
+                    fontFamily: "system-ui, sans-serif",
+                    backgroundColor: "var(--color-error)",
+                    color: "white",
+                    border: "none",
+                  }}
+                  disabled={deleting}
+                  onClick={handleDelete}
+                >
+                  {deleting ? "Deleting..." : "Confirm"}
+                </button>
+                <button
+                  className="py-1 px-3 rounded text-xs font-semibold cursor-pointer"
+                  style={{
+                    fontFamily: "system-ui, sans-serif",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-text-secondary)",
+                    backgroundColor: "transparent",
+                  }}
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Chat platform section — visible to members when group is full */}
