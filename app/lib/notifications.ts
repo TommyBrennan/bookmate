@@ -108,17 +108,20 @@ export function notifyApplicationDecision(
 
 export function notifyGroupFull(listingId: number) {
   const listing = db
-    .prepare("SELECT book_title FROM listings WHERE id = ?")
-    .get(listingId) as { book_title: string } | undefined;
+    .prepare("SELECT book_title, platform_preference FROM listings WHERE id = ?")
+    .get(listingId) as { book_title: string; platform_preference: string } | undefined;
   const members = db
     .prepare("SELECT user_id FROM listing_members WHERE listing_id = ?")
     .all(listingId) as { user_id: number }[];
 
   if (listing) {
-    const botConfigured = !!process.env.TELEGRAM_BOT_TOKEN;
+    const platform = listing.platform_preference === "discord" ? "Discord" : "Telegram";
+    const botConfigured = listing.platform_preference === "discord"
+      ? !!process.env.DISCORD_BOT_TOKEN
+      : !!process.env.TELEGRAM_BOT_TOKEN;
     const message = botConfigured
-      ? `The reading group for "${listing.book_title}" is now full! The Telegram group will be set up automatically.`
-      : `The reading group for "${listing.book_title}" is now full! The organizer will share a Telegram link soon.`;
+      ? `The reading group for "${listing.book_title}" is now full! The ${platform} group will be set up automatically.`
+      : `The reading group for "${listing.book_title}" is now full! The organizer will share a ${platform} link soon.`;
 
     for (const member of members) {
       createNotification(

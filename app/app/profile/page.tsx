@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -66,6 +66,9 @@ export default function ProfilePage() {
   const [reputation, setReputation] = useState<Reputation | null>(null);
   const [reputationLoading, setReputationLoading] = useState(false);
 
+  // Track which tabs have been fetched to avoid redundant requests
+  const fetchedTabs = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
@@ -121,6 +124,8 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
+    if (fetchedTabs.current.has(activeTab)) return;
+    fetchedTabs.current.add(activeTab);
     if (activeTab === "reading") fetchReading();
     if (activeTab === "genres") fetchGenres();
     if (activeTab === "reputation") fetchReputation();

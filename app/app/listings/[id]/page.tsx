@@ -23,48 +23,52 @@ export async function generateMetadata({
     return { title: "Listing not found — Bookmate" };
   }
 
-  const listing = db
-    .prepare(
-      `SELECT l.book_title, l.book_author, l.book_cover_url, l.reading_pace,
-              l.max_group_size, u.display_name as author_name
-       FROM listings l
-       JOIN users u ON l.author_id = u.id
-       WHERE l.id = ?`
-    )
-    .get(listingId) as ListingRow | undefined;
+  try {
+    const listing = db
+      .prepare(
+        `SELECT l.book_title, l.book_author, l.book_cover_url, l.reading_pace,
+                l.max_group_size, u.display_name as author_name
+         FROM listings l
+         JOIN users u ON l.author_id = u.id
+         WHERE l.id = ?`
+      )
+      .get(listingId) as ListingRow | undefined;
 
-  if (!listing) {
-    return { title: "Listing not found — Bookmate" };
+    if (!listing) {
+      return { title: "Listing not found — Bookmate" };
+    }
+
+    const title = `${listing.book_title} by ${listing.book_author} — Bookmate`;
+    const description = `Join a reading group for "${listing.book_title}" by ${listing.book_author}. Pace: ${listing.reading_pace}. Up to ${listing.max_group_size} readers. Posted by ${listing.author_name}.`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: "article",
+        ...(listing.book_cover_url
+          ? {
+              images: [
+                {
+                  url: listing.book_cover_url,
+                  alt: `Cover of ${listing.book_title}`,
+                },
+              ],
+            }
+          : {}),
+      },
+      twitter: {
+        card: listing.book_cover_url ? "summary_large_image" : "summary",
+        title,
+        description,
+        ...(listing.book_cover_url ? { images: [listing.book_cover_url] } : {}),
+      },
+    };
+  } catch {
+    return { title: "Listing — Bookmate" };
   }
-
-  const title = `${listing.book_title} by ${listing.book_author} — Bookmate`;
-  const description = `Join a reading group for "${listing.book_title}" by ${listing.book_author}. Pace: ${listing.reading_pace}. Up to ${listing.max_group_size} readers. Posted by ${listing.author_name}.`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: "article",
-      ...(listing.book_cover_url
-        ? {
-            images: [
-              {
-                url: listing.book_cover_url,
-                alt: `Cover of ${listing.book_title}`,
-              },
-            ],
-          }
-        : {}),
-    },
-    twitter: {
-      card: listing.book_cover_url ? "summary_large_image" : "summary",
-      title,
-      description,
-      ...(listing.book_cover_url ? { images: [listing.book_cover_url] } : {}),
-    },
-  };
 }
 
 export default function ListingPage() {
