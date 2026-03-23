@@ -55,6 +55,15 @@ const testDb = vi.hoisted(() => {
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
+    CREATE TABLE IF NOT EXISTS listing_applications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      listing_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
+      applied_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (listing_id) REFERENCES listings(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
   return db;
 });
@@ -126,6 +135,7 @@ describe("POST /api/listings/[id]/join", () => {
   let joinerId: number;
 
   beforeEach(() => {
+    testDb.exec("DELETE FROM listing_applications");
     testDb.exec("DELETE FROM notifications");
     testDb.exec("DELETE FROM listing_members");
     testDb.exec("DELETE FROM listings");
@@ -250,6 +260,31 @@ describe("POST /api/listings/[id]/join", () => {
 
     expect(notifyListingAuthor).toHaveBeenCalledWith(listingId, "Joiner");
     expect(notifyGroupFull).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when user has a pending application", async () => {
+    const listingId = insertListing(authorId);
+    testDb.prepare("INSERT INTO listing_applications (listing_id, user_id, status) VALUES (?, ?, 'pending')").run(listingId, joinerId);
+
+    const req = createTestRequest(`/api/listings/${listingId}/join`, { method: "POST" });
+    const response = await POST(req, createParams(String(listingId)));
+    const { status, data } = await parseResponse(response);
+
+    expect(status).toBe(400);
+    expect(data.error).toContain("pending application");
+  });
+
+  it("allows join when user has a rejected application", async () => {
+    const listingId = insertListing(authorId);
+    addMember(listingId, authorId);
+    testDb.prepare("INSERT INTO listing_applications (listing_id, user_id, status) VALUES (?, ?, 'rejected')").run(listingId, joinerId);
+
+    const req = createTestRequest(`/api/listings/${listingId}/join`, { method: "POST" });
+    const response = await POST(req, createParams(String(listingId)));
+    const { status, data } = await parseResponse<{ ok: boolean }>(response);
+
+    expect(status).toBe(200);
+    expect(data.ok).toBe(true);
   });
 
   it("calls notifyGroupFull when group becomes full", async () => {

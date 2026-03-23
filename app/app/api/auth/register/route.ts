@@ -61,10 +61,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalize email before duplicate check (INSERT stores lowercase)
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if email is already taken
     const existing = db
       .prepare("SELECT id FROM users WHERE email = ?")
-      .get(email);
+      .get(normalizedEmail);
     if (existing) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
@@ -78,12 +81,12 @@ export async function POST(req: NextRequest) {
       .prepare(
         "INSERT INTO users (email, password_hash, display_name) VALUES (?, ?, ?)"
       )
-      .run(email.toLowerCase().trim(), passwordHash, displayName.trim());
+      .run(normalizedEmail, passwordHash, displayName.trim());
 
     // Auto-login after registration
     const session = await getSession();
     session.userId = Number(result.lastInsertRowid);
-    session.email = email.toLowerCase().trim();
+    session.email = normalizedEmail;
     session.displayName = displayName.trim();
     await session.save();
 
@@ -91,7 +94,7 @@ export async function POST(req: NextRequest) {
       {
         user: {
           id: result.lastInsertRowid,
-          email: email.toLowerCase().trim(),
+          email: normalizedEmail,
           displayName: displayName.trim(),
         },
       },
