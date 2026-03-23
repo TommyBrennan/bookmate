@@ -44,9 +44,10 @@
 - None
 
 ## Closed Recently
+- #72: Test coverage for profile genres, reading, reputation routes — merged
+- #71: BookCover component with error fallback — merged + deployed
 - #70: Auto-hide listings with past start dates — merged + deployed
 - #69: Listing edit and delete for authors — merged + deployed
-- #68: fix: generateMetadata crash, platform-aware notifications — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -75,11 +76,14 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 60 tests across 8 test files, all passing
-- Tested: auth (login, register), health, listings, notifications, profile, ratings, rate-limit
-- Not yet tested: telegram, discord, profile/genres, profile/reading, profile/reputation, listing detail routes
+- 82 tests across 11 test files, all passing
+- Tested: auth (login, register), health, listings, notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit
+- Not yet tested: telegram, discord, listing detail routes
 - Coverage: ~88% statement coverage on tested files
 - @vitest/coverage-v8 installed for coverage reporting
+
+## Components
+- `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
 1. **URGENT**: PAT expires ~March 27 (#54) — ~4 days remaining, still needs-human
