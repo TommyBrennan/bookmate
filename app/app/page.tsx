@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import BookCover from "@/components/BookCover";
 
 interface Listing {
   id: number;
@@ -509,28 +509,14 @@ export default function HomePage() {
                 className="card hover:shadow-md transition-shadow flex gap-4"
                 role="listitem"
               >
-                {listing.book_cover_url ? (
-                  <Image
-                    src={listing.book_cover_url}
-                    alt={listing.book_title}
-                    width={64}
-                    height={96}
-                    className="w-16 h-24 object-cover rounded"
-                    style={{ flexShrink: 0 }}
-                  />
-                ) : (
-                  <div
-                    className="w-16 h-24 rounded flex items-center justify-center text-2xl"
-                    style={{
-                      backgroundColor: "var(--color-border)",
-                      flexShrink: 0,
-                      color: "var(--color-text-secondary)",
-                    }}
-                    aria-hidden="true"
-                  >
-                    📖
-                  </div>
-                )}
+                <BookCover
+                  src={listing.book_cover_url}
+                  alt={listing.book_title}
+                  width={64}
+                  height={96}
+                  className="w-16 h-24 object-cover rounded"
+                  style={{ flexShrink: 0 }}
+                />
 
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-bold truncate">
