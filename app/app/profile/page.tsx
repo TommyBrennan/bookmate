@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import BookCover from "@/components/BookCover";
 
 interface ReadingItem {
   id: number;
@@ -665,35 +665,14 @@ function ReadingSection({
               style={{ display: "flex", textDecoration: "none", color: "inherit" }}
             >
               {/* Book Cover */}
-              {item.book_cover_url ? (
-                <Image
-                  src={item.book_cover_url}
-                  alt={item.book_title}
-                  width={48}
-                  height={72}
-                  style={{
-                    objectFit: "cover",
-                    borderRadius: 4,
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 48,
-                    height: 72,
-                    backgroundColor: "var(--color-border)",
-                    borderRadius: 4,
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  aria-hidden="true"
-                >
-                  <span style={{ fontSize: 20 }} aria-hidden="true">&#128214;</span>
-                </div>
-              )}
+              <BookCover
+                src={item.book_cover_url}
+                alt={item.book_title}
+                width={48}
+                height={72}
+                className="object-cover rounded"
+                style={{ flexShrink: 0 }}
+              />
 
               {/* Book Info */}
               <div style={{ flex: 1, minWidth: 0 }}>

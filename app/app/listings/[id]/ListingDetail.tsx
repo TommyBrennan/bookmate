@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import BookCover from "@/components/BookCover";
 
 interface Member {
   id: number;
@@ -437,26 +437,14 @@ export default function ListingDetail() {
 
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
-          {listing.book_cover_url ? (
-            <Image
-              src={listing.book_cover_url}
-              alt={listing.book_title}
-              width={96}
-              height={144}
-              className="w-20 h-28 sm:w-24 sm:h-36 object-cover rounded-lg shadow-sm"
-              style={{ flexShrink: 0 }}
-            />
-          ) : (
-            <div
-              className="w-20 h-28 sm:w-24 sm:h-36 rounded-lg flex items-center justify-center text-3xl sm:text-4xl"
-              style={{
-                backgroundColor: "var(--color-border)",
-                flexShrink: 0,
-              }}
-            >
-              📖
-            </div>
-          )}
+          <BookCover
+            src={listing.book_cover_url}
+            alt={listing.book_title}
+            width={96}
+            height={144}
+            className="w-20 h-28 sm:w-24 sm:h-36 object-cover rounded-lg shadow-sm"
+            style={{ flexShrink: 0 }}
+          />
 
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl mb-1">{listing.book_title}</h1>
