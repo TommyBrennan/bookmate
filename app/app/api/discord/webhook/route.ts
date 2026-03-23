@@ -75,6 +75,13 @@ async function handleLink(body: {
     return NextResponse.json({ error: "Listing not found" }, { status: 404 });
   }
 
+  if (!listing.is_full) {
+    return NextResponse.json(
+      { error: "Cannot link Discord until the group is full" },
+      { status: 400 }
+    );
+  }
+
   if (listing.discord_link) {
     return NextResponse.json(
       { error: "Discord link already set for this listing" },

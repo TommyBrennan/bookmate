@@ -250,15 +250,23 @@ async function handleMessage(message: TelegramMessage) {
 
     const listingId = parseInt(linkMatch[1], 10);
 
-    // Verify this user is the listing author
+    // Verify this user is the listing author and the listing is full
     const listing = db
-      .prepare("SELECT author_id FROM listings WHERE id = ?")
-      .get(listingId) as { author_id: number } | undefined;
+      .prepare("SELECT author_id, is_full FROM listings WHERE id = ?")
+      .get(listingId) as { author_id: number; is_full: number } | undefined;
 
     if (!listing || listing.author_id !== linkedUser.user_id) {
       await sendMessage(
         message.chat.id,
         "You can only link Telegram groups to your own Bookmate listings."
+      );
+      return;
+    }
+
+    if (!listing.is_full) {
+      await sendMessage(
+        message.chat.id,
+        "This listing's group is not full yet. You can link a Telegram group once the group reaches its maximum size."
       );
       return;
     }

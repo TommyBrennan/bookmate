@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const today = new Date().toISOString().split("T")[0];
+    if (startDate < today) {
+      return NextResponse.json(
+        { error: "Start date cannot be in the past" },
+        { status: 400 }
+      );
+    }
+
     const size = parseInt(maxGroupSize, 10);
     if (isNaN(size) || size < 2 || size > 20) {
       return NextResponse.json(
