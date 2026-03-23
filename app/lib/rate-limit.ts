@@ -11,16 +11,20 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 // Clean up expired entries every 5 minutes
+// Guard against multiple intervals on Next.js hot reload
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of store) {
-    entry.timestamps = entry.timestamps.filter((t) => now - t < 15 * 60 * 1000);
-    if (entry.timestamps.length === 0) {
-      store.delete(key);
+const globalObj = globalThis as unknown as { __rateLimitCleanup?: ReturnType<typeof setInterval> };
+if (!globalObj.__rateLimitCleanup) {
+  globalObj.__rateLimitCleanup = setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of store) {
+      entry.timestamps = entry.timestamps.filter((t) => now - t < 15 * 60 * 1000);
+      if (entry.timestamps.length === 0) {
+        store.delete(key);
+      }
     }
-  }
-}, CLEANUP_INTERVAL);
+  }, CLEANUP_INTERVAL);
+}
 
 /**
  * Check if a request should be rate limited.

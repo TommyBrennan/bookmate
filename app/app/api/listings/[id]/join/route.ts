@@ -53,6 +53,20 @@ export async function POST(
     return NextResponse.json({ error: "You are already a member" }, { status: 400 });
   }
 
+  // Check if user has a pending application (e.g., requires_approval was toggled off)
+  const pendingApp = db
+    .prepare(
+      "SELECT 1 FROM listing_applications WHERE listing_id = ? AND user_id = ? AND status = 'pending'"
+    )
+    .get(listingId, session.userId);
+
+  if (pendingApp) {
+    return NextResponse.json(
+      { error: "You already have a pending application for this group" },
+      { status: 400 }
+    );
+  }
+
   // Wrap count check + insert in a transaction to prevent race conditions
   const joinTransaction = db.transaction(() => {
     const { count } = db

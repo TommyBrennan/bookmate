@@ -18,10 +18,19 @@ export async function GET(request: NextRequest) {
   const conditions: string[] = ["l.is_full = 0"];
   const params: (string | number)[] = [];
 
-  // By default, hide listings with start dates in the past
+  // Apply date floor: use the more restrictive of today or startDateFrom
+  const today = new Date().toISOString().split("T")[0];
+  const hasStartDateFilter = startDateFrom && /^\d{4}-\d{2}-\d{2}$/.test(startDateFrom);
+
   if (!includePast) {
+    // Use whichever is later: today or the explicit start_date_from filter
+    const effectiveDate = hasStartDateFilter && startDateFrom > today ? startDateFrom : today;
     conditions.push("l.start_date >= ?");
-    params.push(new Date().toISOString().split("T")[0]);
+    params.push(effectiveDate);
+  } else if (hasStartDateFilter) {
+    // includePast is true, but user wants a specific start date floor
+    conditions.push("l.start_date >= ?");
+    params.push(startDateFrom);
   }
 
   if (q && q.length <= 300) {
@@ -37,11 +46,6 @@ export async function GET(request: NextRequest) {
   if (readingPace && readingPace.length <= 200) {
     conditions.push("l.reading_pace LIKE ?");
     params.push(`%${readingPace}%`);
-  }
-
-  if (startDateFrom && /^\d{4}-\d{2}-\d{2}$/.test(startDateFrom)) {
-    conditions.push("l.start_date >= ?");
-    params.push(startDateFrom);
   }
 
   const whereClause = conditions.join(" AND ");

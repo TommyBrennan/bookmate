@@ -56,10 +56,11 @@ export async function GET(
     );
   }
 
-  // Check if the current user has a pending application
+  // Check if the current user has an application (regardless of requires_approval,
+  // since the flag may have been toggled after the application was submitted)
   let hasApplied = false;
   let applicationStatus = "";
-  if (session.userId && !isMember && listing.requires_approval) {
+  if (session.userId && !isMember) {
     const app = db
       .prepare(
         "SELECT status FROM listing_applications WHERE listing_id = ? AND user_id = ?"
@@ -85,9 +86,16 @@ export async function GET(
       .all(listingId) as { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[];
   }
 
+  // Strip platform links for non-members to prevent leaking invite URLs
+  const safeListingData = { ...listing };
+  if (!isMember && !isAuthor) {
+    delete safeListingData.telegram_link;
+    delete safeListingData.discord_link;
+  }
+
   return NextResponse.json({
     listing: {
-      ...listing,
+      ...safeListingData,
       members,
       memberCount: members.length,
       isMember,
