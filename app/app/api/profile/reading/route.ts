@@ -51,16 +51,14 @@ export async function GET() {
 
   // Reading history: completed groups (full + start_date in the past)
   // Upcoming: not yet started and not full
-  const history = readings.filter(
-    (r) => r.is_full === 1 && r.start_date < today
-  );
+  // Active: everything else that has started or is full (but not completed)
+  const isHistory = (r: ReadingRow) => r.is_full === 1 && r.start_date < today;
+  const isUpcoming = (r: ReadingRow) => r.is_full === 0 && r.start_date > today;
 
-  const upcoming = readings.filter(
-    (r) => r.is_full === 0 && r.start_date > today
-  );
-
+  const history = readings.filter(isHistory);
+  const upcoming = readings.filter(isUpcoming);
   const active = readings.filter(
-    (r) => !history.includes(r) && !upcoming.includes(r) && (r.is_full === 1 || r.start_date <= today)
+    (r) => !isHistory(r) && !isUpcoming(r) && (r.is_full === 1 || r.start_date <= today)
   );
 
   return NextResponse.json({

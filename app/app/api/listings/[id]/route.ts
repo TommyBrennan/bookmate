@@ -154,8 +154,14 @@ export async function PATCH(
       return NextResponse.json({ error: "Reading pace is required (max 200 characters)" }, { status: 400 });
     }
 
-    if (startDate !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
-      return NextResponse.json({ error: "Invalid start date format (expected YYYY-MM-DD)" }, { status: 400 });
+    if (startDate !== undefined) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+        return NextResponse.json({ error: "Invalid start date format (expected YYYY-MM-DD)" }, { status: 400 });
+      }
+      const today = new Date().toISOString().split("T")[0];
+      if (startDate < today) {
+        return NextResponse.json({ error: "Start date cannot be in the past" }, { status: 400 });
+      }
     }
 
     if (meetingFormat !== undefined && !["voice", "text", "mixed"].includes(meetingFormat)) {
@@ -179,6 +185,10 @@ export async function PATCH(
           { status: 400 }
         );
       }
+    }
+
+    if (language !== undefined && (!language || typeof language !== "string" || language.length > 100)) {
+      return NextResponse.json({ error: "Language is required (max 100 characters)" }, { status: 400 });
     }
 
     if (platformPreference !== undefined && !["telegram", "discord"].includes(platformPreference)) {
