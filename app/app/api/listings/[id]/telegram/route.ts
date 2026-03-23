@@ -32,6 +32,13 @@ export async function POST(
     );
   }
 
+  if (!listing.is_full) {
+    return NextResponse.json(
+      { error: "Group must be full before sharing a platform link" },
+      { status: 400 }
+    );
+  }
+
   const { telegramLink } = await req.json();
 
   if (!telegramLink || !telegramLink.startsWith("https://t.me/") || telegramLink.length > 512) {
