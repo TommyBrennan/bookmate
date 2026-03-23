@@ -10,7 +10,7 @@ function getUserEmail(userId: number): string | null {
 
 export function createNotification(
   userId: number,
-  listingId: number,
+  listingId: number | null,
   type: string,
   message: string
 ) {

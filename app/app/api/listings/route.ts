@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get("sort") || "newest";
   const includePast = searchParams.get("include_past") === "true";
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
-  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : Math.min(pageParam, 1000);
 
   const conditions: string[] = ["l.is_full = 0"];
   const params: (string | number)[] = [];

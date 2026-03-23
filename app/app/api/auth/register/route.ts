@@ -54,6 +54,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address" },
+        { status: 400 }
+      );
+    }
+
     // Check if email is already taken
     const existing = db
       .prepare("SELECT id FROM users WHERE email = ?")

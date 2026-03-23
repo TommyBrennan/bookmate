@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { listingId, ratedUserId, score, comment } = body;
 
-  if (!listingId || !ratedUserId || !score) {
+  if (listingId == null || ratedUserId == null || score == null) {
     return NextResponse.json(
       { error: "listingId, ratedUserId, and score are required" },
       { status: 400 }

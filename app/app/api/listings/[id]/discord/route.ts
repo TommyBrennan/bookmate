@@ -36,6 +36,7 @@ export async function POST(
 
   if (
     !discordLink ||
+    discordLink.length > 512 ||
     !(
       discordLink.startsWith("https://discord.gg/") ||
       discordLink.startsWith("https://discord.com/invite/")
@@ -44,7 +45,7 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          "Please provide a valid Discord invite link (https://discord.gg/... or https://discord.com/invite/...)",
+          "Please provide a valid Discord invite link (https://discord.gg/... or https://discord.com/invite/..., max 512 characters)",
       },
       { status: 400 }
     );

@@ -283,32 +283,30 @@ export async function DELETE(
       .prepare("SELECT user_id FROM listing_members WHERE listing_id = ? AND user_id != ?")
       .all(listingId, session.userId) as { user_id: number }[];
 
-    // Delete in a transaction
+    // Delete in a transaction (notifications sent after, so they aren't wiped)
     const deleteTransaction = db.transaction(() => {
-      // Notify members before deletion
-      for (const member of members) {
-        try {
-          createNotification(
-            member.user_id,
-            listingId,
-            "listing_deleted",
-            `The reading group for "${listing.book_title}" has been cancelled by the organizer.`
-          );
-        } catch {
-          // Notification failure should not block deletion
-        }
-      }
-
-      // Delete related records first
       db.prepare("DELETE FROM listing_applications WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM listing_members WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM notifications WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM ratings WHERE listing_id = ?").run(listingId);
-      // Delete the listing itself
       db.prepare("DELETE FROM listings WHERE id = ?").run(listingId);
     });
 
     deleteTransaction();
+
+    // Send deletion notifications after transaction (listing_id is NULL since listing is gone)
+    for (const member of members) {
+      try {
+        createNotification(
+          member.user_id,
+          null,
+          "listing_deleted",
+          `The reading group for "${listing.book_title}" has been cancelled by the organizer.`
+        );
+      } catch {
+        // Notification failure should not block response
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
