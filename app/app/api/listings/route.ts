@@ -11,11 +11,18 @@ export async function GET(request: NextRequest) {
   const readingPace = searchParams.get("reading_pace") || "";
   const startDateFrom = searchParams.get("start_date_from") || "";
   const sort = searchParams.get("sort") || "newest";
+  const includePast = searchParams.get("include_past") === "true";
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
   const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
   const conditions: string[] = ["l.is_full = 0"];
   const params: (string | number)[] = [];
+
+  // By default, hide listings with start dates in the past
+  if (!includePast) {
+    conditions.push("l.start_date >= ?");
+    params.push(new Date().toISOString().split("T")[0]);
+  }
 
   if (q && q.length <= 300) {
     conditions.push("(l.book_title LIKE ? OR l.book_author LIKE ?)");
