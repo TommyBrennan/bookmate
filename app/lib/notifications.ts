@@ -42,6 +42,10 @@ function getEmailSubject(type: string): string {
       return "Bookmate: Application update";
     case "rating_received":
       return "Bookmate: You received a new rating";
+    case "listing_deleted":
+      return "Bookmate: A reading group has been cancelled";
+    case "listing_updated":
+      return "Bookmate: A reading group has been updated";
     default:
       return "Bookmate: Notification";
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession, requireAuth } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 import { isBotConfigured } from "@/lib/telegram";
 import { isBotConfigured as isDiscordBotConfigured } from "@/lib/discord";
 
@@ -99,4 +100,209 @@ export async function GET(
       discordBotConfigured: isDiscordBotConfigured(),
     },
   });
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await requireAuth();
+  if (!session) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const listingId = parseInt(id, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
+  }
+
+  const listing = db
+    .prepare("SELECT * FROM listings WHERE id = ?")
+    .get(listingId) as Record<string, unknown> | undefined;
+
+  if (!listing) {
+    return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  }
+
+  if (listing.author_id !== session.userId) {
+    return NextResponse.json({ error: "Only the author can edit this listing" }, { status: 403 });
+  }
+
+  // Cannot edit if a platform link has been shared (group already formed)
+  if (listing.telegram_link || listing.discord_link) {
+    return NextResponse.json(
+      { error: "Cannot edit a listing after the group chat link has been shared" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const body = await req.json();
+    const {
+      language,
+      readingPace,
+      startDate,
+      meetingFormat,
+      maxGroupSize,
+      requiresApproval,
+      platformPreference,
+    } = body;
+
+    // Validate fields that are provided
+    if (readingPace !== undefined && (!readingPace || readingPace.length > 200)) {
+      return NextResponse.json({ error: "Reading pace is required (max 200 characters)" }, { status: 400 });
+    }
+
+    if (startDate !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+      return NextResponse.json({ error: "Invalid start date format (expected YYYY-MM-DD)" }, { status: 400 });
+    }
+
+    if (meetingFormat !== undefined && !["voice", "text", "mixed"].includes(meetingFormat)) {
+      return NextResponse.json({ error: "Invalid meeting format" }, { status: 400 });
+    }
+
+    if (maxGroupSize !== undefined) {
+      const size = parseInt(maxGroupSize, 10);
+      if (isNaN(size) || size < 2 || size > 20) {
+        return NextResponse.json({ error: "Group size must be between 2 and 20" }, { status: 400 });
+      }
+
+      // Cannot reduce below current member count
+      const memberCount = (db
+        .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
+        .get(listingId) as { count: number }).count;
+
+      if (size < memberCount) {
+        return NextResponse.json(
+          { error: `Cannot reduce group size below current member count (${memberCount})` },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (platformPreference !== undefined && !["telegram", "discord"].includes(platformPreference)) {
+      return NextResponse.json({ error: "Invalid platform preference" }, { status: 400 });
+    }
+
+    // Build dynamic UPDATE
+    const updates: string[] = [];
+    const values: unknown[] = [];
+
+    if (language !== undefined) {
+      updates.push("language = ?");
+      values.push(language);
+    }
+    if (readingPace !== undefined) {
+      updates.push("reading_pace = ?");
+      values.push(readingPace.trim());
+    }
+    if (startDate !== undefined) {
+      updates.push("start_date = ?");
+      values.push(startDate);
+    }
+    if (meetingFormat !== undefined) {
+      updates.push("meeting_format = ?");
+      values.push(meetingFormat);
+    }
+    if (maxGroupSize !== undefined) {
+      updates.push("max_group_size = ?");
+      values.push(parseInt(maxGroupSize, 10));
+    }
+    if (requiresApproval !== undefined) {
+      updates.push("requires_approval = ?");
+      values.push(requiresApproval ? 1 : 0);
+    }
+    if (platformPreference !== undefined) {
+      updates.push("platform_preference = ?");
+      values.push(platformPreference);
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+    }
+
+    values.push(listingId);
+    db.prepare(`UPDATE listings SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Update listing error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await requireAuth();
+  if (!session) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const listingId = parseInt(id, 10);
+  if (isNaN(listingId)) {
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
+  }
+
+  const listing = db
+    .prepare("SELECT * FROM listings WHERE id = ?")
+    .get(listingId) as Record<string, unknown> | undefined;
+
+  if (!listing) {
+    return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  }
+
+  if (listing.author_id !== session.userId) {
+    return NextResponse.json({ error: "Only the author can delete this listing" }, { status: 403 });
+  }
+
+  // Cannot delete if a platform link has been shared
+  if (listing.telegram_link || listing.discord_link) {
+    return NextResponse.json(
+      { error: "Cannot delete a listing after the group chat link has been shared" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Get members to notify (excluding the author)
+    const members = db
+      .prepare("SELECT user_id FROM listing_members WHERE listing_id = ? AND user_id != ?")
+      .all(listingId, session.userId) as { user_id: number }[];
+
+    // Delete in a transaction
+    const deleteTransaction = db.transaction(() => {
+      // Notify members before deletion
+      for (const member of members) {
+        try {
+          createNotification(
+            member.user_id,
+            listingId,
+            "listing_deleted",
+            `The reading group for "${listing.book_title}" has been cancelled by the organizer.`
+          );
+        } catch {
+          // Notification failure should not block deletion
+        }
+      }
+
+      // Delete related records first
+      db.prepare("DELETE FROM listing_applications WHERE listing_id = ?").run(listingId);
+      db.prepare("DELETE FROM listing_members WHERE listing_id = ?").run(listingId);
+      db.prepare("DELETE FROM notifications WHERE listing_id = ?").run(listingId);
+      db.prepare("DELETE FROM ratings WHERE listing_id = ?").run(listingId);
+      // Delete the listing itself
+      db.prepare("DELETE FROM listings WHERE id = ?").run(listingId);
+    });
+
+    deleteTransaction();
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete listing error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
