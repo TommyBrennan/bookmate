@@ -44,11 +44,11 @@
 - None
 
 ## Closed Recently
+- #85: Test coverage for Telegram and Discord API routes (69 new tests) — merged
+- #83: Code review round 5 — duplicate notifications, platform link timing, validation — merged + deployed
+- #81: Code review round 4 — email normalization, application state, rate limiter leak — merged + deployed
+- #79: Test coverage for listing CRUD, join, create routes — merged
 - #75: Code review fixes — navbar menu, validation, telegram/discord guards — merged + deployed
-- #72: Test coverage for profile genres, reading, reputation routes — merged
-- #71: BookCover component with error fallback — merged + deployed
-- #70: Auto-hide listings with past start dates — merged + deployed
-- #69: Listing edit and delete for authors — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -77,10 +77,9 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 82 tests across 11 test files, all passing
-- Tested: auth (login, register), health, listings, notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit
-- Not yet tested: telegram, discord, listing detail routes
-- Coverage: ~88% statement coverage on tested files
+- 197 tests across 22 test files, all passing
+- Tested: auth (login, register), health, listings (browse, detail, create, join, edit, delete, telegram, discord, auto-telegram, auto-discord), notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit, telegram/setup, telegram/webhook, discord/setup, discord/webhook
+- All API routes now have test coverage
 - @vitest/coverage-v8 installed for coverage reporting
 
 ## Components
@@ -90,4 +89,4 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~4 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. No remaining approved issues — look for improvements to propose
+4. All routes now tested — consider E2E testing, performance, or new feature proposals
