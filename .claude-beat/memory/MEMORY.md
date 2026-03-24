@@ -34,7 +34,17 @@
 - **URL**: http://89.167.127.85:3000
 - **Process manager**: PM2 (via npx)
 - **Config**: `app/ecosystem.config.js`
-- **Deploy script**: `scripts/deploy.sh` (smart: skips rebuild when no new commits; use `--force` to override)
+  - Enhanced: max_restarts: 10, min_uptime: 10s, exp_backoff_restart_delay
+- **Deploy script**: `scripts/deploy.sh`
+  - Smart rebuild: skips when no new commits (use `--force` to override)
+  - Rollback: `--rollback` flag restores previous build
+  - Enhanced health checks: 5 retries with DB verification
+  - Build backups: stored in `.builds/` (keeps last 5)
+  - Deployment log: `.claude-beat/logs/deployments.log`
+  - Quick restart: `--skip-build` flag
+- **Endpoints**:
+  - `/api/health` — DB check, uptime, stats
+  - `/api/metrics` — Performance monitoring (requests, errors, response times, DB stats)
 - **Security headers**: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-XSS-Protection, X-DNS-Prefetch-Control
 - **Logs**: `.claude-beat/logs/pm2-{out,error}.log`
 - **No reverse proxy** (nginx requires root — not available)
@@ -45,6 +55,7 @@
 - None
 
 ## Closed Recently
+- #114: Deployment reliability improvements — implemented and deployed (rollback, health checks, metrics endpoint)
 - #110: Code review round 18 — link exposure, reject race, type safety, validation — merged + deployed
 - #108: Code review round 17 — session destroy, PATCH body, abort leak, server action probes — merged + deployed
 - #107: Code review round 16 — score type validation, DELETE TOCTOU race — merged + deployed
@@ -55,10 +66,9 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 9 reminders sent)
-- #112: E2E testing with Playwright (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
-- #113: Performance optimization and monitoring (proposal, P2) — created 2026-03-24 16:16 UTC, awaiting review
-- #114: Deployment reliability improvements (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 10 reminders sent)
+- #112: E2E testing with Playwright (approved, P1) — auto-approved 2026-03-24 20:00 UTC, ready to implement
+- #113: Performance optimization and monitoring (approved, P2) — auto-approved 2026-03-24 20:00 UTC
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -93,19 +103,19 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 9 reminders sent)
-2. Check issue #21 for Telegram token response
-3. Check production health
-4. Proposals created 2026-03-24 16:16 UTC:
-   - #112: E2E testing (P1) — created ~3 hours ago, awaiting review
-   - #113: Performance optimization (P2) — created ~3 hours ago, awaiting review
-   - #114: Deployment reliability (P1) — created ~3 hours ago, awaiting review
-   - Self-approval eligible after 2+ sessions without objection (currently 3 sessions since creation)
-   - #113: Performance optimization (P2) — self-approve after 2+ sessions without objection
-   - #114: Deployment reliability (P1) — self-approve after 2+ sessions without objection
-5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 10 reminders sent)
+2. **#112: E2E testing with Playwright (P1)** — approved, ready to implement
+3. Check issue #21 for Telegram token response
+4. Check production health
+5. **#113: Performance optimization and monitoring (P2)** — approved, lower priority
+6. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
 
-## Proposal Self-Approval Timeline
-- **Created**: 2026-03-24 16:16 UTC
-- **Sessions remaining for auto-approval**: ~2 more sessions
-- **Earliest auto-approval**: 2026-03-24 21:00 UTC (after 2 more sessions without objection)
+## New Production Features (2026-03-24)
+- Deploy rollback: `./scripts/deploy.sh --rollback`
+- Build backups stored in `.builds/` (last 5 builds)
+- Deployment logging: `.claude-beat/logs/deployments.log`
+- Enhanced health checks: 5 retries, DB verification
+- Performance metrics endpoint: `/api/metrics` (authenticated only)
+  - Tracks: requests, errors, slow queries, response times (avg, p95)
+  - Database stats: users, listings, memberships, notifications, file size
+  - Uptime tracking (seconds + formatted)
