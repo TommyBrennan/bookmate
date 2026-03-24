@@ -37,7 +37,13 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const { notificationId } = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+  const { notificationId } = body;
 
   if (notificationId) {
     // Validate notificationId is a positive integer

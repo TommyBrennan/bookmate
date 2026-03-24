@@ -170,6 +170,20 @@ describe("PATCH /api/notifications", () => {
     expect(unread.count).toBe(1);
   });
 
+  it("returns 400 for invalid/missing JSON body", async () => {
+    mockRequireAuth.mockResolvedValue({ userId: 1 });
+
+    // Send a request with no body — req.json() should throw
+    const req = new (await import("next/server")).NextRequest(
+      new URL("/api/notifications", "http://localhost:3000"),
+      { method: "PATCH", headers: { "Content-Type": "application/json" } }
+    );
+    const response = await PATCH(req);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toBe("Invalid request body");
+  });
+
   it("marks all notifications as read when no notificationId", async () => {
     mockRequireAuth.mockResolvedValue({ userId: 1 });
 

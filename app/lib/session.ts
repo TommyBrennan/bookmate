@@ -46,7 +46,7 @@ export async function requireAuth() {
     .prepare("SELECT id, display_name FROM users WHERE id = ?")
     .get(session.userId) as { id: number; display_name: string } | undefined;
   if (!user) {
-    session.destroy();
+    await session.destroy();
     return null;
   }
   // Keep session displayName in sync with DB (handles stale cookies)
