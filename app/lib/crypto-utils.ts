@@ -8,7 +8,9 @@ export function safeCompare(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
   const bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) {
-    // Still do a comparison to avoid leaking length info via timing
+    // Do a dummy comparison to add some constant work, though this does not
+    // fully mask length differences (bufA self-compare time varies with length).
+    // In practice, the secrets compared here are fixed-length env vars.
     timingSafeEqual(bufA, bufA);
     return false;
   }

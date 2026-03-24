@@ -86,9 +86,13 @@ export async function GET(
       .all(listingId) as { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[];
   }
 
-  // Strip platform links for non-members to prevent leaking invite URLs
+  // Strip sensitive data from the response
   const safeListingData = { ...listing };
+  // Always strip internal platform IDs — these are internal bot/channel identifiers
+  delete safeListingData.telegram_chat_id;
+  delete safeListingData.discord_channel_id;
   if (!isMember && !isAuthor) {
+    // Strip invite links for non-members
     delete safeListingData.telegram_link;
     delete safeListingData.discord_link;
   }
@@ -185,7 +189,7 @@ export async function PATCH(
         return NextResponse.json({ error: "Group size must be between 2 and 20" }, { status: 400 });
       }
 
-      // Cannot reduce below current member count
+      // Pre-check member count (authoritative check happens inside transaction below)
       const memberCount = (db
         .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
         .get(listingId) as { count: number }).count;
@@ -226,19 +230,14 @@ export async function PATCH(
       updates.push("meeting_format = ?");
       values.push(meetingFormat);
     }
+    // Track whether maxGroupSize change needs is_full recalculation
+    let needsIsFullRecalc = false;
+    let parsedNewSize = 0;
     if (maxGroupSize !== undefined) {
-      const newSize = parseInt(String(maxGroupSize), 10);
+      parsedNewSize = parseInt(String(maxGroupSize), 10);
       updates.push("max_group_size = ?");
-      values.push(newSize);
-
-      // If increasing group size on a full listing, reopen it
-      const currentMemberCount = (db
-        .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
-        .get(listingId) as { count: number }).count;
-      if (newSize > currentMemberCount && listing.is_full) {
-        updates.push("is_full = ?");
-        values.push(0);
-      }
+      values.push(parsedNewSize);
+      needsIsFullRecalc = true;
     }
     if (requiresApproval !== undefined) {
       updates.push("requires_approval = ?");
@@ -253,8 +252,34 @@ export async function PATCH(
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
 
-    values.push(listingId);
-    db.prepare(`UPDATE listings SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+    // Wrap in transaction to prevent race between is_full recalculation and concurrent joins
+    const updateTransaction = db.transaction(() => {
+      if (needsIsFullRecalc) {
+        // Re-read member count and is_full inside transaction to prevent stale data
+        const fresh = db.prepare("SELECT is_full FROM listings WHERE id = ?").get(listingId) as { is_full: number } | undefined;
+        const currentMemberCount = (db
+          .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
+          .get(listingId) as { count: number }).count;
+
+        if (parsedNewSize < currentMemberCount) {
+          return { error: `Cannot reduce group size below current member count (${currentMemberCount})` };
+        }
+
+        if (parsedNewSize > currentMemberCount && fresh?.is_full) {
+          updates.push("is_full = ?");
+          values.push(0);
+        }
+      }
+
+      values.push(listingId);
+      db.prepare(`UPDATE listings SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+      return null;
+    });
+
+    const txResult = updateTransaction();
+    if (txResult?.error) {
+      return NextResponse.json({ error: txResult.error }, { status: 400 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
