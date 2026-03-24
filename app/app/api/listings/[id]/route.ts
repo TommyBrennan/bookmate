@@ -259,6 +259,16 @@ export async function PATCH(
     // Wrap in transaction to prevent race between is_full recalculation and concurrent joins
     // Use local copies of updates/values inside the transaction to avoid mutating outer arrays
     const updateTransaction = db.transaction(() => {
+      // Re-check platform links inside the transaction to prevent TOCTOU race:
+      // a concurrent POST to /telegram or /discord could set a link between the
+      // outer guard (line 146) and this point
+      const current = db
+        .prepare("SELECT telegram_link, discord_link FROM listings WHERE id = ?")
+        .get(listingId) as { telegram_link: string | null; discord_link: string | null } | undefined;
+      if (current?.telegram_link || current?.discord_link) {
+        return { error: "Cannot edit a listing after the group chat link has been shared" };
+      }
+
       const txUpdates = [...updates];
       const txValues = [...values];
 

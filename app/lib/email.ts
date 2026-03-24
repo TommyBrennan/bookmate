@@ -1,14 +1,22 @@
 import nodemailer from "nodemailer";
 
-const isConfigured =
-  !!process.env.SMTP_HOST &&
-  !!process.env.SMTP_PORT &&
-  !!process.env.SMTP_FROM;
+/**
+ * Check SMTP config live from process.env on each call — not at module load time.
+ * Module-level constants would be frozen when the file is first imported,
+ * permanently returning false if SMTP vars aren't set at that exact moment.
+ */
+function checkConfigured(): boolean {
+  return (
+    !!process.env.SMTP_HOST &&
+    !!process.env.SMTP_PORT &&
+    !!process.env.SMTP_FROM
+  );
+}
 
 let transporter: nodemailer.Transporter | null = null;
 
 function getTransporter(): nodemailer.Transporter | null {
-  if (!isConfigured) return null;
+  if (!checkConfigured()) return null;
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -52,5 +60,5 @@ export async function sendEmail(
 }
 
 export function isEmailConfigured(): boolean {
-  return isConfigured;
+  return checkConfigured();
 }

@@ -13,12 +13,23 @@
  * - Bot creates a text channel + invite link, saves to listing
  */
 
-const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || "";
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID || "";
 const DISCORD_API = "https://discord.com/api/v10";
 
+/**
+ * Read bot credentials live from process.env on each call — not at module load time.
+ * Module-level constants would be frozen when the file is first imported,
+ * missing any env vars set or changed after server startup.
+ */
+function getBotToken(): string {
+  return process.env.DISCORD_BOT_TOKEN || "";
+}
+
+function getClientId(): string {
+  return process.env.DISCORD_CLIENT_ID || "";
+}
+
 export function isBotConfigured(): boolean {
-  return BOT_TOKEN.length > 0 && CLIENT_ID.length > 0;
+  return getBotToken().length > 0 && getClientId().length > 0;
 }
 
 /**
@@ -41,7 +52,7 @@ async function callApi<T = unknown>(
     const res = await fetch(`${DISCORD_API}${endpoint}`, {
       method,
       headers: {
-        Authorization: `Bot ${BOT_TOKEN}`,
+        Authorization: `Bot ${getBotToken()}`,
         "Content-Type": "application/json",
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -87,7 +98,7 @@ export async function getBotInfo(): Promise<{
 export function generateBotInviteUrl(listingId: number): string {
   const permissions = 3089;
   const state = `listing_${listingId}`;
-  return `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&permissions=${permissions}&scope=bot&state=${encodeURIComponent(state)}`;
+  return `https://discord.com/oauth2/authorize?client_id=${getClientId()}&permissions=${permissions}&scope=bot&state=${encodeURIComponent(state)}`;
 }
 
 /**

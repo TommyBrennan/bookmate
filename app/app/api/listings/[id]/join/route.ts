@@ -108,7 +108,11 @@ export async function POST(
   // When group just filled, skip new_member notification for the author
   // since they'll receive the more important group_full notification instead
   if (result.count === result.maxSize) {
-    notifyGroupFull(listingId);
+    notifyGroupFull(
+      listingId,
+      listing.book_title as string,
+      listing.platform_preference as string
+    );
   } else {
     notifyListingAuthor(listingId, session.displayName || "Someone");
   }

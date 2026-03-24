@@ -1,5 +1,6 @@
 import { getIronSession, type SessionOptions } from "iron-session";
 import { cookies } from "next/headers";
+import db from "./db";
 
 export interface SessionData {
   userId?: number;
@@ -38,6 +39,20 @@ export async function requireAuth() {
   const session = await getSession();
   if (!session.userId) {
     return null;
+  }
+  // Verify the user still exists in the DB — a deleted user's cookie
+  // would otherwise grant full access until the session expires
+  const user = db
+    .prepare("SELECT id, display_name FROM users WHERE id = ?")
+    .get(session.userId) as { id: number; display_name: string } | undefined;
+  if (!user) {
+    session.destroy();
+    return null;
+  }
+  // Keep session displayName in sync with DB (handles stale cookies)
+  if (user.display_name !== session.displayName) {
+    session.displayName = user.display_name;
+    await session.save();
   }
   return session;
 }
