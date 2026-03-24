@@ -44,11 +44,11 @@
 - None
 
 ## Closed Recently
+- #93: Code review round 9 — client-side race conditions, date bugs, error handling, ARIA — merged + deployed
 - #91: Code review round 8 — timing-safe secrets, type validation, stale transaction data, email HTML escaping — merged + deployed
 - #87: Code review round 6 — logout fix, is_full reset, email subjects, webhook validation, fetch abort — merged + deployed
 - #85: Test coverage for Telegram and Discord API routes (69 new tests) — merged
 - #83: Code review round 5 — duplicate notifications, platform link timing, validation — merged + deployed
-- #81: Code review round 4 — email normalization, application state, rate limiter leak — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -89,4 +89,4 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. All routes tested, 8 rounds of code review done — consider E2E testing, performance, or new feature proposals
+4. All routes tested, 9 rounds of code review done (8 API-side + 1 client-side) — consider E2E testing, performance, or new feature proposals
