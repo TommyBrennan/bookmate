@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const userId = userIdParam ? parseInt(userIdParam, 10) : session.userId;
   const isOwnProfile = userId === session.userId;
 
-  if (userIdParam && isNaN(userId as number)) {
+  if (userIdParam && (isNaN(userId as number) || (userId as number) < 1)) {
     return NextResponse.json(
       { error: "Invalid userId parameter" },
       { status: 400 }

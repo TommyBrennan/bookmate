@@ -15,6 +15,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (typeof email !== "string" || typeof password !== "string" || typeof displayName !== "string") {
+      return NextResponse.json(
+        { error: "Email, password, and display name must be strings" },
+        { status: 400 }
+      );
+    }
+
     // Rate limit: 3 registrations per IP per 15 minutes
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const { allowed, retryAfter } = checkRateLimit(`register:${ip}`, 3);

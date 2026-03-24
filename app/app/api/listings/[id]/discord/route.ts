@@ -43,10 +43,10 @@ export async function POST(
 
   if (
     !discordLink ||
-    discordLink.length > 512 ||
+    typeof discordLink !== "string" ||
     !(
-      discordLink.startsWith("https://discord.gg/") ||
-      discordLink.startsWith("https://discord.com/invite/")
+      /^https:\/\/discord\.gg\/[\w-]{1,480}$/.test(discordLink) ||
+      /^https:\/\/discord\.com\/invite\/[\w-]{1,470}$/.test(discordLink)
     )
   ) {
     return NextResponse.json(

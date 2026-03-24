@@ -196,6 +196,20 @@ describe("GET /api/profile/reputation", () => {
     expect(res.status).toBe(400);
   });
 
+  it("returns 400 for userId=0", async () => {
+    mockRequireAuth.mockResolvedValue(mockSession);
+    const req = createTestRequest("/api/profile/reputation?userId=0");
+    const res = await GET(req);
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for negative userId", async () => {
+    mockRequireAuth.mockResolvedValue(mockSession);
+    const req = createTestRequest("/api/profile/reputation?userId=-5");
+    const res = await GET(req);
+    expect(res.status).toBe(400);
+  });
+
   it("counts groups rated by user", async () => {
     mockRequireAuth.mockResolvedValue(mockSession);
     // User1 rates User2

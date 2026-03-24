@@ -41,7 +41,7 @@ export async function POST(
 
   const { telegramLink } = await req.json();
 
-  if (!telegramLink || !telegramLink.startsWith("https://t.me/") || telegramLink.length > 512) {
+  if (!telegramLink || typeof telegramLink !== "string" || !/^https:\/\/t\.me\/[\w+/-]{1,490}$/.test(telegramLink)) {
     return NextResponse.json(
       { error: "Please provide a valid Telegram invite link (https://t.me/..., max 512 characters)" },
       { status: 400 }
