@@ -48,9 +48,14 @@ export async function PATCH(req: NextRequest) {
       "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?"
     ).run(notificationId, session.userId);
   } else {
-    // Mark all as read
+    // Mark all as read — use subquery with LIMIT to bound WAL lock duration
     db.prepare(
-      "UPDATE notifications SET is_read = 1 WHERE user_id = ?"
+      `UPDATE notifications SET is_read = 1
+       WHERE id IN (
+         SELECT id FROM notifications
+         WHERE user_id = ? AND is_read = 0
+         LIMIT 1000
+       )`
     ).run(session.userId);
   }
 

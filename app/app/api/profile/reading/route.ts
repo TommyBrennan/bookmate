@@ -47,6 +47,7 @@ export async function GET() {
     JOIN users u ON u.id = l.author_id
     WHERE lm.user_id = ?
     ORDER BY lm.joined_at DESC
+    LIMIT 200
   `).all(session.userId) as ReadingRow[];
 
   const today = new Date().toISOString().split("T")[0];

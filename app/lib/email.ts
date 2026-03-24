@@ -14,10 +14,24 @@ function checkConfigured(): boolean {
 }
 
 let transporter: nodemailer.Transporter | null = null;
+let transporterConfigHash = "";
+
+/** Hash current SMTP env vars to detect config changes */
+function smtpConfigHash(): string {
+  return [
+    process.env.SMTP_HOST,
+    process.env.SMTP_PORT,
+    process.env.SMTP_SECURE,
+    process.env.SMTP_USER,
+    process.env.SMTP_PASS,
+    process.env.SMTP_FROM,
+  ].join("|");
+}
 
 function getTransporter(): nodemailer.Transporter | null {
   if (!checkConfigured()) return null;
-  if (!transporter) {
+  const currentHash = smtpConfigHash();
+  if (!transporter || currentHash !== transporterConfigHash) {
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || "587", 10),
@@ -31,6 +45,7 @@ function getTransporter(): nodemailer.Transporter | null {
           }
         : {}),
     });
+    transporterConfigHash = currentHash;
   }
   return transporter;
 }

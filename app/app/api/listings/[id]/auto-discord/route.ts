@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { isBotConfigured, generateBotInviteUrl } from "@/lib/discord";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getSession();
-  if (!session.userId) {
+  const session = await requireAuth();
+  if (!session) {
     return NextResponse.json(
       { error: "Authentication required" },
       { status: 401 }
