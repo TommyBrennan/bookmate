@@ -64,3 +64,10 @@
 - Project root: /root/Projects/bookmate
 - App directory: /root/Projects/bookmate/app
 - Always use full paths for .claude-beat/.env references
+
+## Security
+- Use `crypto.timingSafeEqual` for secret comparisons (not `!==`) to prevent timing oracle attacks
+- Always `typeof` check JSON body fields before string operations — `parseInt(obj)` silently coerces objects via `.toString()`
+- HTML-escape user-controlled content before embedding in email HTML body
+- Re-read mutable DB values inside transactions to prevent stale data from concurrent writes
+- `lib/crypto-utils.ts` provides `safeCompare()` and `escapeHtmlForEmail()` utilities
