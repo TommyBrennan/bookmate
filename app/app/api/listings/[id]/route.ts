@@ -73,8 +73,9 @@ export async function GET(
   }
 
   // Fetch pending applicants if the viewer is the author
+  // Show regardless of requires_approval — pending apps can exist after the flag is toggled off
   let pendingApplicants: { application_id: number; id: number; display_name: string; bio: string; applied_at: string }[] = [];
-  if (isAuthor && listing.requires_approval) {
+  if (isAuthor) {
     pendingApplicants = db
       .prepare(
         `SELECT la.id as application_id, u.id, u.display_name, u.bio, la.applied_at
@@ -252,8 +253,15 @@ export async function PATCH(
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
 
+    // Check if requires_approval is being toggled off — need to handle orphaned pending apps
+    const togglingApprovalOff = requiresApproval === false && listing.requires_approval;
+
     // Wrap in transaction to prevent race between is_full recalculation and concurrent joins
+    // Use local copies of updates/values inside the transaction to avoid mutating outer arrays
     const updateTransaction = db.transaction(() => {
+      const txUpdates = [...updates];
+      const txValues = [...values];
+
       if (needsIsFullRecalc) {
         // Re-read member count and is_full inside transaction to prevent stale data
         const fresh = db.prepare("SELECT is_full FROM listings WHERE id = ?").get(listingId) as { is_full: number } | undefined;
@@ -265,14 +273,28 @@ export async function PATCH(
           return { error: `Cannot reduce group size below current member count (${currentMemberCount})` };
         }
 
-        if (parsedNewSize > currentMemberCount && fresh?.is_full) {
-          updates.push("is_full = ?");
-          values.push(0);
+        if (parsedNewSize === currentMemberCount && !fresh?.is_full) {
+          // Group is now exactly full — mark it
+          txUpdates.push("is_full = ?");
+          txValues.push(1);
+        } else if (parsedNewSize > currentMemberCount && fresh?.is_full) {
+          // Group has room now — reopen it
+          txUpdates.push("is_full = ?");
+          txValues.push(0);
         }
       }
 
-      values.push(listingId);
-      db.prepare(`UPDATE listings SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+      txValues.push(listingId);
+      db.prepare(`UPDATE listings SET ${txUpdates.join(", ")} WHERE id = ?`).run(...txValues);
+
+      // When requires_approval is toggled off, auto-reject orphaned pending applications
+      // so those users can join directly instead of being stuck in limbo
+      if (togglingApprovalOff) {
+        db.prepare(
+          "UPDATE listing_applications SET status = 'rejected', decided_at = datetime('now') WHERE listing_id = ? AND status = 'pending'"
+        ).run(listingId);
+      }
+
       return null;
     });
 

@@ -272,6 +272,23 @@ describe("GET /api/listings/[id]", () => {
     expect(data.listing.pendingApplicants.length).toBe(1);
   });
 
+  it("shows pending applicants to author even when requires_approval is off", async () => {
+    // This tests the fix for orphaned applications being invisible to authors
+    const listingId = insertListing(authorId, { requires_approval: 0 });
+    addMember(listingId, authorId);
+    mockSession.userId = authorId;
+
+    const applicant = insertUser("orphan@example.com", "Orphan");
+    // Simulate a pending application that was created before requires_approval was toggled off
+    testDb.prepare("INSERT INTO listing_applications (listing_id, user_id, status) VALUES (?, ?, 'pending')").run(listingId, applicant);
+
+    const req = createTestRequest(`/api/listings/${listingId}`);
+    const response = await GET(req, createParams(String(listingId)));
+    const { data } = await parseResponse<{ listing: { pendingApplicants: unknown[] } }>(response);
+
+    expect(data.listing.pendingApplicants.length).toBe(1);
+  });
+
   it("shows hasApplied status for applicants", async () => {
     const listingId = insertListing(authorId, { requires_approval: 1 });
     addMember(listingId, authorId);
@@ -413,6 +430,61 @@ describe("PATCH /api/listings/[id]", () => {
 
     expect(status).toBe(400);
     expect(data.error).toBe("No fields to update");
+  });
+
+  it("sets is_full=1 when maxGroupSize reduced to equal member count", async () => {
+    const listingId = insertListing(authorId, { max_group_size: 5 });
+    addMember(listingId, authorId);
+    const u2 = insertUser("u2b@test.com", "U2B");
+    addMember(listingId, u2);
+    const u3 = insertUser("u3b@test.com", "U3B");
+    addMember(listingId, u3);
+    // 3 members, reduce size to 3
+
+    const req = createTestRequest(`/api/listings/${listingId}`, {
+      method: "PATCH",
+      body: { maxGroupSize: 3 },
+    });
+    const response = await PATCH(req, createParams(String(listingId)));
+    const { status, data } = await parseResponse(response);
+
+    expect(status).toBe(200);
+    expect(data.success).toBe(true);
+
+    const updated = testDb.prepare("SELECT is_full, max_group_size FROM listings WHERE id = ?").get(listingId) as { is_full: number; max_group_size: number };
+    expect(updated.max_group_size).toBe(3);
+    expect(updated.is_full).toBe(1);
+  });
+
+  it("auto-rejects pending applications when requires_approval is toggled off", async () => {
+    const listingId = insertListing(authorId, { requires_approval: 1 });
+    addMember(listingId, authorId);
+
+    const applicant = insertUser("applicant@test.com", "Applicant");
+    testDb.prepare(
+      "INSERT INTO listing_applications (listing_id, user_id, status) VALUES (?, ?, 'pending')"
+    ).run(listingId, applicant);
+
+    const req = createTestRequest(`/api/listings/${listingId}`, {
+      method: "PATCH",
+      body: { requiresApproval: false },
+    });
+    const response = await PATCH(req, createParams(String(listingId)));
+    const { status, data } = await parseResponse(response);
+
+    expect(status).toBe(200);
+    expect(data.success).toBe(true);
+
+    // Check that the application was auto-rejected
+    const app = testDb.prepare(
+      "SELECT status, decided_at FROM listing_applications WHERE listing_id = ? AND user_id = ?"
+    ).get(listingId, applicant) as { status: string; decided_at: string };
+    expect(app.status).toBe("rejected");
+    expect(app.decided_at).toBeTruthy();
+
+    // Check that the listing no longer requires approval
+    const updated = testDb.prepare("SELECT requires_approval FROM listings WHERE id = ?").get(listingId) as { requires_approval: number };
+    expect(updated.requires_approval).toBe(0);
   });
 
   it("prevents reducing group size below current member count", async () => {
