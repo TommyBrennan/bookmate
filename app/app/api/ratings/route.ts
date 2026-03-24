@@ -62,7 +62,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (comment && comment.length > 1000) {
+  if (comment !== undefined && comment !== null && typeof comment !== "string") {
+    return NextResponse.json(
+      { error: "Comment must be a string" },
+      { status: 400 }
+    );
+  }
+
+  if (comment && typeof comment === "string" && comment.length > 1000) {
     return NextResponse.json(
       { error: "Comment must be at most 1000 characters" },
       { status: 400 }

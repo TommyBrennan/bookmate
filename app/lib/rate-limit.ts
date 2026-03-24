@@ -42,6 +42,10 @@ export function checkRateLimit(
   let entry = store.get(key);
 
   if (!entry) {
+    // Prevent unbounded memory growth under attack
+    if (store.size > 50_000) {
+      return { allowed: false, retryAfter: 60 };
+    }
     entry = { timestamps: [] };
     store.set(key, entry);
   }

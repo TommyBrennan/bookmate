@@ -31,7 +31,7 @@ export default function Navbar() {
       .catch(() => {
         // Auth check failed — stay logged out
       });
-  }, []);
+  }, [pathname]);
 
   // Close menus on outside click
   useEffect(() => {

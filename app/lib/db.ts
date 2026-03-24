@@ -174,6 +174,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_listings_author_id ON listings(author_id);
   CREATE INDEX IF NOT EXISTS idx_listing_applications_listing_status ON listing_applications(listing_id, status);
   CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_telegram_chat_id ON pending_telegram_groups(telegram_chat_id);
 `);
 
 export default db;
