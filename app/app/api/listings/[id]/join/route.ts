@@ -68,13 +68,22 @@ export async function POST(
   }
 
   // Wrap count check + insert in a transaction to prevent race conditions
+  // Re-read max_group_size inside the transaction to avoid stale data from concurrent PATCH
   const joinTransaction = db.transaction(() => {
+    const freshListing = db
+      .prepare("SELECT max_group_size FROM listings WHERE id = ?")
+      .get(listingId) as { max_group_size: number } | undefined;
+
+    if (!freshListing) {
+      return { error: "Listing not found", count: 0, maxSize: 0 };
+    }
+
     const { count } = db
       .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
       .get(listingId) as { count: number };
 
-    if (count >= (listing.max_group_size as number)) {
-      return { error: "This group is already full", count };
+    if (count >= freshListing.max_group_size) {
+      return { error: "This group is already full", count, maxSize: freshListing.max_group_size };
     }
 
     db.prepare(
@@ -82,11 +91,11 @@ export async function POST(
     ).run(listingId, session.userId);
 
     const newCount = count + 1;
-    if (newCount >= (listing.max_group_size as number)) {
+    if (newCount >= freshListing.max_group_size) {
       db.prepare("UPDATE listings SET is_full = 1 WHERE id = ?").run(listingId);
     }
 
-    return { error: null, count: newCount };
+    return { error: null, count: newCount, maxSize: freshListing.max_group_size };
   });
 
   const result = joinTransaction();
@@ -98,7 +107,7 @@ export async function POST(
   // Notify outside the transaction (fire-and-forget)
   notifyListingAuthor(listingId, session.displayName || "Someone");
 
-  if (result.count === (listing.max_group_size as number)) {
+  if (result.count === result.maxSize) {
     notifyGroupFull(listingId);
   }
 
