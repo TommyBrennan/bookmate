@@ -105,10 +105,12 @@ export async function POST(
   }
 
   // Notify outside the transaction (fire-and-forget)
-  notifyListingAuthor(listingId, session.displayName || "Someone");
-
+  // When group just filled, skip new_member notification for the author
+  // since they'll receive the more important group_full notification instead
   if (result.count === result.maxSize) {
     notifyGroupFull(listingId);
+  } else {
+    notifyListingAuthor(listingId, session.displayName || "Someone");
   }
 
   return NextResponse.json({ ok: true, memberCount: result.count });
