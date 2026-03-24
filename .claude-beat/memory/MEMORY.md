@@ -44,11 +44,11 @@
 - None
 
 ## Closed Recently
+- #105: Code review round 15 — LIKE injection, auth bypass, unbounded queries, transporter cache — merged + deployed
+- #103: Code review round 14 — module-load freezing, stale sessions, TOCTOU races, type validation — merged + deployed
+- #101: Code review round 13 — PATCH is_full gap, transaction safety, orphaned applications — merged + deployed
 - #96: Code review round 11 — stale transaction data in approve, unmount cleanup, duplicate notifications — merged + deployed
 - #95: Code review round 10 — FK violations, stale notifications, input validation, error UX — merged + deployed
-- #93: Code review round 9 — client-side race conditions, date bugs, error handling, ARIA — merged + deployed
-- #91: Code review round 8 — timing-safe secrets, type validation, stale transaction data, email HTML escaping — merged + deployed
-- #87: Code review round 6 — logout fix, is_full reset, email subjects, webhook validation, fetch abort — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -77,7 +77,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 198 tests across 22 test files, all passing
+- 201 tests across 22 test files, all passing
 - Tested: auth (login, register), health, listings (browse, detail, create, join, edit, delete, telegram, discord, auto-telegram, auto-discord), notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit, telegram/setup, telegram/webhook, discord/setup, discord/webhook
 - All API routes now have test coverage
 - @vitest/coverage-v8 installed for coverage reporting
@@ -89,4 +89,5 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. All routes tested, 11 rounds of code review done — consider E2E testing, performance optimization, or new feature proposals
+4. All routes tested, 15 rounds of code review done — consider E2E testing, performance optimization, or new feature proposals
+5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
