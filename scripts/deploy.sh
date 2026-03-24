@@ -7,27 +7,70 @@ APP_DIR="/root/Projects/bookmate/app"
 SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPTS_DIR")"
 
+FORCE_DEPLOY="${1:-}"
+
 echo "=== Bookmate Deploy ==="
 echo "Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
 
-# 1. Pull latest code
+# 1. Record current commit before pull
+cd "$PROJECT_DIR"
+BEFORE_COMMIT=$(git rev-parse HEAD)
+
+# 2. Pull latest code
 echo ""
 echo "--- Pulling latest code ---"
-cd "$PROJECT_DIR"
 git pull --ff-only origin main || echo "Warning: git pull failed, deploying current code"
 
-# 2. Install dependencies
+AFTER_COMMIT=$(git rev-parse HEAD)
+
+# 3. Check if PM2 process is running
+PM2_RUNNING=$(cd "$APP_DIR" && npx pm2 pid bookmate 2>/dev/null || echo "")
+if [ -z "$PM2_RUNNING" ] || [ "$PM2_RUNNING" = "0" ] || [ "$PM2_RUNNING" = "" ]; then
+  PM2_ONLINE=false
+else
+  PM2_ONLINE=true
+fi
+
+# 4. Skip rebuild if no changes and PM2 is already running
+if [ "$BEFORE_COMMIT" = "$AFTER_COMMIT" ] && [ "$PM2_ONLINE" = true ] && [ "$FORCE_DEPLOY" != "--force" ]; then
+  echo ""
+  echo "✅ No new commits and PM2 is running — skipping rebuild."
+  echo "   Current commit: $AFTER_COMMIT"
+  echo "   Use './scripts/deploy.sh --force' to force a rebuild."
+  echo ""
+
+  # Still verify production is healthy
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 || echo "000")
+  if [ "$HTTP_CODE" = "200" ]; then
+    echo "✅ Production healthy (HTTP $HTTP_CODE)"
+  else
+    echo "⚠️  Production returned HTTP $HTTP_CODE — forcing rebuild..."
+    FORCE_DEPLOY="--force"
+  fi
+
+  if [ "$FORCE_DEPLOY" != "--force" ]; then
+    echo ""
+    echo "--- PM2 Status ---"
+    cd "$APP_DIR" && npx pm2 list
+    exit 0
+  fi
+fi
+
+echo ""
+echo "Deploying: $BEFORE_COMMIT → $AFTER_COMMIT"
+
+# 5. Install dependencies
 echo ""
 echo "--- Installing dependencies ---"
 cd "$APP_DIR"
 npm ci
 
-# 3. Build
+# 6. Build
 echo ""
 echo "--- Building Next.js ---"
 npm run build
 
-# 4. Generate SESSION_SECRET if not set
+# 7. Generate SESSION_SECRET if not set
 if [ ! -f "$APP_DIR/.env.local" ] || ! grep -q "SESSION_SECRET" "$APP_DIR/.env.local" 2>/dev/null; then
   echo ""
   echo "--- Generating SESSION_SECRET ---"
@@ -36,17 +79,17 @@ if [ ! -f "$APP_DIR/.env.local" ] || ! grep -q "SESSION_SECRET" "$APP_DIR/.env.l
   echo "Generated new SESSION_SECRET"
 fi
 
-# 5. Restart with PM2
+# 8. Restart with PM2
 echo ""
 echo "--- Starting/restarting with PM2 ---"
 cd "$APP_DIR"
 npx pm2 delete bookmate 2>/dev/null || true
 npx pm2 start ecosystem.config.js
 
-# 6. Save PM2 process list (survives reboot with pm2 startup)
+# 9. Save PM2 process list (survives reboot with pm2 startup)
 npx pm2 save
 
-# 7. Verify
+# 10. Verify
 echo ""
 echo "--- Verifying deployment ---"
 sleep 3
