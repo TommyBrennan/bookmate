@@ -126,6 +126,7 @@ export default function CreateListingPage() {
                   width={40}
                   height={56}
                   className="w-10 h-14 object-cover rounded"
+                  unoptimized
                 />
               )}
               <div>

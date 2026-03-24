@@ -40,9 +40,15 @@ export default function HomePage() {
   const [totalResults, setTotalResults] = useState(0);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const abortRef = useRef<AbortController>(undefined);
 
   const fetchListings = useCallback(
     (query: string, format: string, sortBy: string, pace?: string, dateFrom?: string, pageNum?: number) => {
+      // Abort any in-flight request to prevent stale responses overwriting newer ones
+      if (abortRef.current) abortRef.current.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       setLoading(true);
       const params = new URLSearchParams();
       if (query) params.set("q", query);
@@ -53,12 +59,13 @@ export default function HomePage() {
       if (pageNum && pageNum > 1) params.set("page", String(pageNum));
 
       const qs = params.toString();
-      fetch(`/api/listings${qs ? `?${qs}` : ""}`)
+      fetch(`/api/listings${qs ? `?${qs}` : ""}`, { signal: controller.signal })
         .then((r) => {
           if (!r.ok) throw new Error("Failed to load listings");
           return r.json();
         })
         .then((data) => {
+          if (controller.signal.aborted) return;
           setListings(data.listings || []);
           if (data.pagination) {
             setTotalPages(data.pagination.totalPages || 1);
@@ -68,6 +75,7 @@ export default function HomePage() {
           setLoading(false);
         })
         .catch((err) => {
+          if ((err as Error).name === "AbortError") return;
           setError(err.message || "Could not load listings. Please try again.");
           setLoading(false);
         });
@@ -562,7 +570,7 @@ export default function HomePage() {
                       }}
                     >
                       Starts{" "}
-                      {new Date(listing.start_date).toLocaleDateString(
+                      {new Date(listing.start_date + "T00:00:00").toLocaleDateString(
                         "en-US",
                         {
                           month: "short",

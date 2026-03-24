@@ -83,7 +83,8 @@ export default function ProfilePage() {
         setLoading(false);
       })
       .catch(() => {
-        setLoading(false);
+        // Network error — can't verify auth, redirect to login
+        router.push("/auth/login");
       });
   }, [router]);
 
@@ -198,7 +199,8 @@ export default function ProfilePage() {
   ];
 
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    // Append T00:00:00 for date-only strings to prevent UTC-offset date shifts
+    const d = dateStr.length === 10 ? new Date(dateStr + "T00:00:00") : new Date(dateStr);
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 

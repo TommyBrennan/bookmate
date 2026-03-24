@@ -177,10 +177,9 @@ export default function BookSearch({ onSelect }: Props) {
           style={{ padding: "0.5rem 0" }}
         >
           {results.map((book, index) => (
-            <button
+            <div
               key={book.key}
               id={`book-option-${book.key}`}
-              type="button"
               role="option"
               aria-selected={index === activeIndex}
               onClick={() => handleSelect(book)}
@@ -223,7 +222,7 @@ export default function BookSearch({ onSelect }: Props) {
                   {book.author_name?.[0] || "Unknown author"}
                 </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}

@@ -10,6 +10,7 @@ export default function EditListingPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
 
   const [bookTitle, setBookTitle] = useState("");
   const [bookAuthor, setBookAuthor] = useState("");
@@ -54,9 +55,11 @@ export default function EditListingPage() {
           router.push("/auth/login");
         } else {
           setError("Listing not found");
+          setFetchFailed(true);
         }
       } catch {
         setError("Failed to load listing");
+        setFetchFailed(true);
       } finally {
         setFetching(false);
       }
@@ -120,6 +123,32 @@ export default function EditListingPage() {
     (n) => n >= memberCount
   );
 
+  // Don't render the form if the fetch failed — prevents submitting default values
+  if (fetchFailed) {
+    return (
+      <div className="max-w-lg mx-auto">
+        <h1 className="text-2xl sm:text-3xl mb-2">Edit reading group</h1>
+        <div
+          className="mb-4 p-3 rounded-lg text-sm"
+          style={{
+            backgroundColor: "rgba(192, 57, 43, 0.08)",
+            color: "var(--color-error)",
+            fontFamily: "system-ui, sans-serif",
+          }}
+          role="alert"
+        >
+          {error}
+        </div>
+        <button
+          className="btn-secondary"
+          onClick={() => router.push(`/listings/${id}`)}
+        >
+          Back to listing
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl sm:text-3xl mb-2">Edit reading group</h1>
@@ -163,6 +192,7 @@ export default function EditListingPage() {
             width={48}
             height={68}
             className="w-12 h-17 object-cover rounded"
+            unoptimized
           />
         )}
         <div>
