@@ -45,6 +45,8 @@
 - None
 
 ## Closed Recently
+- #110: Code review round 18 — link exposure, reject race, type safety, validation — merged + deployed
+- #108: Code review round 17 — session destroy, PATCH body, abort leak, server action probes — merged + deployed
 - #107: Code review round 16 — score type validation, DELETE TOCTOU race — merged + deployed
 - #106: Security headers + smart deploy — merged + deployed
 - #105: Code review round 15 — LIKE injection, auth bypass, unbounded queries, transporter cache — merged + deployed
@@ -52,11 +54,11 @@
 - #101: Code review round 13 — PATCH is_full gap, transaction safety, orphaned applications — merged + deployed
 
 ## Open Issues
-- #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2-3 days left (CRITICAL)
-- #112: E2E testing with Playwright (proposal, P1) — awaiting human review
-- #113: Performance optimization and monitoring (proposal, P2) — awaiting human review
-- #114: Deployment reliability improvements (proposal, P1) — awaiting human review
+- #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 8 reminders sent)
+- #112: E2E testing with Playwright (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
+- #113: Performance optimization and monitoring (proposal, P2) — created 2026-03-24 16:16 UTC, awaiting review
+- #114: Deployment reliability improvements (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -91,11 +93,16 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~2-3 days remaining (CRITICAL)
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 8 reminders sent)
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. 18 rounds of code review done (diminishing returns) — proposals created 2026-03-24:
-   - #112: E2E testing (P1) — self-approve after 2+ sessions
-   - #113: Performance optimization (P2) — self-approve after 2+ sessions
-   - #114: Deployment reliability (P1) — self-approve after 2+ sessions
+4. Proposals created 2026-03-24 16:16 UTC (~1.5 hours ago):
+   - #112: E2E testing (P1) — self-approve after 2+ sessions without objection
+   - #113: Performance optimization (P2) — self-approve after 2+ sessions without objection
+   - #114: Deployment reliability (P1) — self-approve after 2+ sessions without objection
 5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
+
+## Proposal Self-Approval Timeline
+- **Created**: 2026-03-24 16:16 UTC
+- **Sessions remaining for auto-approval**: ~2 more sessions
+- **Earliest auto-approval**: 2026-03-24 21:00 UTC (after 2 more sessions without objection)
