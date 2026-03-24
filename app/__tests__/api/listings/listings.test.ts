@@ -175,6 +175,23 @@ describe("GET /api/listings", () => {
     expect(data.listings.length).toBe(1);
   });
 
+  it("does not expose telegram_link or discord_link in listing list", async () => {
+    const listingId = insertListing(userId);
+    testDb.prepare("UPDATE listings SET telegram_link = ?, discord_link = ? WHERE id = ?").run(
+      "https://t.me/secret", "https://discord.gg/secret", listingId
+    );
+
+    const req = createTestRequest("/api/listings");
+    const response = await GET(req);
+    const { data } = await parseResponse<{ listings: Record<string, unknown>[] }>(response);
+
+    expect(data.listings.length).toBe(1);
+    expect(data.listings[0]).not.toHaveProperty("telegram_link");
+    expect(data.listings[0]).not.toHaveProperty("discord_link");
+    expect(data.listings[0]).not.toHaveProperty("telegram_chat_id");
+    expect(data.listings[0]).not.toHaveProperty("discord_channel_id");
+  });
+
   it("returns listings sorted newest first by default (by id descending)", async () => {
     const id1 = insertListing(userId, { book_title: "First" });
     const id2 = insertListing(userId, { book_title: "Second" });

@@ -74,7 +74,10 @@ export async function GET(request: NextRequest) {
   const listings = db
     .prepare(
       `SELECT
-        l.*,
+        l.id, l.author_id, l.book_title, l.book_author, l.book_cover_url, l.book_olid,
+        l.language, l.reading_pace, l.start_date, l.meeting_format,
+        l.max_group_size, l.is_full, l.requires_approval, l.platform_preference,
+        l.created_at,
         u.display_name as author_name,
         (SELECT COUNT(*) FROM listing_members WHERE listing_id = l.id) as member_count
       FROM listings l

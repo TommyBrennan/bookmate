@@ -138,12 +138,23 @@ export async function PATCH(
       return NextResponse.json({ error: message }, { status: 400 });
     }
   } else {
-    // Reject
-    db.prepare(
-      "UPDATE listing_applications SET status = 'rejected', decided_at = datetime('now') WHERE id = ?"
+    // Reject — use WHERE status='pending' to prevent overwriting a concurrent approval
+    const updated = db.prepare(
+      "UPDATE listing_applications SET status = 'rejected', decided_at = datetime('now') WHERE id = ? AND status = 'pending'"
     ).run(applicationId);
 
-    notifyApplicationDecision(applicantUserId, listingId, "rejected");
+    if (updated.changes === 0) {
+      return NextResponse.json(
+        { error: "Application already decided" },
+        { status: 409 }
+      );
+    }
+
+    try {
+      notifyApplicationDecision(applicantUserId, listingId, "rejected");
+    } catch (notifErr) {
+      console.error("Notification error (rejection succeeded):", notifErr);
+    }
 
     return NextResponse.json({ ok: true });
   }

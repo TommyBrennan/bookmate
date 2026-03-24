@@ -130,6 +130,28 @@ describe("POST /api/auth/register", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns 400 when displayName is not a string", async () => {
+    const req = createTestRequest("/api/auth/register", {
+      method: "POST",
+      body: { email: "a@b.com", password: "password123", displayName: 12345 },
+    });
+
+    const response = await POST(req);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toContain("string");
+  });
+
+  it("returns 400 when email is not a string", async () => {
+    const req = createTestRequest("/api/auth/register", {
+      method: "POST",
+      body: { email: 123, password: "password123", displayName: "User" },
+    });
+
+    const response = await POST(req);
+    expect(response.status).toBe(400);
+  });
+
   it("trims and lowercases email", async () => {
     const req = createTestRequest("/api/auth/register", {
       method: "POST",

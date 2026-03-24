@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BookCover from "@/components/BookCover";
 
@@ -76,6 +76,7 @@ export default function ListingDetail() {
   const [ratingComments, setRatingComments] = useState<Record<number, string>>({});
   const [ratingSaving, setRatingSaving] = useState<number | null>(null);
   const [ratingMessage, setRatingMessage] = useState("");
+  const ratingsFetchedRef = useRef(false);
 
   const [notAvailable, setNotAvailable] = useState(false);
 
@@ -151,7 +152,8 @@ export default function ListingDetail() {
   }, [id]);
 
   useEffect(() => {
-    if (listing?.is_full && listing?.isMember) {
+    if (listing?.is_full && listing?.isMember && !ratingsFetchedRef.current) {
+      ratingsFetchedRef.current = true;
       fetchRatings();
     }
   }, [listing?.is_full, listing?.isMember, fetchRatings]);

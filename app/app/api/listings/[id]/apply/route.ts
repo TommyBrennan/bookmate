@@ -94,14 +94,23 @@ export async function POST(
     return { error: null, status: 200 };
   });
 
-  const result = applyTransaction();
+  try {
+    const result = applyTransaction();
 
-  if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    // Notify outside transaction (fire-and-forget)
+    try {
+      notifyApplicationReceived(listingId, session.displayName || "Someone");
+    } catch (notifErr) {
+      console.error("Notification error (application succeeded):", notifErr);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Apply error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  // Notify outside transaction (fire-and-forget)
-  notifyApplicationReceived(listingId, session.displayName || "Someone");
-
-  return NextResponse.json({ ok: true });
 }
