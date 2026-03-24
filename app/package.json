@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --port 3000",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 50",
     "test": "vitest run",
@@ -14,11 +15,13 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^16.2.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.8.0",
+    "better-sqlite3-pool": "^1.2.0",
     "cookie": "^1.1.1",
     "iron-session": "^8.0.4",
     "next": "^15.5.14",
