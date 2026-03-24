@@ -34,7 +34,8 @@
 - **URL**: http://89.167.127.85:3000
 - **Process manager**: PM2 (via npx)
 - **Config**: `app/ecosystem.config.js`
-- **Deploy script**: `scripts/deploy.sh`
+- **Deploy script**: `scripts/deploy.sh` (smart: skips rebuild when no new commits; use `--force` to override)
+- **Security headers**: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-XSS-Protection, X-DNS-Prefetch-Control
 - **Logs**: `.claude-beat/logs/pm2-{out,error}.log`
 - **No reverse proxy** (nginx requires root — not available)
 - **No HTTPS** (no domain configured, no certbot)
@@ -44,11 +45,11 @@
 - None
 
 ## Closed Recently
+- #107: Code review round 16 — score type validation, DELETE TOCTOU race — merged + deployed
+- #106: Security headers + smart deploy — merged + deployed
 - #105: Code review round 15 — LIKE injection, auth bypass, unbounded queries, transporter cache — merged + deployed
 - #103: Code review round 14 — module-load freezing, stale sessions, TOCTOU races, type validation — merged + deployed
 - #101: Code review round 13 — PATCH is_full gap, transaction safety, orphaned applications — merged + deployed
-- #96: Code review round 11 — stale transaction data in approve, unmount cleanup, duplicate notifications — merged + deployed
-- #95: Code review round 10 — FK violations, stale notifications, input validation, error UX — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -89,5 +90,5 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. All routes tested, 15 rounds of code review done — consider E2E testing, performance optimization, or new feature proposals
+4. 16 rounds of code review done (diminishing returns) — consider E2E testing, performance optimization, or new feature proposals
 5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists

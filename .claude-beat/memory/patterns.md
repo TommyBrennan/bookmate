@@ -42,7 +42,8 @@
 ## Deployment
 - No root/sudo access — can't apt-get install, create systemd services, or install nginx
 - PM2 available via npx (not global): `npx pm2 start/stop/restart/list/logs`
-- Deploy script: `./scripts/deploy.sh` (pull, install, build, restart PM2)
+- Deploy script: `./scripts/deploy.sh` (smart: skips rebuild when no new commits; `--force` to override)
+- Deploy script compares HEAD before/after `git pull` — use `--force` when code was already pulled but not yet built
 - Production runs on port 3000 directly (no reverse proxy)
 - Public IP: 89.167.127.85 (IPv4), 2a01:4f9:c013:600f::1 (IPv6)
 - Kill stale dev servers before deploy: check `ss -tlnp | grep 3000`
