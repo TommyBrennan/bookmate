@@ -227,7 +227,7 @@ export async function PATCH(
       values.push(meetingFormat);
     }
     if (maxGroupSize !== undefined) {
-      const newSize = parseInt(maxGroupSize, 10);
+      const newSize = parseInt(String(maxGroupSize), 10);
       updates.push("max_group_size = ?");
       values.push(newSize);
 
@@ -306,6 +306,7 @@ export async function DELETE(
 
     // Delete in a transaction (notifications sent after, so they aren't wiped)
     const deleteTransaction = db.transaction(() => {
+      db.prepare("DELETE FROM pending_telegram_groups WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM listing_applications WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM listing_members WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM notifications WHERE listing_id = ?").run(listingId);

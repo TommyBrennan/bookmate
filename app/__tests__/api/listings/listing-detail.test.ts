@@ -68,6 +68,13 @@ const testDb = vi.hoisted(() => {
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
+    CREATE TABLE IF NOT EXISTS pending_telegram_groups (
+      listing_id INTEGER NOT NULL,
+      telegram_chat_id INTEGER NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (listing_id),
+      FOREIGN KEY (listing_id) REFERENCES listings(id)
+    );
     CREATE TABLE IF NOT EXISTS ratings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       listing_id INTEGER NOT NULL,

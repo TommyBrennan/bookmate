@@ -24,6 +24,7 @@ export default function BookSearch({ onSelect }: Props) {
   const [results, setResults] = useState<BookResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const abortRef = useRef<AbortController>(undefined);
@@ -57,6 +58,7 @@ export default function BookSearch({ onSelect }: Props) {
 
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
+      setSearchError(false);
       try {
         const res = await fetch(
           `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=8&fields=key,title,author_name,cover_i`,
@@ -69,6 +71,7 @@ export default function BookSearch({ onSelect }: Props) {
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           setResults([]);
+          setSearchError(true);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -164,6 +167,16 @@ export default function BookSearch({ onSelect }: Props) {
           aria-live="polite"
         >
           Searching...
+        </div>
+      )}
+
+      {searchError && !loading && (
+        <div
+          className="text-xs mt-1"
+          style={{ color: "var(--color-error, #dc2626)" }}
+          role="alert"
+        >
+          Book search is unavailable. Please try again later.
         </div>
       )}
 
