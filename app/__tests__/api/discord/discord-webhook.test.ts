@@ -63,6 +63,7 @@ const mockDiscord = vi.hoisted(() => ({
   createTextChannel: vi.fn().mockResolvedValue({ id: "ch-123", name: "bookmate-test-book" }),
   createChannelInvite: vi.fn().mockResolvedValue("https://discord.gg/abc123"),
   sendChannelMessage: vi.fn().mockResolvedValue(true),
+  isValidSnowflake: vi.fn().mockImplementation((id: string) => /^\d{17,20}$/.test(id)),
 }));
 
 vi.mock("@/lib/db", () => ({ default: testDb }));
@@ -175,7 +176,7 @@ describe("POST /api/discord/webhook", () => {
   it("returns 404 when listing not found", async () => {
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId: 999 },
+      body: { type: "link", guildId: "12345678901234567", listingId: 999 },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -188,7 +189,7 @@ describe("POST /api/discord/webhook", () => {
     const listingId = insertListing(userId, { is_full: 0 });
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId },
+      body: { type: "link", guildId: "12345678901234567", listingId },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -201,7 +202,7 @@ describe("POST /api/discord/webhook", () => {
     const listingId = insertListing(userId, { is_full: 1, discord_link: "https://discord.gg/existing" });
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId },
+      body: { type: "link", guildId: "12345678901234567", listingId },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -216,7 +217,7 @@ describe("POST /api/discord/webhook", () => {
 
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId },
+      body: { type: "link", guildId: "12345678901234567", listingId },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -241,7 +242,7 @@ describe("POST /api/discord/webhook", () => {
 
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId, channelId: "existing-ch" },
+      body: { type: "link", guildId: "12345678901234567", listingId, channelId: "98765432109876543" },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -252,7 +253,7 @@ describe("POST /api/discord/webhook", () => {
     expect(mockDiscord.createTextChannel).not.toHaveBeenCalled();
 
     // Should have created invite for the existing channel
-    expect(mockDiscord.createChannelInvite).toHaveBeenCalledWith("existing-ch");
+    expect(mockDiscord.createChannelInvite).toHaveBeenCalledWith("98765432109876543");
   });
 
   it("returns 500 when channel creation fails", async () => {
@@ -262,7 +263,7 @@ describe("POST /api/discord/webhook", () => {
 
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId },
+      body: { type: "link", guildId: "12345678901234567", listingId },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);
@@ -277,7 +278,7 @@ describe("POST /api/discord/webhook", () => {
 
     const req = createTestRequest("http://localhost:3000/api/discord/webhook", {
       method: "POST",
-      body: { type: "link", guildId: "guild-1", listingId },
+      body: { type: "link", guildId: "12345678901234567", listingId },
       headers: { "X-Discord-Webhook-Secret": "discord-webhook-secret" },
     });
     const res = await POST(req);

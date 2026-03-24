@@ -84,6 +84,9 @@ const mockTelegram = vi.hoisted(() => ({
     const match = payload.match(/^listing_(\d+)$/);
     return match ? parseInt(match[1], 10) : null;
   }),
+  escapeHtml: vi.fn().mockImplementation((text: string) =>
+    text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+  ),
 }));
 
 vi.mock("@/lib/db", () => ({ default: testDb }));
@@ -174,10 +177,12 @@ describe("POST /api/telegram/webhook", () => {
     expect(data).toEqual({ ok: true });
   });
 
-  it("handles /start command with listing payload", async () => {
+  it("handles /start command with listing payload when sender is linked author", async () => {
     const userId = insertUser();
     const listingId = insertListing(userId, { is_full: 1 });
     addMember(listingId, userId);
+    // Link the telegram user to the listing author
+    testDb.prepare("INSERT INTO telegram_user_links (user_id, telegram_user_id) VALUES (?, ?)").run(userId, 456);
 
     const req = createTestRequest("http://localhost:3000/api/telegram/webhook", {
       method: "POST",
@@ -199,6 +204,42 @@ describe("POST /api/telegram/webhook", () => {
     // Verify telegram_link was set
     const listing = testDb.prepare("SELECT telegram_link FROM listings WHERE id = ?").get(listingId) as { telegram_link: string };
     expect(listing.telegram_link).toBe("https://t.me/+invite123");
+  });
+
+  it("rejects /start command when sender is not the listing author", async () => {
+    const authorId = insertUser("author@test.com", "Author");
+    const listingId = insertListing(authorId, { is_full: 1 });
+    addMember(listingId, authorId);
+    // Link a different user
+    const otherId = insertUser("other@test.com", "Other");
+    testDb.prepare("INSERT INTO telegram_user_links (user_id, telegram_user_id) VALUES (?, ?)").run(otherId, 789);
+
+    const req = createTestRequest("http://localhost:3000/api/telegram/webhook", {
+      method: "POST",
+      body: {
+        update_id: 2,
+        message: {
+          chat: { id: -100123, type: "group", title: "Reading Group" },
+          text: `/start listing_${listingId}`,
+          from: { id: 789 },
+        },
+      },
+      headers: { "X-Telegram-Bot-Api-Secret-Token": "webhook-secret" },
+    });
+
+    const res = await POST(req);
+    const { status } = await parseResponse(res);
+    expect(status).toBe(200);
+
+    // Listing should NOT be linked
+    const listing = testDb.prepare("SELECT telegram_link FROM listings WHERE id = ?").get(listingId) as { telegram_link: string };
+    expect(listing.telegram_link).toBe("");
+
+    // Should have sent a message about using /link
+    expect(mockTelegram.sendMessage).toHaveBeenCalledWith(
+      -100123,
+      expect.stringContaining("/link")
+    );
   });
 
   it("handles pending_telegram_groups mapping via my_chat_member", async () => {
@@ -393,6 +434,8 @@ describe("POST /api/telegram/webhook", () => {
     const userId = insertUser();
     const listingId = insertListing(userId, { is_full: 1 });
     addMember(listingId, userId);
+    // Link the telegram user to the author so /start succeeds
+    testDb.prepare("INSERT INTO telegram_user_links (user_id, telegram_user_id) VALUES (?, ?)").run(userId, 456);
 
     mockTelegram.createChatInviteLink.mockResolvedValue(null);
     mockTelegram.exportChatInviteLink.mockResolvedValue("https://t.me/+fallback");
