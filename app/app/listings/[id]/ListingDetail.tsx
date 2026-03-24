@@ -458,7 +458,7 @@ export default function ListingDetail() {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-3">
-              {new Date(listing.start_date) < new Date(new Date().toISOString().split("T")[0]) && (
+              {new Date(listing.start_date + "T00:00:00") < new Date(new Date().toISOString().split("T")[0] + "T00:00:00") && (
                 <span
                   className="badge"
                   style={{
@@ -501,7 +501,7 @@ export default function ListingDetail() {
                   Starts
                 </span>
                 <div className="font-semibold">
-                  {new Date(listing.start_date).toLocaleDateString("en-US", {
+                  {new Date(listing.start_date + "T00:00:00").toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
                     year: "numeric",

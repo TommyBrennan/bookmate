@@ -16,19 +16,28 @@ interface Notification {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/notifications")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load notifications");
+        return r.json();
+      })
       .then((data) => {
         setNotifications(data.notifications || []);
-        setLoading(false);
-        // Mark all as read
+        // Mark all as read (fire-and-forget with silent catch)
         fetch("/api/notifications", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}),
-        });
+        }).catch(() => {});
+      })
+      .catch(() => {
+        setError("Could not load notifications. Please try again.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -36,6 +45,29 @@ export default function NotificationsPage() {
     return (
       <div className="text-center py-16" style={{ color: "var(--color-text-secondary)" }}>
         <p style={{ fontFamily: "system-ui, sans-serif" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl mb-4 sm:mb-6">Notifications</h1>
+        <div className="text-center py-12">
+          <p
+            className="text-sm mb-4"
+            style={{ color: "var(--color-error)", fontFamily: "system-ui, sans-serif" }}
+            role="alert"
+          >
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn-primary"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
