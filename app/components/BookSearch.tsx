@@ -47,6 +47,7 @@ export default function BookSearch({ onSelect }: Props) {
   useEffect(() => {
     if (query.length < 3) {
       setResults([]);
+      if (abortRef.current) abortRef.current.abort();
       return;
     }
 
