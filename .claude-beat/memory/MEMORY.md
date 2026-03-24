@@ -53,11 +53,15 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2-3 days left (CRITICAL)
+- #112: E2E testing with Playwright (proposal, P1) — awaiting human review
+- #113: Performance optimization and monitoring (proposal, P2) — awaiting human review
+- #114: Deployment reliability improvements (proposal, P1) — awaiting human review
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
 - Remote URL includes PAT: reset with `git remote set-url` if needed
+- Session logs and screenshots are gitignored (contain secrets in historical logs)
 - Next.js 15 used (not 16) due to Turbopack /root permission issue
 - agent-browser WORKS if: export XDG_RUNTIME_DIR=/tmp/runtime-$(id -u) && mkdir -p "$XDG_RUNTIME_DIR"
 - agent-browser crashes after extended use (memory pressure) — keep recording sessions short, restart between scenes
@@ -87,8 +91,12 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
+1. **URGENT**: PAT expires ~March 27 (#54) — ~2-3 days remaining (CRITICAL)
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. 16 rounds of code review done (diminishing returns) — consider E2E testing, performance optimization, or new feature proposals
-5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
+4. 18 rounds of code review done (diminishing returns) — proposals created:
+   - #112: E2E testing (P1)
+   - #113: Performance optimization (P2)
+   - #114: Deployment reliability (P1)
+5. Self-approve proposals after 2+ sessions if no human response
+6. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
