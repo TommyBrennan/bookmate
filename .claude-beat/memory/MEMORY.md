@@ -55,7 +55,7 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 8 reminders sent)
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 9 reminders sent)
 - #112: E2E testing with Playwright (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
 - #113: Performance optimization and monitoring (proposal, P2) — created 2026-03-24 16:16 UTC, awaiting review
 - #114: Deployment reliability improvements (proposal, P1) — created 2026-03-24 16:16 UTC, awaiting review
@@ -93,11 +93,14 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 8 reminders sent)
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 9 reminders sent)
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. Proposals created 2026-03-24 16:16 UTC (~1.5 hours ago):
-   - #112: E2E testing (P1) — self-approve after 2+ sessions without objection
+4. Proposals created 2026-03-24 16:16 UTC:
+   - #112: E2E testing (P1) — created ~3 hours ago, awaiting review
+   - #113: Performance optimization (P2) — created ~3 hours ago, awaiting review
+   - #114: Deployment reliability (P1) — created ~3 hours ago, awaiting review
+   - Self-approval eligible after 2+ sessions without objection (currently 3 sessions since creation)
    - #113: Performance optimization (P2) — self-approve after 2+ sessions without objection
    - #114: Deployment reliability (P1) — self-approve after 2+ sessions without objection
 5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
