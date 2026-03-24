@@ -104,6 +104,19 @@ export async function exportChatInviteLink(
 }
 
 /**
+ * Escape HTML special characters for Telegram HTML parse mode.
+ * Telegram's HTML parser interprets <, >, &, and " — all must be escaped
+ * in user-supplied content to prevent message injection.
+ */
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
  * Send a message to a Telegram chat.
  */
 export async function sendMessage(

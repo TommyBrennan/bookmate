@@ -4,6 +4,7 @@ import {
   createTextChannel,
   createChannelInvite,
   sendChannelMessage,
+  isValidSnowflake,
 } from "@/lib/discord";
 import { createNotification } from "@/lib/notifications";
 
@@ -70,6 +71,20 @@ async function handleLink(body: {
   if (typeof listingId !== "number" || !Number.isInteger(listingId) || listingId < 1) {
     return NextResponse.json(
       { error: "Invalid listingId" },
+      { status: 400 }
+    );
+  }
+
+  // Validate Discord snowflake IDs to prevent path traversal in API URLs
+  if (typeof guildId !== "string" || !isValidSnowflake(guildId)) {
+    return NextResponse.json(
+      { error: "Invalid guildId format" },
+      { status: 400 }
+    );
+  }
+  if (channelId !== undefined && (typeof channelId !== "string" || !isValidSnowflake(channelId))) {
+    return NextResponse.json(
+      { error: "Invalid channelId format" },
       { status: 400 }
     );
   }

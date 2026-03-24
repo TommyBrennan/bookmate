@@ -22,6 +22,14 @@ export function isBotConfigured(): boolean {
 }
 
 /**
+ * Validate a Discord snowflake ID (numeric string, 17-20 digits).
+ * Used to prevent path traversal in Discord API URL construction.
+ */
+export function isValidSnowflake(id: string): boolean {
+  return /^\d{17,20}$/.test(id);
+}
+
+/**
  * Call the Discord REST API.
  */
 async function callApi<T = unknown>(

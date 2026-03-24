@@ -5,6 +5,7 @@ import {
   exportChatInviteLink,
   sendMessage,
   parseListingIdFromPayload,
+  escapeHtml,
 } from "@/lib/telegram";
 import { createNotification } from "@/lib/notifications";
 
@@ -165,7 +166,33 @@ async function handleMessage(message: TelegramMessage) {
     const payload = text.replace("/start ", "").trim();
     const listingId = parseListingIdFromPayload(payload);
     if (listingId) {
-      await linkTelegramToListing(listingId, message.chat.id);
+      // Verify the sender is the listing author to prevent unauthorized linking
+      const telegramUserId = message.from?.id;
+      if (!telegramUserId) {
+        await sendMessage(message.chat.id, "Could not identify the sender.");
+        return;
+      }
+
+      const linkedUser = db
+        .prepare("SELECT user_id FROM telegram_user_links WHERE telegram_user_id = ?")
+        .get(telegramUserId) as { user_id: number } | undefined;
+
+      if (linkedUser) {
+        const listing = db
+          .prepare("SELECT author_id FROM listings WHERE id = ?")
+          .get(listingId) as { author_id: number } | undefined;
+
+        if (listing && listing.author_id === linkedUser.user_id) {
+          await linkTelegramToListing(listingId, message.chat.id);
+          return;
+        }
+      }
+
+      // If no linked user or not the author, store for later linking via /link command
+      await sendMessage(
+        message.chat.id,
+        "To link this group to a Bookmate listing, the listing author should use the <code>/link</code> command."
+      );
       return;
     }
   }
@@ -218,7 +245,7 @@ async function handleMessage(message: TelegramMessage) {
     }
 
     const listText = unlinkedListings
-      .map((l) => `  /link_${l.id} — "${l.book_title}"`)
+      .map((l) => `  /link_${l.id} — "${escapeHtml(l.book_title)}"`)
       .join("\n");
     await sendMessage(
       message.chat.id,
@@ -334,9 +361,10 @@ async function linkTelegramToListing(listingId: number, chatId: number) {
   }
 
   // Send confirmation to the Telegram group
+  // Escape book title to prevent HTML injection via Telegram's HTML parser
   await sendMessage(
     chatId,
-    `This group is now linked to the Bookmate reading group for "<b>${bookTitle}</b>".\n\n` +
+    `This group is now linked to the Bookmate reading group for "<b>${escapeHtml(bookTitle)}</b>".\n\n` +
       `Invite link: ${inviteLink}\n\n` +
       "All group members have been notified on Bookmate. Happy reading!"
   );

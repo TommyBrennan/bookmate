@@ -12,6 +12,7 @@ interface ReadingRow {
   meeting_format: string;
   is_full: number;
   telegram_link: string;
+  discord_link: string;
   member_count: number;
   max_group_size: number;
   author_name: string;
@@ -36,6 +37,7 @@ export async function GET() {
       l.meeting_format,
       l.is_full,
       l.telegram_link,
+      l.discord_link,
       l.max_group_size,
       u.display_name as author_name,
       lm.joined_at,
