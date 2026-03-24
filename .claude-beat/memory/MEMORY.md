@@ -9,9 +9,10 @@
 
 ## Current State
 - All PRD features implemented and merged (P0, P1, P2)
-- CI pipeline live: GitHub Actions runs lint + type check + build on push/PR to main
+- CI pipeline live: GitHub Actions runs lint + type check + unit tests + build + E2E tests on push/PR to main
 - ESLint flat config with typescript-eslint, react-hooks, @next/eslint-plugin-next
 - Build passes clean, lint clean (no warnings)
+- **E2E tests added** (PR #115): Playwright configuration with 4 test suites covering authentication, listings, group formation, and profile flows
 - Security hardening merged (PR #32, #36)
 - **Production deployed** via PM2 on port 3000 — http://89.167.127.85:3000
 - Health endpoint: `/api/health` (DB check, uptime, stats)
@@ -66,8 +67,7 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 10 reminders sent)
-- #112: E2E testing with Playwright (approved, P1) — auto-approved 2026-03-24 20:00 UTC, ready to implement
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 11 reminders sent)
 - #113: Performance optimization and monitoring (approved, P2) — auto-approved 2026-03-24 20:00 UTC
 
 ## Important Notes
@@ -94,20 +94,26 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 201 tests across 22 test files, all passing
+- 207 unit tests across 22 test files, all passing
+- **E2E tests added** (PR #115): Playwright configuration with 4 test suites (23 tests):
+  - Authentication: registration, login, logout, protected routes, validation
+  - Listings: create, browse, view details, edit, delete
+  - Groups: join, leave, auto-close when full
+  - Profile: view, update, notifications, user menu
 - Tested: auth (login, register), health, listings (browse, detail, create, join, edit, delete, telegram, discord, auto-telegram, auto-discord), notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit, telegram/setup, telegram/webhook, discord/setup, discord/webhook
 - All API routes now have test coverage
 - @vitest/coverage-v8 installed for coverage reporting
+- **E2E test commands**: `npm run test:e2e`, `npm run test:e2e:ui`, `npm run test:e2e:debug`
 
 ## Components
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 10 reminders sent)
-2. **#112: E2E testing with Playwright (P1)** — approved, ready to implement
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 11 reminders sent)
+2. **#113: Performance optimization and monitoring (P2)** — approved, ready to implement
 3. Check issue #21 for Telegram token response
 4. Check production health
-5. **#113: Performance optimization and monitoring (P2)** — approved, lower priority
+5. Monitor E2E test execution and fix any failures
 6. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
 
 ## New Production Features (2026-03-24)
