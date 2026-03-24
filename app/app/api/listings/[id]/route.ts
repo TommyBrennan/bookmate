@@ -347,7 +347,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Only the author can delete this listing" }, { status: 403 });
   }
 
-  // Cannot delete if a platform link has been shared
+  // Cannot delete if a platform link has been shared (initial check, re-verified inside transaction)
   if (listing.telegram_link || listing.discord_link) {
     return NextResponse.json(
       { error: "Cannot delete a listing after the group chat link has been shared" },
@@ -361,8 +361,16 @@ export async function DELETE(
       .prepare("SELECT user_id FROM listing_members WHERE listing_id = ? AND user_id != ?")
       .all(listingId, session.userId) as { user_id: number }[];
 
-    // Delete in a transaction (notifications sent after, so they aren't wiped)
+    // Delete in a transaction — re-check link guard inside to prevent TOCTOU race
     const deleteTransaction = db.transaction(() => {
+      const current = db
+        .prepare("SELECT telegram_link, discord_link FROM listings WHERE id = ?")
+        .get(listingId) as { telegram_link: string | null; discord_link: string | null } | undefined;
+
+      if (current?.telegram_link || current?.discord_link) {
+        throw new Error("LINK_SHARED");
+      }
+
       db.prepare("DELETE FROM pending_telegram_groups WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM listing_applications WHERE listing_id = ?").run(listingId);
       db.prepare("DELETE FROM listing_members WHERE listing_id = ?").run(listingId);
@@ -371,7 +379,17 @@ export async function DELETE(
       db.prepare("DELETE FROM listings WHERE id = ?").run(listingId);
     });
 
-    deleteTransaction();
+    try {
+      deleteTransaction();
+    } catch (txErr) {
+      if (txErr instanceof Error && txErr.message === "LINK_SHARED") {
+        return NextResponse.json(
+          { error: "Cannot delete a listing after the group chat link has been shared" },
+          { status: 400 }
+        );
+      }
+      throw txErr;
+    }
 
     // Send deletion notifications after transaction (listing_id is NULL since listing is gone)
     for (const member of members) {

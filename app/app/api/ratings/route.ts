@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (score < 1 || score > 5 || !Number.isInteger(score)) {
+  if (typeof score !== "number" || !Number.isInteger(score) || score < 1 || score > 5) {
     return NextResponse.json(
       { error: "Score must be an integer between 1 and 5" },
       { status: 400 }
