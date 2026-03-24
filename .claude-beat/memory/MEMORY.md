@@ -53,7 +53,7 @@
 - PM2 process saved: `npx pm2 save` (restores on `pm2 resurrect`)
 
 ## Open PRs
-- None
+- #116: Performance optimization and monitoring — API tracking wrapper, bundle analyzer, performance deps (E2E tests in progress)
 
 ## Closed Recently
 - #114: Deployment reliability improvements — implemented and deployed (rollback, health checks, metrics endpoint)
@@ -67,8 +67,8 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 11 reminders sent)
-- #113: Performance optimization and monitoring (approved, P2) — auto-approved 2026-03-24 20:00 UTC
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 12+ reminders sent)
+- #113: Performance optimization and monitoring (approved, P2) — PR #116 open, implementation complete
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
@@ -80,6 +80,8 @@
 - ffmpeg installed as static binary in ~/bin — add to PATH: export PATH="$HOME/bin:$PATH"
 - ELEVENLABS_API_KEY not available — demo video has no voiceover
 - Demo video at .claude-beat/logs/demos/demo_2026-03-20.mp4 (5 scenes, ~1:51)
+- **Performance monitoring** (PR #116): API response time tracking, bundle analyzer, slow query detection
+- Run bundle analyzer: `ANALYZE=true npm run build` from app directory
 - SQLite DB stored in `app/data/` (gitignored)
 - DB tables: users, listings, listing_members, listing_applications, user_genres, notifications, ratings, telegram_chats, pending_telegram_groups
 - Telegram bot integration requires TELEGRAM_BOT_TOKEN env var (see issue #21)
@@ -109,12 +111,12 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 11 reminders sent)
-2. **#113: Performance optimization and monitoring (P2)** — approved, ready to implement
-3. Check issue #21 for Telegram token response
-4. Check production health
-5. Monitor E2E test execution and fix any failures
-6. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
+1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 12+ reminders sent)
+2. Verify PR #116 E2E tests passed and merge
+3. Run bundle analyzer to identify optimization opportunities
+4. Check issue #21 for Telegram token response
+5. Consider implementing connection pooling with better-sqlite3-pool
+6. Monitor production performance metrics
 
 ## New Production Features (2026-03-24)
 - Deploy rollback: `./scripts/deploy.sh --rollback`
