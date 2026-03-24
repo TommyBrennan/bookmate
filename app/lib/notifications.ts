@@ -1,5 +1,6 @@
 import db from "./db";
 import { sendEmail } from "./email";
+import { escapeHtmlForEmail } from "./crypto-utils";
 
 function getUserEmail(userId: number): string | null {
   const user = db
@@ -22,7 +23,10 @@ export function createNotification(
   const email = getUserEmail(userId);
   if (email) {
     const subject = getEmailSubject(type);
-    sendEmail(email, subject, message).catch(() => {
+    // HTML-escape the message to prevent injection via user-controlled content
+    // (display names, book titles) embedded in notification messages
+    const htmlBody = `<p>${escapeHtmlForEmail(message)}</p>`;
+    sendEmail(email, subject, message, htmlBody).catch(() => {
       // Email sending is best-effort — don't block on failure
     });
   }

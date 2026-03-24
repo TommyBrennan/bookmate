@@ -42,6 +42,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Type check all string fields to prevent coercion bypasses
+    if (typeof bookTitle !== "string" || typeof bookAuthor !== "string" ||
+        typeof readingPace !== "string" || typeof startDate !== "string" ||
+        typeof meetingFormat !== "string") {
+      return NextResponse.json(
+        { error: "Invalid field types" },
+        { status: 400 }
+      );
+    }
+
+    if (typeof maxGroupSize !== "number" && typeof maxGroupSize !== "string") {
+      return NextResponse.json(
+        { error: "Invalid group size" },
+        { status: 400 }
+      );
+    }
+
     // Input length limits to prevent abuse
     if (bookTitle.length > 300 || bookAuthor.length > 200 || readingPace.length > 200) {
       return NextResponse.json(
@@ -72,7 +89,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const size = parseInt(maxGroupSize, 10);
+    const size = parseInt(String(maxGroupSize), 10);
     if (isNaN(size) || size < 2 || size > 20) {
       return NextResponse.json(
         { error: "Group size must be between 2 and 20" },

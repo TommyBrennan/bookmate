@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isBotConfigured, setWebhook, getBotInfo } from "@/lib/telegram";
+import { safeCompare } from "@/lib/crypto-utils";
 
 /**
  * POST /api/telegram/setup
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  if (body.secret !== setupSecret) {
+  if (!body.secret || typeof body.secret !== "string" || !safeCompare(body.secret, setupSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isBotConfigured, getBotInfo } from "@/lib/discord";
+import { safeCompare } from "@/lib/crypto-utils";
 
 /**
  * Discord bot setup endpoint.
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
   const { secret } = await req.json();
   const setupSecret = process.env.DISCORD_SETUP_SECRET || "";
 
-  if (!setupSecret || secret !== setupSecret) {
+  if (!setupSecret || !secret || typeof secret !== "string" || !safeCompare(secret, setupSecret)) {
     return NextResponse.json(
       { error: "Invalid setup secret" },
       { status: 403 }

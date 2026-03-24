@@ -157,13 +157,13 @@ export async function PATCH(
       platformPreference,
     } = body;
 
-    // Validate fields that are provided
-    if (readingPace !== undefined && (!readingPace || readingPace.length > 200)) {
+    // Validate fields that are provided — type check before string operations
+    if (readingPace !== undefined && (typeof readingPace !== "string" || !readingPace || readingPace.length > 200)) {
       return NextResponse.json({ error: "Reading pace is required (max 200 characters)" }, { status: 400 });
     }
 
     if (startDate !== undefined) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+      if (typeof startDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
         return NextResponse.json({ error: "Invalid start date format (expected YYYY-MM-DD)" }, { status: 400 });
       }
       const today = new Date().toISOString().split("T")[0];
@@ -172,12 +172,15 @@ export async function PATCH(
       }
     }
 
-    if (meetingFormat !== undefined && !["voice", "text", "mixed"].includes(meetingFormat)) {
+    if (meetingFormat !== undefined && (typeof meetingFormat !== "string" || !["voice", "text", "mixed"].includes(meetingFormat))) {
       return NextResponse.json({ error: "Invalid meeting format" }, { status: 400 });
     }
 
     if (maxGroupSize !== undefined) {
-      const size = parseInt(maxGroupSize, 10);
+      if (typeof maxGroupSize !== "number" && typeof maxGroupSize !== "string") {
+        return NextResponse.json({ error: "Invalid group size type" }, { status: 400 });
+      }
+      const size = parseInt(String(maxGroupSize), 10);
       if (isNaN(size) || size < 2 || size > 20) {
         return NextResponse.json({ error: "Group size must be between 2 and 20" }, { status: 400 });
       }

@@ -7,6 +7,7 @@ import {
   isValidSnowflake,
 } from "@/lib/discord";
 import { createNotification } from "@/lib/notifications";
+import { safeCompare } from "@/lib/crypto-utils";
 
 /**
  * Discord webhook endpoint for bot events.
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
   }
   const headerSecret = req.headers.get("X-Discord-Webhook-Secret");
-  if (headerSecret !== webhookSecret) {
+  if (!headerSecret || !safeCompare(headerSecret, webhookSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
