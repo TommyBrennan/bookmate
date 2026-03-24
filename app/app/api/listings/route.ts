@@ -3,6 +3,11 @@ import db from "@/lib/db";
 
 const PAGE_SIZE = 20;
 
+/** Escape LIKE metacharacters so user input is matched literally */
+function escapeLike(value: string): string {
+  return value.replace(/[%_\\]/g, "\\$&");
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
@@ -34,8 +39,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (q && q.length <= 300) {
-    conditions.push("(l.book_title LIKE ? OR l.book_author LIKE ?)");
-    params.push(`%${q}%`, `%${q}%`);
+    conditions.push("(l.book_title LIKE ? ESCAPE '\\' OR l.book_author LIKE ? ESCAPE '\\')");
+    params.push(`%${escapeLike(q)}%`, `%${escapeLike(q)}%`);
   }
 
   if (meetingFormat && ["voice", "text", "mixed"].includes(meetingFormat)) {
@@ -44,15 +49,18 @@ export async function GET(request: NextRequest) {
   }
 
   if (readingPace && readingPace.length <= 200) {
-    conditions.push("l.reading_pace LIKE ?");
-    params.push(`%${readingPace}%`);
+    conditions.push("l.reading_pace LIKE ? ESCAPE '\\'");
+    params.push(`%${escapeLike(readingPace)}%`);
   }
 
   const whereClause = conditions.join(" AND ");
 
-  let orderClause = "l.created_at DESC";
-  if (sort === "oldest") orderClause = "l.created_at ASC";
-  else if (sort === "start_date") orderClause = "l.start_date ASC";
+  const ORDER_MAP: Record<string, string> = {
+    newest: "l.created_at DESC",
+    oldest: "l.created_at ASC",
+    start_date: "l.start_date ASC",
+  };
+  const orderClause = ORDER_MAP[sort] ?? "l.created_at DESC";
 
   const offset = (page - 1) * PAGE_SIZE;
 
