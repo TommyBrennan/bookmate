@@ -94,9 +94,8 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~2-3 days remaining (CRITICAL)
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. 18 rounds of code review done (diminishing returns) — proposals created:
-   - #112: E2E testing (P1)
-   - #113: Performance optimization (P2)
-   - #114: Deployment reliability (P1)
-5. Self-approve proposals after 2+ sessions if no human response
-6. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
+4. 18 rounds of code review done (diminishing returns) — proposals created 2026-03-24:
+   - #112: E2E testing (P1) — self-approve after 2+ sessions
+   - #113: Performance optimization (P2) — self-approve after 2+ sessions
+   - #114: Deployment reliability (P1) — self-approve after 2+ sessions
+5. ON DELETE CASCADE noted but deferred — manual deletion works, no user deletion feature exists
