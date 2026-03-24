@@ -119,7 +119,11 @@ export async function PATCH(
         notifyApplicationDecision(applicantUserId, listingId, "approved");
 
         if (result.isFull) {
-          notifyGroupFull(listingId);
+          notifyGroupFull(
+            listingId,
+            listing.book_title as string,
+            listing.platform_preference as string
+          );
           for (const app of result.rejectedApps) {
             notifyApplicationDecision(app.user_id, listingId, "rejected");
           }

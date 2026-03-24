@@ -10,6 +10,14 @@ export async function PATCH(req: NextRequest) {
 
   const { displayName, bio } = await req.json();
 
+  // Type-check before string operations to prevent TypeError on non-string input
+  if (typeof displayName !== "string") {
+    return NextResponse.json({ error: "Display name must be a string" }, { status: 400 });
+  }
+  if (bio !== undefined && typeof bio !== "string") {
+    return NextResponse.json({ error: "Bio must be a string" }, { status: 400 });
+  }
+
   if (!displayName || displayName.trim().length === 0) {
     return NextResponse.json({ error: "Display name is required" }, { status: 400 });
   }

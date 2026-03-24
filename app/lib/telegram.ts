@@ -13,11 +13,21 @@
  * - Bot creates an invite link and saves it to the listing
  */
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
-const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+/**
+ * Read bot token live from process.env on each call — not at module load time.
+ * Module-level constants would be frozen when the file is first imported,
+ * missing any env vars set or changed after server startup.
+ */
+function getBotToken(): string {
+  return process.env.TELEGRAM_BOT_TOKEN || "";
+}
+
+function getTelegramApi(): string {
+  return `https://api.telegram.org/bot${getBotToken()}`;
+}
 
 export function isBotConfigured(): boolean {
-  return BOT_TOKEN.length > 0;
+  return getBotToken().length > 0;
 }
 
 /**
@@ -27,7 +37,7 @@ async function callApi<T = unknown>(
   method: string,
   params?: Record<string, unknown>
 ): Promise<{ ok: boolean; result?: T; description?: string }> {
-  const res = await fetch(`${TELEGRAM_API}/${method}`, {
+  const res = await fetch(`${getTelegramApi()}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params || {}),

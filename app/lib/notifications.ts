@@ -118,31 +118,36 @@ export function notifyApplicationDecision(
   }
 }
 
-export function notifyGroupFull(listingId: number) {
-  const listing = db
-    .prepare("SELECT book_title, platform_preference, author_id FROM listings WHERE id = ?")
-    .get(listingId) as { book_title: string; platform_preference: string; author_id: number } | undefined;
+/**
+ * Notify all members that the group is full.
+ * Accepts listing data as parameters to avoid re-querying outside the
+ * join transaction (which could return stale platform_preference if
+ * a concurrent PATCH changed it between the transaction commit and this call).
+ */
+export function notifyGroupFull(
+  listingId: number,
+  bookTitle: string,
+  platformPreference: string
+) {
   // Include all members (including the author) — author needs to know group is full to create the chat
   const members = db
     .prepare("SELECT user_id FROM listing_members WHERE listing_id = ?")
     .all(listingId) as { user_id: number }[];
 
-  if (listing) {
-    const platform = listing.platform_preference === "discord" ? "Discord" : "Telegram";
-    const botConfigured = listing.platform_preference === "discord"
-      ? !!process.env.DISCORD_BOT_TOKEN
-      : !!process.env.TELEGRAM_BOT_TOKEN;
-    const message = botConfigured
-      ? `The reading group for "${listing.book_title}" is now full! The ${platform} group will be set up automatically.`
-      : `The reading group for "${listing.book_title}" is now full! The organizer will share a ${platform} link soon.`;
+  const platform = platformPreference === "discord" ? "Discord" : "Telegram";
+  const botConfigured = platformPreference === "discord"
+    ? !!process.env.DISCORD_BOT_TOKEN
+    : !!process.env.TELEGRAM_BOT_TOKEN;
+  const message = botConfigured
+    ? `The reading group for "${bookTitle}" is now full! The ${platform} group will be set up automatically.`
+    : `The reading group for "${bookTitle}" is now full! The organizer will share a ${platform} link soon.`;
 
-    for (const member of members) {
-      createNotification(
-        member.user_id,
-        listingId,
-        "group_full",
-        message
-      );
-    }
+  for (const member of members) {
+    createNotification(
+      member.user_id,
+      listingId,
+      "group_full",
+      message
+    );
   }
 }

@@ -295,6 +295,6 @@ describe("POST /api/listings/[id]/join", () => {
     const req = createTestRequest(`/api/listings/${listingId}/join`, { method: "POST" });
     await POST(req, createParams(String(listingId)));
 
-    expect(notifyGroupFull).toHaveBeenCalledWith(listingId);
+    expect(notifyGroupFull).toHaveBeenCalledWith(listingId, expect.any(String), expect.any(String));
   });
 });
