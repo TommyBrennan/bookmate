@@ -44,11 +44,11 @@
 - None
 
 ## Closed Recently
+- #95: Code review round 10 — FK violations, stale notifications, input validation, error UX — merged + deployed
 - #93: Code review round 9 — client-side race conditions, date bugs, error handling, ARIA — merged + deployed
 - #91: Code review round 8 — timing-safe secrets, type validation, stale transaction data, email HTML escaping — merged + deployed
 - #87: Code review round 6 — logout fix, is_full reset, email subjects, webhook validation, fetch abort — merged + deployed
 - #85: Test coverage for Telegram and Discord API routes (69 new tests) — merged
-- #83: Code review round 5 — duplicate notifications, platform link timing, validation — merged + deployed
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting
@@ -77,7 +77,7 @@
 - PM2 available via npx (not globally installed)
 
 ## Test Suite
-- 197 tests across 22 test files, all passing
+- 198 tests across 22 test files, all passing
 - Tested: auth (login, register), health, listings (browse, detail, create, join, edit, delete, telegram, discord, auto-telegram, auto-discord), notifications, profile, profile/genres, profile/reading, profile/reputation, ratings, rate-limit, telegram/setup, telegram/webhook, discord/setup, discord/webhook
 - All API routes now have test coverage
 - @vitest/coverage-v8 installed for coverage reporting
@@ -89,4 +89,4 @@
 1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining, still needs-human
 2. Check issue #21 for Telegram token response
 3. Check production health
-4. All routes tested, 9 rounds of code review done (8 API-side + 1 client-side) — consider E2E testing, performance, or new feature proposals
+4. All routes tested, 10 rounds of code review done — consider E2E testing, performance optimization, or new feature proposals
