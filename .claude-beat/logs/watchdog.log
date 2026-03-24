@@ -1,0 +1,316 @@
+2026-03-21 14:01:57 OK — server healthy (HTTP 200)
+2026-03-21 14:19:04 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 410381   │ 0s     │ 8    │ online    │ 0%       │ 51.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-21 14:19:16 RECOVERED — server responding after restart (HTTP 200)
+2026-03-21 15:00:01 OK — server healthy (HTTP 200)
+2026-03-21 16:00:01 OK — server healthy (HTTP 200)
+2026-03-21 17:00:01 OK — server healthy (HTTP 200)
+2026-03-21 18:00:01 OK — server healthy (HTTP 200)
+2026-03-21 19:00:01 OK — server healthy (HTTP 200)
+2026-03-21 20:00:01 OK — server healthy (HTTP 200)
+2026-03-21 21:00:01 OK — server healthy (HTTP 200)
+2026-03-21 22:00:01 OK — server healthy (HTTP 200)
+2026-03-21 23:00:01 OK — server healthy (HTTP 200)
+2026-03-22 00:00:01 OK — server healthy (HTTP 200)
+2026-03-22 01:00:01 OK — server healthy (HTTP 200)
+2026-03-22 02:00:01 OK — server healthy (HTTP 200)
+2026-03-22 03:00:01 OK — server healthy (HTTP 200)
+2026-03-22 04:00:01 OK — server healthy (HTTP 200)
+2026-03-22 05:00:01 OK — server healthy (HTTP 200)
+2026-03-22 06:00:01 OK — server healthy (HTTP 200)
+2026-03-22 07:00:01 OK — server healthy (HTTP 200)
+2026-03-22 08:00:01 OK — server healthy (HTTP 200)
+2026-03-22 09:00:01 OK — server healthy (HTTP 200)
+2026-03-22 10:00:01 OK — server healthy (HTTP 200)
+2026-03-22 11:00:01 OK — server healthy (HTTP 200)
+2026-03-22 12:00:01 OK — server healthy (HTTP 200)
+2026-03-22 13:00:01 OK — server healthy (HTTP 200)
+2026-03-22 14:00:01 OK — server healthy (HTTP 200)
+2026-03-22 15:00:01 OK — server healthy (HTTP 200)
+2026-03-22 16:00:01 OK — server healthy (HTTP 200)
+2026-03-22 17:00:01 OK — server healthy (HTTP 200)
+2026-03-22 18:00:01 OK — server healthy (HTTP 200)
+2026-03-22 19:00:01 OK — server healthy (HTTP 200)
+2026-03-22 20:00:01 OK — server healthy (HTTP 200)
+2026-03-22 21:00:01 OK — server healthy (HTTP 200)
+2026-03-22 22:00:01 OK — server healthy (HTTP 200)
+2026-03-22 23:00:01 OK — server healthy (HTTP 200)
+2026-03-23 00:00:01 OK — server healthy (HTTP 200)
+2026-03-23 01:00:01 OK — server healthy (HTTP 200)
+2026-03-23 02:00:01 OK — server healthy (HTTP 200)
+2026-03-23 03:00:01 OK — server healthy (HTTP 200)
+2026-03-23 04:00:01 OK — server healthy (HTTP 200)
+2026-03-23 05:00:01 OK — server healthy (HTTP 200)
+2026-03-23 06:00:01 OK — server healthy (HTTP 200)
+2026-03-23 07:00:01 OK — server healthy (HTTP 200)
+2026-03-23 08:00:01 OK — server healthy (HTTP 200)
+2026-03-23 09:00:01 OK — server healthy (HTTP 200)
+2026-03-23 10:00:01 OK — server healthy (HTTP 200)
+2026-03-23 11:00:01 OK — server healthy (HTTP 200)
+2026-03-23 11:41:30 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 494484   │ 0s     │ 9    │ online    │ 0%       │ 50.6mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 11:54:38 RECOVERED — server responding after restart (HTTP 200)
+2026-03-23 12:00:01 OK — server healthy (HTTP 200)
+2026-03-23 13:00:01 OK — server healthy (HTTP 200)
+2026-03-23 14:00:01 OK — server healthy (HTTP 200)
+2026-03-23 15:00:01 OK — server healthy (HTTP 200)
+2026-03-23 16:00:01 OK — server healthy (HTTP 200)
+2026-03-23 17:00:01 OK — server healthy (HTTP 200)
+2026-03-23 18:03:46 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-23 18:03:46 OK — server healthy (HTTP 200)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 519923   │ 0s     │ 7    │ online    │ 0%       │ 49.4mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 18:08:06 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-23 18:08:17 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-23 18:38:09 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 521018   │ 0s     │ 14   │ online    │ 0%       │ 44.1mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 18:54:50 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 521286   │ 0s     │ 16   │ online    │ 0%       │ 45.1mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 18:54:55 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-23 18:58:27 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-23 19:03:41 CRITICAL — server still unresponsive after restart (HTTP 000000)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 521663   │ 0s     │ 18   │ online    │ 0%       │ 44.4mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 521813   │ 0s     │ 20   │ online    │ 0%       │ 51.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 19:03:51 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-23 19:03:51 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-23 19:04:04 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-23 19:04:07 CRITICAL — server still unresponsive after restart (HTTP 000000)
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 522113   │ 0s     │ 24   │ online    │ 0%       │ 52.1mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-23 19:09:34 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-23 20:00:01 OK — server healthy (HTTP 200)
+2026-03-23 21:00:01 OK — server healthy (HTTP 200)
+2026-03-23 22:00:01 OK — server healthy (HTTP 200)
+2026-03-23 23:00:01 OK — server healthy (HTTP 200)
+2026-03-24 00:00:02 OK — server healthy (HTTP 200)
+2026-03-24 01:00:01 OK — server healthy (HTTP 200)
+2026-03-24 01:20:36 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 01:23:45 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 547238   │ 0s     │ 1    │ online    │ 0%       │ 51.3mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 01:41:30 CRITICAL — server still unresponsive after restart (HTTP 404)
+2026-03-24 01:45:56 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 01:50:43 ALERT — server unresponsive after 2 attempts (last HTTP 500). Restarting PM2...
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 548571   │ 0s     │ 2    │ online    │ 0%       │ 50.6mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 01:55:29 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 01:55:34 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 02:07:06 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 02:13:16 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 549469   │ 0s     │ 6    │ online    │ 0%       │ 50.9mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 02:20:24 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 02:20:24 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 02:25:54 CRITICAL — server still unresponsive after restart (HTTP 000000)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 549828   │ 0s     │ 8    │ online    │ 0%       │ 51.3mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 02:45:54 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 02:52:30 CRITICAL — server still unresponsive after restart (HTTP 000000)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 550344   │ 0s     │ 10   │ online    │ 0%       │ 42.7mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 03:08:59 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 03:08:59 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 03:35:21 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 03:35:47 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 03:35:52 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+2026-03-24 04:13:16 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 551370   │ 59s    │ 12   │ online    │ 0%       │ 12.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 04:22:39 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 04:25:35 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 04:25:42 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 551754   │ 0s     │ 13   │ online    │ 0%       │ 50.6mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 04:37:45 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 04:37:52 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+2026-03-24 04:37:52 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+2026-03-24 04:40:58 CRITICAL — server still unresponsive after restart (HTTP 000000)
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 551969   │ 0s     │ 14   │ online    │ 0%       │ 51.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 551993   │ 0s     │ 15   │ online    │ 0%       │ 46.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 552010   │ 0s     │ 16   │ online    │ 0%       │ 45.3mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+[PM2][ERROR] Process 0 not found
+[PM2][ERROR] Process 0 not found
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 552075   │ 0s     │ 17   │ online    │ 0%       │ 44.0mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+2026-03-24 04:41:09 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 04:41:10 CRITICAL — server still unresponsive after restart (HTTP 000000)
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 552134   │ 0s     │ 18   │ online    │ 0%       │ 50.9mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 04:41:10 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 04:41:11 ALERT — server unresponsive after 2 attempts (last HTTP 000000). Restarting PM2...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bookmate](ids: [ 0 ])
+2026-03-24 04:41:27 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 04:41:31 CRITICAL — server still unresponsive after restart (HTTP 000000)
+[PM2] [bookmate](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bookmate    │ default     │ 0.1.0   │ cluster │ 552277   │ 0s     │ 20   │ online    │ 0%       │ 19.5mb   │ claude-… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+2026-03-24 04:41:44 CRITICAL — server still unresponsive after restart (HTTP 000000)
+2026-03-24 05:00:01 OK — server healthy (HTTP 200)
+2026-03-24 06:00:01 OK — server healthy (HTTP 200)
+2026-03-24 07:00:01 OK — server healthy (HTTP 200)
+2026-03-24 08:00:01 OK — server healthy (HTTP 200)
+2026-03-24 09:00:01 OK — server healthy (HTTP 200)
+2026-03-24 10:00:01 OK — server healthy (HTTP 200)
+2026-03-24 11:00:01 OK — server healthy (HTTP 200)
+2026-03-24 12:00:01 OK — server healthy (HTTP 200)
+2026-03-24 13:00:01 OK — server healthy (HTTP 200)
+2026-03-24 14:00:01 OK — server healthy (HTTP 200)
+2026-03-24 15:00:01 OK — server healthy (HTTP 200)
