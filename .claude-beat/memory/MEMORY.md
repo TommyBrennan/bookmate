@@ -53,7 +53,7 @@
 - PM2 process saved: `npx pm2 save` (restores on `pm2 resurrect`)
 
 ## Open PRs
-- #116: Performance optimization and monitoring — API tracking wrapper, bundle analyzer, performance deps (E2E tests in progress)
+- None (all PRs merged)
 
 ## Closed Recently
 - #114: Deployment reliability improvements — implemented and deployed (rollback, health checks, metrics endpoint)
@@ -67,8 +67,10 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 12+ reminders sent)
-- #113: Performance optimization and monitoring (approved, P2) — PR #116 open, implementation complete
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~3 days left (CRITICAL, 13+ reminders sent)
+
+## Closed Recently
+- #113: Performance optimization and monitoring — ✅ IMPLEMENTED, MERGED, DEPLOYED (2026-03-24 23:01 UTC)
 
 ## Important Notes
 - GH_TOKEN loaded from `.claude-beat/.env`
