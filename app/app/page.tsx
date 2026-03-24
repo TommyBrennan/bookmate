@@ -88,6 +88,14 @@ export default function HomePage() {
     fetchListings("", "", "newest", "", "", 1);
   }, [fetchListings]);
 
+  // Cleanup debounce timer and in-flight request on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (abortRef.current) abortRef.current.abort();
+    };
+  }, []);
+
   // Debounced search
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);

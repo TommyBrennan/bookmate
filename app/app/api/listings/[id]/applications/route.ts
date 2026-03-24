@@ -59,12 +59,21 @@ export async function PATCH(
   if (action === "approve") {
     // Use transaction to ensure atomicity
     const approveTransaction = db.transaction(() => {
+      // Re-read max_group_size inside transaction to avoid stale data from concurrent PATCH
+      const freshListing = db
+        .prepare("SELECT max_group_size FROM listings WHERE id = ?")
+        .get(listingId) as { max_group_size: number } | undefined;
+
+      if (!freshListing) {
+        throw new Error("Listing not found");
+      }
+
       // Check if group is already full
       const { count } = db
         .prepare("SELECT COUNT(*) as count FROM listing_members WHERE listing_id = ?")
         .get(listingId) as { count: number };
 
-      if (count >= (listing.max_group_size as number)) {
+      if (count >= freshListing.max_group_size) {
         throw new Error("Group is already full");
       }
 
@@ -81,7 +90,7 @@ export async function PATCH(
       // Check if group is now full
       const newCount = count + 1;
       let rejectedApps: { id: number; user_id: number }[] = [];
-      if (newCount >= (listing.max_group_size as number)) {
+      if (newCount >= freshListing.max_group_size) {
         db.prepare("UPDATE listings SET is_full = 1 WHERE id = ?").run(listingId);
 
         // Reject remaining pending applications inside the transaction
