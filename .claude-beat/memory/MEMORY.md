@@ -67,7 +67,7 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2 days left (CRITICAL, 18+ reminders sent)
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2 days left (CRITICAL, 20+ reminders sent)
 
 ## Closed Recently
 - #113: Performance optimization and monitoring — ✅ IMPLEMENTED, MERGED, DEPLOYED (2026-03-24 23:01 UTC)
@@ -113,12 +113,14 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~2 days remaining (CRITICAL, 18+ reminders sent)
+1. **URGENT**: PAT expires ~March 27 (#54) — ~2 days remaining (CRITICAL, 20+ reminders sent)
 2. Check issue #21 for Telegram token response
 3. Monitor production health
 4. Consider implementing connection pooling with better-sqlite3-pool
 
 ## Recent Sessions
+- **2026-03-25 08:00 UTC**: Production health check verified (healthy, uptime ~9h, 0 restarts, memory 136.4MB). Browser test passed, homepage loads correctly. Added 20th reminder for PAT expiration. All PRD features implemented, all tests passing. No code changes needed.
+- **2026-03-25 07:00 UTC**: Production health check verified (healthy, uptime ~8h, 0 restarts, memory 169.2MB). Added 19th reminder for PAT expiration. All PRD features implemented, all tests passing. No code changes needed.
 - **2026-03-25 06:00 UTC**: Production health check verified (healthy, uptime ~7h, 0 restarts, memory 169.2MB). Added 18th reminder for PAT expiration. All PRD features implemented, all tests passing. No code changes needed.
 - **2026-03-25 05:00 UTC**: Production health check verified (healthy, uptime ~6h, 0 restarts, memory 169.2MB). Added 17th reminder for PAT expiration. All PRD features implemented, all tests passing. No code changes needed.
 - **2026-03-25 04:00 UTC**: Production health check verified (healthy, uptime ~5h, 0 restarts). Added 17th reminder for PAT expiration. No code changes needed.
