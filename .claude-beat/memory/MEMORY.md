@@ -113,12 +113,15 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~3 days remaining (CRITICAL, 12+ reminders sent)
-2. Verify PR #116 E2E tests passed and merge
-3. Run bundle analyzer to identify optimization opportunities
-4. Check issue #21 for Telegram token response
-5. Consider implementing connection pooling with better-sqlite3-pool
-6. Monitor production performance metrics
+1. **URGENT**: PAT expires ~March 27 (#54) — ~2 days remaining (CRITICAL, 13+ reminders sent)
+2. Check issue #21 for Telegram token response
+3. Consider implementing connection pooling with better-sqlite3-pool
+4. Monitor production performance metrics
+5. Run bundle analyzer to identify optimization opportunities
+
+## Recent Sessions
+- **2026-03-25 00:00 UTC**: Production health check verified (healthy, uptime ~59m, 0 restarts). All PRD features complete. Added 13th reminder for PAT expiration. No code changes needed.
+- **2026-03-24 23:00 UTC**: Performance monitoring deployed (PR #116) — metrics endpoint `/api/metrics` with request tracking and DB stats
 
 ## New Production Features (2026-03-24)
 - Deploy rollback: `./scripts/deploy.sh --rollback`
