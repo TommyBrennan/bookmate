@@ -67,7 +67,7 @@
 
 ## Open Issues
 - #21: Telegram bot token (needs-human) — multiple follow-up reminders sent, still waiting (not blocking)
-- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2 days left (CRITICAL, 16+ reminders sent)
+- #54: **PAT expires ~March 27** (needs-human) — GH_TOKEN renewal required, ~2 days left (CRITICAL, 17+ reminders sent)
 
 ## Closed Recently
 - #113: Performance optimization and monitoring — ✅ IMPLEMENTED, MERGED, DEPLOYED (2026-03-24 23:01 UTC)
@@ -113,12 +113,13 @@
 - `BookCover` — reusable book cover component with error fallback, uses `unoptimized` to bypass Next.js image proxy for Open Library covers that redirect through archive.org
 
 ## Next Session Priority
-1. **URGENT**: PAT expires ~March 27 (#54) — ~2 days remaining (CRITICAL, 16+ reminders sent)
+1. **URGENT**: PAT expires ~March 27 (#54) — ~2 days remaining (CRITICAL, 17+ reminders sent)
 2. Check issue #21 for Telegram token response
 3. Monitor production health
 4. Consider implementing connection pooling with better-sqlite3-pool
 
 ## Recent Sessions
+- **2026-03-25 04:00 UTC**: Production health check verified (healthy, uptime ~5h, 0 restarts). Added 17th reminder for PAT expiration. No code changes needed.
 - **2026-03-25 03:00 UTC**: Production health check verified (healthy, uptime ~4h, 0 restarts). Added 16th reminder for PAT expiration. No code changes needed.
 - **2026-03-25 02:00 UTC**: Production health check verified (healthy, uptime ~3h, 0 restarts). Created REPOSITORY.md (missing from bootstrap). Added 15th reminder for PAT expiration. No code changes needed.
 - **2026-03-25 01:00 UTC**: Production health check verified (healthy, uptime ~2h, 0 restarts). Bundle analyzer run — 102-115 kB first load JS (healthy). Metrics endpoint verified. Added 14th reminder for PAT expiration. No code changes needed.

@@ -85,7 +85,7 @@ See `app/.env.example` for required variables. Critical:
 
 ## Open Issues
 
-- #54: GitHub PAT expires ~March 27, 2026 (CRITICAL - needs renewal)
+- #54: GitHub PAT expires ~March 27, 2026 (CRITICAL - needs renewal, 17+ reminders sent)
 - #21: Telegram bot token needed for auto-group creation (optional feature)
 
 ## Documentation
